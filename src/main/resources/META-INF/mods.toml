@@ -1,0 +1,14 @@
+modLoader = "javafml"
+loaderVersion = "[36,)"
+license = "MIt License"
+issueTrackerURL = "https://github.com/darkorg69/better-leveling/issues"
+
+[[mods]]
+modId = "betterleveling"
+version = "${file.jarVersion}"
+displayName = "Better Leveling"
+displayURL = "https://www.curseforge.com/minecraft/mc-mods/better-leveling"
+logoFile = "betterleveling.png"
+credits = "Thanks for this mod goes to Java and the Forge team."
+authors = "Darkorg"
+description = '''Level up your character, become better at various skills!'''

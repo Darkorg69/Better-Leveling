@@ -1,0 +1,11 @@
+{
+  "conditions": [
+    {
+      "condition": "forge:loot_table_id",
+      "loot_table_id": "minecraft:blocks/nether_quartz_ore"
+    }
+  ],
+  "addition": "minecraft:quartz",
+  "skillName": "prospecting",
+  "type": "betterleveling:block_loot"
+}

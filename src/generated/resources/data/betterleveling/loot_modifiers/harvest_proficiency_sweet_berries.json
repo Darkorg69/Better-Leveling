@@ -1,0 +1,14 @@
+{
+  "conditions": [
+    {
+      "condition": "minecraft:block_state_property",
+      "block": "minecraft:sweet_berry_bush",
+      "properties": {
+        "age": "3"
+      }
+    }
+  ],
+  "addition": "minecraft:sweet_berries",
+  "skillName": "harvest_proficiency",
+  "type": "betterleveling:block_loot"
+}

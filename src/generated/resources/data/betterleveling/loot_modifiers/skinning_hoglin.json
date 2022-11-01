@@ -1,0 +1,11 @@
+{
+  "conditions": [
+    {
+      "condition": "forge:loot_table_id",
+      "loot_table_id": "minecraft:entities/hoglin"
+    }
+  ],
+  "addition": "minecraft:leather",
+  "skillName": "skinning",
+  "type": "betterleveling:entity_loot"
+}

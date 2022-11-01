@@ -1,0 +1,14 @@
+{
+  "conditions": [
+    {
+      "condition": "minecraft:block_state_property",
+      "block": "minecraft:potatoes",
+      "properties": {
+        "age": "7"
+      }
+    }
+  ],
+  "addition": "minecraft:potato",
+  "skillName": "harvest_proficiency",
+  "type": "betterleveling:block_loot"
+}

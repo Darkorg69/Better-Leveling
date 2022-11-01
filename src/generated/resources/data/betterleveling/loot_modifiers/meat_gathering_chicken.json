@@ -1,0 +1,11 @@
+{
+  "conditions": [
+    {
+      "condition": "forge:loot_table_id",
+      "loot_table_id": "minecraft:entities/chicken"
+    }
+  ],
+  "addition": "minecraft:chicken",
+  "skillName": "meat_gathering",
+  "type": "betterleveling:entity_loot"
+}

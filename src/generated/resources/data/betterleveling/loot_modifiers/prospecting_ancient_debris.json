@@ -1,0 +1,11 @@
+{
+  "conditions": [
+    {
+      "condition": "forge:loot_table_id",
+      "loot_table_id": "minecraft:blocks/ancient_debris"
+    }
+  ],
+  "addition": "minecraft:ancient_debris",
+  "skillName": "prospecting",
+  "type": "betterleveling:block_loot"
+}

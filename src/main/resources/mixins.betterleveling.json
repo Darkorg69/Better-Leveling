@@ -1,0 +1,13 @@
+{
+  "required": true,
+  "minVersion": "0.8.4",
+  "package": "darkorg.betterleveling.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "mixins": [
+    "MixinAbstractFurnaceTileEntity"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "refmap": "mixins.betterleveling.refmap.json"
+}
