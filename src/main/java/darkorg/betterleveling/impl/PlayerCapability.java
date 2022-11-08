@@ -5,6 +5,7 @@ import darkorg.betterleveling.api.ISkill;
 import darkorg.betterleveling.api.ISpecialization;
 import darkorg.betterleveling.config.ServerConfig;
 import darkorg.betterleveling.network.NetworkHandler;
+import darkorg.betterleveling.network.chat.ModTextComponents;
 import darkorg.betterleveling.network.packets.SyncDataS2CPacket;
 import darkorg.betterleveling.registry.SkillRegistry;
 import darkorg.betterleveling.registry.SpecRegistry;
@@ -20,8 +21,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static darkorg.betterleveling.network.chat.ModTextComponents.*;
 
 public class PlayerCapability implements IPlayerCapability {
     private CompoundNBT data;
@@ -59,7 +58,7 @@ public class PlayerCapability implements IPlayerCapability {
 
     @Override
     public boolean getUnlocked(PlayerEntity pPlayer, ISpecialization pSpecialization) {
-        if (pPlayer.world.isRemote) return this.specMap.getOrDefault(pSpecialization, false);
+        if (pPlayer.level.isClientSide) return this.specMap.getOrDefault(pSpecialization, false);
 
         for (INBT tag : this.data.getList("Specs", 10)) {
             CompoundNBT nbt = (CompoundNBT) tag;
@@ -77,13 +76,13 @@ public class PlayerCapability implements IPlayerCapability {
             int unlockCost = pSpecialization.getLevelCost();
 
             if (unlockCost <= pServerPlayer.experienceLevel) {
-                pServerPlayer.addExperienceLevel(-unlockCost);
+                pServerPlayer.giveExperienceLevels(-unlockCost);
                 setUnlocked(pServerPlayer, pSpecialization, pUnlocked);
             } else {
-                pServerPlayer.sendStatusMessage(NOT_ENOUGH_XP, true);
+                pServerPlayer.displayClientMessage(ModTextComponents.NOT_ENOUGH_XP, true);
             }
         } else {
-            pServerPlayer.addExperienceLevel(-ServerConfig.firstSpecLevelCost.get());
+            pServerPlayer.giveExperienceLevels(-ServerConfig.firstSpecLevelCost.get());
             setUnlocked(pServerPlayer, pSpecialization, pUnlocked);
         }
     }
@@ -99,7 +98,7 @@ public class PlayerCapability implements IPlayerCapability {
         boolean canUnlock = pPlayer.experienceLevel >= ServerConfig.firstSpecLevelCost.get();
 
         if (!canUnlock) {
-            pPlayer.sendStatusMessage(new TranslationTextComponent("").appendSibling(CHOOSE_NO_XP).appendString(" ").appendString(String.valueOf(ServerConfig.firstSpecLevelCost.get())), true);
+            pPlayer.displayClientMessage(new TranslationTextComponent("").append(ModTextComponents.CHOOSE_NO_XP).append(" ").append(String.valueOf(ServerConfig.firstSpecLevelCost.get())), true);
         }
         return canUnlock;
     }
@@ -124,7 +123,7 @@ public class PlayerCapability implements IPlayerCapability {
 
     @Override
     public int getLevel(PlayerEntity pPlayer, ISkill pSkill) {
-        if (pPlayer.world.isRemote) return this.skillMap.getOrDefault(pSkill, 0);
+        if (pPlayer.level.isClientSide) return this.skillMap.getOrDefault(pSkill, 0);
 
         for (INBT tag : this.data.getList("Skills", 10)) {
             CompoundNBT nbt = (CompoundNBT) tag;
@@ -148,21 +147,21 @@ public class PlayerCapability implements IPlayerCapability {
 
         if (pLevel > 0) {
             if (currentLevel >= pSkill.getMaxLevel()) {
-                pServerPlayer.sendStatusMessage(CANNOT_INCREASE, true);
+                pServerPlayer.displayClientMessage(ModTextComponents.CANNOT_INCREASE, true);
             } else {
                 int levelCost = pSkill.getLevelCost(currentLevel);
                 if (levelCost <= pServerPlayer.experienceLevel) {
-                    pServerPlayer.addExperienceLevel(-levelCost);
+                    pServerPlayer.giveExperienceLevels(-levelCost);
                     setLevel(pServerPlayer, pSkill, currentLevel + pLevel);
                 } else {
-                    pServerPlayer.sendStatusMessage(NOT_ENOUGH_XP, true);
+                    pServerPlayer.displayClientMessage(ModTextComponents.NOT_ENOUGH_XP, true);
                 }
             }
         } else {
             if (currentLevel <= pSkill.getMinLevel()) {
-                pServerPlayer.sendStatusMessage(CANNOT_DECREASE, true);
+                pServerPlayer.displayClientMessage(ModTextComponents.CANNOT_DECREASE, true);
             } else {
-                pServerPlayer.addExperienceLevel(currentLevel);
+                pServerPlayer.giveExperienceLevels(currentLevel);
                 setLevel((pServerPlayer), pSkill, currentLevel + pLevel);
             }
         }

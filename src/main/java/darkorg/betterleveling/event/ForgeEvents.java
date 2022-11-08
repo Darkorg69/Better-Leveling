@@ -4,6 +4,7 @@ import darkorg.betterleveling.BetterLeveling;
 import darkorg.betterleveling.capability.PlayerCapabilityProvider;
 import darkorg.betterleveling.capability.TileEntityCapabilityProvider;
 import darkorg.betterleveling.config.ServerConfig;
+import darkorg.betterleveling.network.chat.ModTextComponents;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
@@ -18,8 +19,6 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.common.Mod;
 
-import static darkorg.betterleveling.network.chat.ModTextComponents.*;
-
 @Mod.EventBusSubscriber(modid = BetterLeveling.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class ForgeEvents {
     @SubscribeEvent
@@ -29,7 +28,7 @@ public class ForgeEvents {
             PlayerEntity playerEntity = (PlayerEntity) entity;
             if (!playerEntity.getCapability(PlayerCapabilityProvider.PLAYER_CAP).isPresent()) {
                 PlayerCapabilityProvider provider = new PlayerCapabilityProvider();
-                event.addCapability(new ResourceLocation(BetterLeveling.MOD_ID, "player"), new PlayerCapabilityProvider());
+                event.addCapability(new ResourceLocation(BetterLeveling.MOD_ID, "player"), provider);
                 event.addListener(provider::invalidate);
             }
         }
@@ -53,10 +52,8 @@ public class ForgeEvents {
         Entity entity = event.getEntity();
         if (entity instanceof ServerPlayerEntity) {
             ServerPlayerEntity serverPlayer = (ServerPlayerEntity) entity;
-            if (!serverPlayer.getEntityWorld().isRemote()) {
-                serverPlayer.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(playerData -> {
-                    playerData.sendDataToPlayer(serverPlayer);
-                });
+            if (!serverPlayer.level.isClientSide) {
+                serverPlayer.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(capability -> capability.sendDataToPlayer(serverPlayer));
             }
         }
     }
@@ -64,8 +61,7 @@ public class ForgeEvents {
     @SubscribeEvent
     public static void onPlayerClone(PlayerEvent.Clone event) {
         if (!event.isWasDeath() || !ServerConfig.resetOnDeath.get()) {
-            PlayerEntity original = event.getOriginal();
-            original.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(oldCap -> {
+            event.getOriginal().getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(oldCap -> {
                 event.getEntity().getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(newCap -> {
                     newCap.setData(oldCap.getData());
                 });
@@ -79,7 +75,7 @@ public class ForgeEvents {
             PlayerEntity player = event.getPlayer();
             if (player instanceof ServerPlayerEntity) {
                 ServerPlayerEntity serverPlayer = (ServerPlayerEntity) player;
-                TileEntity tileEntity = event.getWorld().getTileEntity(event.getPos());
+                TileEntity tileEntity = event.getWorld().getBlockEntity(event.getPos());
                 if (tileEntity instanceof AbstractFurnaceTileEntity) {
                     AbstractFurnaceTileEntity abstractFurnaceTileEntity = (AbstractFurnaceTileEntity) tileEntity;
                     abstractFurnaceTileEntity.getCapability(TileEntityCapabilityProvider.TILE_CAP).ifPresent(capability -> {
@@ -87,16 +83,16 @@ public class ForgeEvents {
                             if (capability.isOwner(serverPlayer)) {
                                 if (serverPlayer.isCrouching() && event.getItemStack().isEmpty()) {
                                     capability.removeOwner();
-                                    serverPlayer.sendStatusMessage(UNREGISTER, true);
+                                    serverPlayer.displayClientMessage(ModTextComponents.UNREGISTER, true);
                                     event.setCanceled(true);
                                 }
                             } else {
                                 if (serverPlayer.isCrouching() && event.getItemStack().isEmpty()) {
-                                    serverPlayer.sendStatusMessage(NOT_OWNED, true);
+                                    serverPlayer.displayClientMessage(ModTextComponents.NOT_OWNED, true);
                                     event.setCanceled(true);
                                 } else {
                                     if (ServerConfig.lockBoundFurnaces.get()) {
-                                        serverPlayer.sendStatusMessage(NO_ACCESS, true);
+                                        serverPlayer.displayClientMessage(ModTextComponents.NO_ACCESS, true);
                                         event.setCanceled(true);
                                     }
                                 }
@@ -104,7 +100,7 @@ public class ForgeEvents {
                         } else {
                             if (serverPlayer.isCrouching() && event.getItemStack().isEmpty()) {
                                 capability.setOwner(serverPlayer);
-                                serverPlayer.sendStatusMessage(REGISTER, true);
+                                serverPlayer.displayClientMessage(ModTextComponents.REGISTER, true);
                                 event.setCanceled(true);
                             }
                         }

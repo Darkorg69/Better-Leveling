@@ -23,14 +23,14 @@ public class SyncDataS2CPacket {
      * Decodes data from the packet buffer
      */
     public SyncDataS2CPacket(PacketBuffer packetBuffer) {
-        this.data = packetBuffer.readCompoundTag();
+        this.data = packetBuffer.readNbt();
     }
 
     /**
      * Encodes data to the packet buffer
      */
     public static void encode(SyncDataS2CPacket packet, PacketBuffer packetBuffer) {
-        packetBuffer.writeCompoundTag(packet.data);
+        packetBuffer.writeNbt(packet.data);
     }
 
     /**

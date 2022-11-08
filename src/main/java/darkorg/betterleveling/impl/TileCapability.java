@@ -7,31 +7,31 @@ import net.minecraft.nbt.CompoundNBT;
 import java.util.UUID;
 
 public class TileCapability implements ITileCapability {
-    private UUID owner;
+    private UUID ownerId;
 
     @Override
-    public UUID getOwnerUUID() {
-        return this.owner;
+    public UUID getOwnerId() {
+        return this.ownerId;
     }
 
     @Override
     public void setOwner(PlayerEntity pPlayer) {
-        this.owner = PlayerEntity.getUUID(pPlayer.getGameProfile());
-    }
-
-    @Override
-    public boolean isOwner(PlayerEntity pPlayer) {
-        return this.owner == PlayerEntity.getUUID(pPlayer.getGameProfile());
+        this.ownerId = pPlayer.getUUID();
     }
 
     @Override
     public void removeOwner() {
-        this.owner = null;
+        this.ownerId = null;
     }
 
     @Override
     public boolean hasOwner() {
-        return this.owner != null;
+        return this.ownerId != null;
+    }
+
+    @Override
+    public boolean isOwner(PlayerEntity pPlayer) {
+        return this.ownerId == pPlayer.getUUID();
     }
 
     @Override
@@ -39,7 +39,7 @@ public class TileCapability implements ITileCapability {
         CompoundNBT data = new CompoundNBT();
 
         if (this.hasOwner()) {
-            data.putUniqueId("Owner", owner);
+            data.putUUID("Owner", ownerId);
         }
 
         return data;
@@ -48,7 +48,7 @@ public class TileCapability implements ITileCapability {
     @Override
     public void readNBT(CompoundNBT pData) {
         if (pData.contains("Owner")) {
-            this.owner = pData.getUniqueId("Owner");
+            this.ownerId = pData.getUUID("Owner");
         }
     }
 }

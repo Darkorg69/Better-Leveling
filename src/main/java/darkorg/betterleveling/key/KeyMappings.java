@@ -10,7 +10,7 @@ public class KeyMappings {
 
     public static final String KEY_OPEN_GUI = "key.betterleveling.open_gui";
 
-    public static final KeyBinding OPEN_GUI = new KeyBinding(KEY_OPEN_GUI, KeyConflictContext.IN_GAME, InputMappings.Type.KEYSYM, 66, KEY_CATEGORY_BETTERLEVELING); //GLFW.GLFW_KEY_B = (66);
+    public static final KeyBinding OPEN_GUI = new KeyBinding(KEY_OPEN_GUI, KeyConflictContext.IN_GAME, InputMappings.Type.KEYSYM, 66, KEY_CATEGORY_BETTERLEVELING);
 
     public static void init() {
         ClientRegistry.registerKeyBinding(OPEN_GUI);

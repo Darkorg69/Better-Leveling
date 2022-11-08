@@ -33,7 +33,7 @@ public class AddSkillC2SPacket {
      * @param packetBuffer Packet buffer.
      */
     public AddSkillC2SPacket(PacketBuffer packetBuffer) {
-        this.data = packetBuffer.readCompoundTag();
+        this.data = packetBuffer.readNbt();
     }
 
     /**
@@ -42,7 +42,7 @@ public class AddSkillC2SPacket {
      * @param packetBuffer Packet buffer.
      */
     public static void encode(AddSkillC2SPacket packet, PacketBuffer packetBuffer) {
-        packetBuffer.writeCompoundTag(packet.data);
+        packetBuffer.writeNbt(packet.data);
     }
 
     /**

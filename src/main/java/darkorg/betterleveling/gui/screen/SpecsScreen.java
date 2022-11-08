@@ -6,9 +6,10 @@ import darkorg.betterleveling.api.IPlayerCapability;
 import darkorg.betterleveling.api.ISkill;
 import darkorg.betterleveling.api.ISpecialization;
 import darkorg.betterleveling.capability.PlayerCapabilityProvider;
-import darkorg.betterleveling.gui.widget.SkillButton;
-import darkorg.betterleveling.gui.widget.SpecButton;
+import darkorg.betterleveling.gui.widget.button.SkillButton;
+import darkorg.betterleveling.gui.widget.button.SpecButton;
 import darkorg.betterleveling.network.NetworkHandler;
+import darkorg.betterleveling.network.chat.ModTextComponents;
 import darkorg.betterleveling.network.packets.AddSpecC2SPacket;
 import darkorg.betterleveling.util.CapabilityUtil;
 import darkorg.betterleveling.util.RenderUtil;
@@ -26,8 +27,6 @@ import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
-import static darkorg.betterleveling.network.chat.ModTextComponents.*;
 
 @OnlyIn(Dist.CLIENT)
 public class SpecsScreen extends Screen {
@@ -69,7 +68,7 @@ public class SpecsScreen extends Screen {
         }
 
         if (!this.specUnlocked) {
-            ExtendedButton unlockSpecButton = new ExtendedButton(this.leftPos + (imageWidth / 2) - 37, this.topPos + 98, 74, 17, UNLOCK_SPEC, pButton -> Minecraft.getInstance().displayGuiScreen(new ConfirmScreen(this::onCallback, this.specialization.getTranslation(), CONFIRM_UNLOCK)));
+            ExtendedButton unlockSpecButton = new ExtendedButton(this.leftPos + (imageWidth / 2) - 37, this.topPos + 98, 74, 17, ModTextComponents.UNLOCK_SPEC, pButton -> Minecraft.getInstance().setScreen(new ConfirmScreen(this::onCallback, this.specialization.getTranslation(), ModTextComponents.CONFIRM_UNLOCK)));
             unlockSpecButton.active = this.canUnlockSpec;
             addButton(unlockSpecButton);
         }
@@ -86,7 +85,7 @@ public class SpecsScreen extends Screen {
         RenderUtil.setShaderTexture();
         this.blit(pMatrixStack, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight);
         if (!this.specUnlocked) {
-            drawCenteredString(pMatrixStack, this.font, SPEC_LOCKED, this.leftPos + (imageWidth / 2), this.topPos + 51, 16777215);
+            drawCenteredString(pMatrixStack, this.font, ModTextComponents.SPEC_LOCKED, this.leftPos + (imageWidth / 2), this.topPos + 51, 16777215);
         }
         super.render(pMatrixStack, pMouseX, pMouseY, pPartialTick);
     }
@@ -127,7 +126,7 @@ public class SpecsScreen extends Screen {
             NetworkHandler.sendToServer(new AddSpecC2SPacket(new Pair<>(this.specialization, true)));
             Minecraft.getInstance().popGuiLayer();
         } else {
-            Minecraft.getInstance().displayGuiScreen(this);
+            Minecraft.getInstance().setScreen(this);
         }
     }
 
@@ -140,15 +139,15 @@ public class SpecsScreen extends Screen {
         if (this.specUnlocked) {
             List<ITextComponent> unlocked = new ArrayList<>();
 
-            unlocked.add(new TranslationTextComponent("").appendSibling(this.specialization.getTranslation()).appendString(" ").appendSibling(SPEC));
+            unlocked.add(new TranslationTextComponent("").append(this.specialization.getTranslation()).append(" ").append(ModTextComponents.SPEC));
 
             this.renderWrappedToolTip(pMatrixStack, unlocked, pMouseX, pMouseY, this.font);
         } else {
             List<ITextComponent> locked = new ArrayList<>();
 
-            locked.add(LOCKED);
-            locked.add(new TranslationTextComponent("").appendSibling(this.specialization.getTranslation()));
-            locked.add(new TranslationTextComponent("").appendSibling(UNLOCK_COST).appendString(" ").appendString(String.valueOf(this.specialization.getLevelCost())).appendString(" ").appendSibling(LEVELS));
+            locked.add(ModTextComponents.LOCKED);
+            locked.add(new TranslationTextComponent("").append(this.specialization.getTranslation()));
+            locked.add(new TranslationTextComponent("").append(ModTextComponents.UNLOCK_COST).append(" ").append(String.valueOf(this.specialization.getLevelCost())).append(" ").append(ModTextComponents.LEVELS));
 
             this.renderWrappedToolTip(pMatrixStack, locked, pMouseX, pMouseY, this.font);
         }
@@ -165,25 +164,25 @@ public class SpecsScreen extends Screen {
             int skillLevel = this.playerCapability.getLevel(this.localPlayer, playerSkill);
 
             if (playerSkill.isMaxLevel(skillLevel)) {
-                unlocked.add(MAX_LEVEL);
+                unlocked.add(ModTextComponents.MAX_LEVEL);
             } else {
-                unlocked.add(new TranslationTextComponent("").appendSibling(CURRENT_LEVEL).appendString(" ").appendString(String.valueOf(skillLevel)).appendString("/").appendString(String.valueOf(playerSkill.getMaxLevel())));
+                unlocked.add(new TranslationTextComponent("").append(ModTextComponents.CURRENT_LEVEL).append(" ").append(String.valueOf(skillLevel)).append("/").append(String.valueOf(playerSkill.getMaxLevel())));
             }
 
             this.renderWrappedToolTip(pMatrixStack, unlocked, pMouseX, pMouseY, this.font);
         } else {
             List<ITextComponent> locked = new ArrayList<>();
 
-            locked.add(LOCKED);
+            locked.add(ModTextComponents.LOCKED);
             locked.add(playerSkill.getTranslation());
 
             Map<ISkill, Integer> prerequisitesMap = playerSkill.getPrerequisites();
 
             if (!prerequisitesMap.isEmpty()) {
-                locked.add(REQUIREMENTS);
+                locked.add(ModTextComponents.REQUIREMENTS);
 
                 prerequisitesMap.forEach((prerequisiteSkill, prerequisiteLevel) -> {
-                    locked.add(new TranslationTextComponent("*").appendSibling(prerequisiteSkill.getTranslation()).appendString(" ").appendString(String.valueOf(prerequisiteLevel)));
+                    locked.add(new TranslationTextComponent("*").append(prerequisiteSkill.getTranslation()).append(" ").append(String.valueOf(prerequisiteLevel)));
                 });
             }
 
@@ -194,7 +193,7 @@ public class SpecsScreen extends Screen {
     private void rebuildGui() {
         this.buttons.clear();
         this.children.clear();
-        this.setListener(null);
+        this.setFocused(null);
         this.init();
     }
 }

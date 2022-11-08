@@ -16,17 +16,17 @@ import net.minecraftforge.fml.common.Mod;
 public class ClientForgeEvents {
     @SubscribeEvent
     public static void onKeyInput(InputEvent.KeyInputEvent event) {
-        if (KeyMappings.OPEN_GUI.isPressed()) {
+        if (KeyMappings.OPEN_GUI.consumeClick()) {
             Minecraft minecraft = Minecraft.getInstance();
             ClientPlayerEntity clientPlayer = minecraft.player;
 
             if (clientPlayer != null) {
                 clientPlayer.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(capability -> {
                     if (capability.hasUnlocked(clientPlayer)) {
-                        minecraft.displayGuiScreen(new SpecsScreen());
+                        minecraft.setScreen(new SpecsScreen());
                     } else {
                         if (capability.canUnlock(clientPlayer)) {
-                            minecraft.displayGuiScreen(new ChooseSpecScreen());
+                            minecraft.setScreen(new ChooseSpecScreen());
                         }
                     }
                 });

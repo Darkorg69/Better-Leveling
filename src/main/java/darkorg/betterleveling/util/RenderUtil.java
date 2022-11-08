@@ -9,7 +9,7 @@ public class RenderUtil {
     private static final ResourceLocation BACKGROUND = new ResourceLocation(BetterLeveling.MOD_ID, "textures/gui/background.png");
 
     public static void setShaderTexture() {
-        Minecraft.getInstance().getTextureManager().bindTexture(BACKGROUND);
+        Minecraft.getInstance().getTextureManager().bind(BACKGROUND);
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
     }
 

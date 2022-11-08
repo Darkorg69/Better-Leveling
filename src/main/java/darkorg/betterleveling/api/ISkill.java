@@ -30,7 +30,6 @@ public interface ISkill {
 
     Map<ISkill, Integer> getPrerequisites();
 
-    @SuppressWarnings("unused")
     boolean hasPrerequisites();
 }
 

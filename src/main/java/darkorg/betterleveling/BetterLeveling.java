@@ -1,7 +1,6 @@
 package darkorg.betterleveling;
 
 import darkorg.betterleveling.config.ServerConfig;
-import darkorg.betterleveling.registry.LootModifierSerializers;
 import darkorg.betterleveling.registry.SkillRegistry;
 import darkorg.betterleveling.registry.SpecRegistry;
 import net.minecraftforge.common.MinecraftForge;
@@ -20,8 +19,6 @@ public class BetterLeveling {
         SpecRegistry.init();
 
         SkillRegistry.init();
-
-        LootModifierSerializers.init();
 
         forgeEventBus.register(this);
     }

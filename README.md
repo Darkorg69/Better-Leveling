@@ -72,7 +72,7 @@ This mod is for **FORGE** only!
 This mod is not compatible with [FastFurnace](https://www.curseforge.com/minecraft/mc-mods/fastfurnace), instead
 use [FastFurnace minus Replacement](https://www.curseforge.com/minecraft/mc-mods/fastfurnace-minus-replacement).
 
-## FAQ:
+## FAQ
 
 Q: Port to any version higher than 1.16?  
 A: Soon.
@@ -82,3 +82,8 @@ A: Please, submit your bug report [here](https://github.com/darkorg69/better-lev
 
 Q: Fabric port?  
 A: No, at least for now, but you are free to do it yourself.
+
+## Credits
+
+I want to give special credits to [BeetoGuy](https://www.curseforge.com/members/beetoguy) for
+the [original mod](https://www.curseforge.com/minecraft/mc-mods/level-up) idea.

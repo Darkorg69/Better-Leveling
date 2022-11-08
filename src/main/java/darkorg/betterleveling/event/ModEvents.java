@@ -5,13 +5,15 @@ import darkorg.betterleveling.api.IPlayerCapability;
 import darkorg.betterleveling.api.ITileCapability;
 import darkorg.betterleveling.capability.PlayerCapabilityStorage;
 import darkorg.betterleveling.capability.TileEntityCapabilityStorage;
-import darkorg.betterleveling.data.ModGlobalLootModifierProvider;
+import darkorg.betterleveling.data.ModBlockTagsProvider;
+import darkorg.betterleveling.data.ModItemTagsProvider;
 import darkorg.betterleveling.data.ModLanguageProvider;
 import darkorg.betterleveling.impl.PlayerCapability;
 import darkorg.betterleveling.impl.TileCapability;
 import darkorg.betterleveling.network.NetworkHandler;
 import net.minecraft.data.DataGenerator;
 import net.minecraftforge.common.capabilities.CapabilityManager;
+import net.minecraftforge.common.data.ExistingFileHelper;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
@@ -29,7 +31,14 @@ public class ModEvents {
     @SubscribeEvent
     public static void onGatherData(GatherDataEvent event) {
         DataGenerator dataGenerator = event.getGenerator();
-        dataGenerator.addProvider(new ModLanguageProvider(dataGenerator, BetterLeveling.MOD_ID, "en_us"));
-        dataGenerator.addProvider(new ModGlobalLootModifierProvider(dataGenerator, BetterLeveling.MOD_ID));
+        ExistingFileHelper existingFileHelper = event.getExistingFileHelper();
+
+        ModBlockTagsProvider blockTagProvider = new ModBlockTagsProvider(dataGenerator, BetterLeveling.MOD_ID, existingFileHelper);
+        ModItemTagsProvider itemTagsProvider = new ModItemTagsProvider(dataGenerator, blockTagProvider, BetterLeveling.MOD_ID, existingFileHelper);
+        ModLanguageProvider en_us = new ModLanguageProvider(dataGenerator, BetterLeveling.MOD_ID, "en_us");
+
+        dataGenerator.addProvider(blockTagProvider);
+        dataGenerator.addProvider(itemTagsProvider);
+        dataGenerator.addProvider(en_us);
     }
 }

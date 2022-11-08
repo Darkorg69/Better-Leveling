@@ -6,6 +6,7 @@ import darkorg.betterleveling.api.IPlayerCapability;
 import darkorg.betterleveling.api.ISkill;
 import darkorg.betterleveling.capability.PlayerCapabilityProvider;
 import darkorg.betterleveling.network.NetworkHandler;
+import darkorg.betterleveling.network.chat.ModTextComponents;
 import darkorg.betterleveling.network.packets.AddSkillC2SPacket;
 import darkorg.betterleveling.util.RenderUtil;
 import net.minecraft.client.Minecraft;
@@ -18,8 +19,6 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.client.gui.widget.ExtendedButton;
 
 import javax.annotation.Nonnull;
-
-import static darkorg.betterleveling.network.chat.ModTextComponents.*;
 
 @OnlyIn(Dist.CLIENT)
 public class SkillScreen extends Screen {
@@ -42,10 +41,10 @@ public class SkillScreen extends Screen {
     protected void init() {
         this.leftPos = (width - imageWidth) / 2;
         this.topPos = (height - imageHeight) / 2;
-        ExtendedButton increaseButton = new ExtendedButton((this.width / 2) - 44, this.topPos + 92, 88, 24, INCREASE_BUTTON, pButton -> Minecraft.getInstance().displayGuiScreen(new ConfirmScreen(this::onIncrease, this.playerSkill.getDescription(), CONFIRM_INCREASE)));
+        ExtendedButton increaseButton = new ExtendedButton((this.width / 2) - 44, this.topPos + 92, 88, 24, ModTextComponents.INCREASE_BUTTON, pButton -> Minecraft.getInstance().setScreen(new ConfirmScreen(this::onIncrease, this.playerSkill.getTranslation(), ModTextComponents.CONFIRM_INCREASE)));
         increaseButton.active = !this.isMaxLevel;
         addButton(increaseButton);
-        ExtendedButton decreaseButton = new ExtendedButton((this.width / 2) - 44, this.topPos + 126, 88, 24, DECREASE_BUTTON, pButton -> Minecraft.getInstance().displayGuiScreen(new ConfirmScreen(this::onDecrease, this.playerSkill.getDescription(), CONFIRM_DECREASE)));
+        ExtendedButton decreaseButton = new ExtendedButton((this.width / 2) - 44, this.topPos + 126, 88, 24, ModTextComponents.DECREASE_BUTTON, pButton -> Minecraft.getInstance().setScreen(new ConfirmScreen(this::onDecrease, this.playerSkill.getTranslation(), ModTextComponents.CONFIRM_DECREASE)));
         decreaseButton.active = !this.isMinLevel;
         addButton(decreaseButton);
     }
@@ -60,15 +59,15 @@ public class SkillScreen extends Screen {
         drawCenteredString(pMatrixStack, this.font, this.playerSkill.getDescriptionIndexOf(1), (width / 2), this.topPos + 36, 16777215);
 
         if (this.isMaxLevel) {
-            drawCenteredString(pMatrixStack, this.font, new TranslationTextComponent("").appendSibling(MAX_LEVEL), (this.width / 2), this.topPos + 48, 16733525);
+            drawCenteredString(pMatrixStack, this.font, new TranslationTextComponent("").append(ModTextComponents.MAX_LEVEL), (this.width / 2), this.topPos + 48, 16733525);
         } else {
             if (this.levelCost <= 1) {
-                drawCenteredString(pMatrixStack, this.font, new TranslationTextComponent("").appendSibling(LEVEL_COST).appendString(" ").appendString(String.valueOf(this.levelCost)).appendString(" ").appendSibling(LEVEL), (this.width / 2), this.topPos + 48, 16777215);
+                drawCenteredString(pMatrixStack, this.font, new TranslationTextComponent("").append(ModTextComponents.LEVEL_COST).append(" ").append(String.valueOf(this.levelCost)).append(" ").append(ModTextComponents.LEVEL), (this.width / 2), this.topPos + 48, 16777215);
             } else {
-                drawCenteredString(pMatrixStack, this.font, new TranslationTextComponent("").appendSibling(LEVEL_COST).appendString(" ").appendString(String.valueOf(this.levelCost)).appendString(" ").appendSibling(LEVELS), (this.width / 2), this.topPos + 48, 16777215);
+                drawCenteredString(pMatrixStack, this.font, new TranslationTextComponent("").append(ModTextComponents.LEVEL_COST).append(" ").append(String.valueOf(this.levelCost)).append(" ").append(ModTextComponents.LEVELS), (this.width / 2), this.topPos + 48, 16777215);
             }
         }
-        drawCenteredString(pMatrixStack, this.font, new TranslationTextComponent("").appendSibling(CURRENT_LEVEL).appendString(" ").appendString(String.valueOf(this.level)).appendString("/").appendString(String.valueOf(this.maxLevel)), (this.width / 2), this.topPos + 70, 16777215);
+        drawCenteredString(pMatrixStack, this.font, new TranslationTextComponent("").append(ModTextComponents.CURRENT_LEVEL).append(" ").append(String.valueOf(this.level)).append("/").append(String.valueOf(this.maxLevel)), (this.width / 2), this.topPos + 70, 16777215);
         super.render(pMatrixStack, pMouseX, pMouseY, pPartialTick);
     }
 
@@ -97,7 +96,7 @@ public class SkillScreen extends Screen {
             NetworkHandler.sendToServer(new AddSkillC2SPacket(new Pair<>(this.playerSkill, 1)));
             Minecraft.getInstance().popGuiLayer();
         } else {
-            Minecraft.getInstance().displayGuiScreen(this);
+            Minecraft.getInstance().setScreen(this);
         }
     }
 
@@ -106,7 +105,7 @@ public class SkillScreen extends Screen {
             NetworkHandler.sendToServer(new AddSkillC2SPacket(new Pair<>(this.playerSkill, -1)));
             Minecraft.getInstance().popGuiLayer();
         } else {
-            Minecraft.getInstance().displayGuiScreen(this);
+            Minecraft.getInstance().setScreen(this);
         }
     }
 }

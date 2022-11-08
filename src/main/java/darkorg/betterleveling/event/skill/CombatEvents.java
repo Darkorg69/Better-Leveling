@@ -2,6 +2,8 @@ package darkorg.betterleveling.event.skill;
 
 import darkorg.betterleveling.BetterLeveling;
 import darkorg.betterleveling.capability.PlayerCapabilityProvider;
+import darkorg.betterleveling.registry.AttributeModifiers;
+import darkorg.betterleveling.registry.SkillRegistry;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.ai.attributes.Attributes;
@@ -20,19 +22,16 @@ import net.minecraftforge.fml.common.Mod;
 
 import java.util.Random;
 
-import static darkorg.betterleveling.registry.AttributeModifiers.SNEAK_SPEED_MODIFIER;
-import static darkorg.betterleveling.registry.SkillRegistry.*;
-
 @Mod.EventBusSubscriber(modid = BetterLeveling.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class CombatEvents {
     @SubscribeEvent
     public static void onStrength(LivingHurtEvent event) {
-        Entity entity = event.getSource().getTrueSource();
+        Entity entity = event.getSource().getDirectEntity();
         if (entity instanceof PlayerEntity) {
             PlayerEntity player = (PlayerEntity) entity;
             player.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(capability -> {
-                if (capability.isUnlocked(player, STRENGTH)) {
-                    int level = capability.getLevel(player, STRENGTH);
+                if (capability.isUnlocked(player, SkillRegistry.STRENGTH)) {
+                    int level = capability.getLevel(player, SkillRegistry.STRENGTH);
                     if (level > 0) {
                         float modifier = 1.0F + (level * 0.1F);
                         event.setAmount(event.getAmount() * modifier);
@@ -47,8 +46,8 @@ public class CombatEvents {
         if (event.isVanillaCritical()) event.setResult(Event.Result.DENY);
         PlayerEntity player = event.getPlayer();
         player.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(capability -> {
-            if (capability.isUnlocked(player, CRITICAL_STRIKE)) {
-                int level = capability.getLevel(player, CRITICAL_STRIKE);
+            if (capability.isUnlocked(player, SkillRegistry.CRITICAL_STRIKE)) {
+                int level = capability.getLevel(player, SkillRegistry.CRITICAL_STRIKE);
                 if (level > 0) {
                     Random random = new Random();
                     float chance = level * 0.05F;
@@ -67,8 +66,8 @@ public class CombatEvents {
             PlayerEntity player = (PlayerEntity) entity;
             if (event.getItem().getItem() instanceof BowItem) {
                 player.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(capability -> {
-                    if (capability.isUnlocked(player, QUICK_DRAW)) {
-                        int level = capability.getLevel(player, QUICK_DRAW);
+                    if (capability.isUnlocked(player, SkillRegistry.QUICK_DRAW)) {
+                        int level = capability.getLevel(player, SkillRegistry.QUICK_DRAW);
                         if (level > 0) {
                             event.setDuration(event.getDuration() - level);
                         }
@@ -83,15 +82,15 @@ public class CombatEvents {
         Entity entity = event.getEntity();
         if (entity instanceof AbstractArrowEntity) {
             AbstractArrowEntity arrow = (AbstractArrowEntity) entity;
-            Entity shooter = arrow.getShooter();
-            if (shooter instanceof PlayerEntity) {
-                PlayerEntity player = (PlayerEntity) shooter;
+            Entity owner = arrow.getOwner();
+            if (owner instanceof PlayerEntity) {
+                PlayerEntity player = (PlayerEntity) owner;
                 player.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(capability -> {
-                    if (capability.isUnlocked(player, ARROW_SPEED)) {
-                        int level = capability.getLevel(player, ARROW_SPEED);
+                    if (capability.isUnlocked(player, SkillRegistry.ARROW_SPEED)) {
+                        int level = capability.getLevel(player, SkillRegistry.ARROW_SPEED);
                         if (level > 0) {
                             float modifier = 1.0F + (level * 0.03F);
-                            arrow.setMotion(arrow.getMotion().scale(modifier));
+                            arrow.setDeltaMovement(arrow.getDeltaMovement().scale(modifier));
                         }
                     }
                 });
@@ -105,19 +104,19 @@ public class CombatEvents {
             PlayerEntity player = event.player;
             if (player != null) {
                 player.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(capability -> {
-                    if (capability.isUnlocked(player, SNEAK_SPEED)) {
-                        int level = capability.getLevel(player, SNEAK_SPEED);
+                    if (capability.isUnlocked(player, SkillRegistry.SNEAK_SPEED)) {
+                        int level = capability.getLevel(player, SkillRegistry.SNEAK_SPEED);
                         if (level > 0) {
                             float modifier = level * 0.05F;
                             ModifiableAttributeInstance attribute = player.getAttribute(Attributes.MOVEMENT_SPEED);
                             if (attribute != null) {
-                                AttributeModifier attributeModifier = new AttributeModifier(SNEAK_SPEED_MODIFIER, SNEAK_SPEED.getName(), modifier, AttributeModifier.Operation.MULTIPLY_BASE);
-                                if (player.isSneaking()) {
-                                    if (attribute.getModifier(SNEAK_SPEED_MODIFIER) == null) {
-                                        attribute.applyNonPersistentModifier(attributeModifier);
+                                AttributeModifier attributeModifier = new AttributeModifier(AttributeModifiers.SNEAK_SPEED_MODIFIER, SkillRegistry.SNEAK_SPEED.getName(), modifier, AttributeModifier.Operation.MULTIPLY_BASE);
+                                if (player.isCrouching()) {
+                                    if (attribute.getModifier(AttributeModifiers.SNEAK_SPEED_MODIFIER) == null) {
+                                        attribute.addTransientModifier(attributeModifier);
                                     }
                                 } else {
-                                    if (attribute.getModifier(SNEAK_SPEED_MODIFIER) != null) {
+                                    if (attribute.getModifier(AttributeModifiers.SNEAK_SPEED_MODIFIER) != null) {
                                         attribute.removeModifier(attributeModifier);
                                     }
                                 }
@@ -135,8 +134,8 @@ public class CombatEvents {
         if (entity instanceof PlayerEntity) {
             PlayerEntity player = (PlayerEntity) entity;
             player.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(capability -> {
-                if (capability.isUnlocked(player, IRON_SKIN)) {
-                    int level = capability.getLevel(player, IRON_SKIN);
+                if (capability.isUnlocked(player, SkillRegistry.IRON_SKIN)) {
+                    int level = capability.getLevel(player, SkillRegistry.IRON_SKIN);
                     if (level > 0) {
                         float modifier = 1.0F - (level * 0.035F);
                         event.setAmount(event.getAmount() * modifier);

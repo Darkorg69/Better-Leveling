@@ -3,8 +3,9 @@ package darkorg.betterleveling.gui.screen;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.datafixers.util.Pair;
 import darkorg.betterleveling.api.ISpecialization;
-import darkorg.betterleveling.gui.widget.ChooseSpecButton;
+import darkorg.betterleveling.gui.widget.button.ChooseSpecButton;
 import darkorg.betterleveling.network.NetworkHandler;
+import darkorg.betterleveling.network.chat.ModTextComponents;
 import darkorg.betterleveling.network.packets.AddSpecC2SPacket;
 import darkorg.betterleveling.registry.SpecRegistry;
 import darkorg.betterleveling.util.RenderUtil;
@@ -17,8 +18,6 @@ import net.minecraftforge.fml.client.gui.widget.ExtendedButton;
 
 import javax.annotation.Nonnull;
 
-import static darkorg.betterleveling.network.chat.ModTextComponents.*;
-
 @OnlyIn(Dist.CLIENT)
 public class ChooseSpecScreen extends Screen {
 
@@ -28,7 +27,7 @@ public class ChooseSpecScreen extends Screen {
     private final int imageHeight = 166;
 
     public ChooseSpecScreen() {
-        super(GUI_CHOOSE);
+        super(ModTextComponents.GUI_CHOOSE);
         this.playerSpecialization = SpecRegistry.getSpecRegistry().get(0);
     }
 
@@ -40,7 +39,7 @@ public class ChooseSpecScreen extends Screen {
         ChooseSpecButton chooseSpecButton = new ChooseSpecButton((this.width - 64) / 2, (this.height - 64) / 2 - 32, this.playerSpecialization, this::onValueChange);
         addButton(chooseSpecButton);
 
-        ExtendedButton selectButton = new ExtendedButton((this.width - 75) / 2, this.topPos + 116, 75, 25, SELECT_BUTTON, pButton -> this.onPress());
+        ExtendedButton selectButton = new ExtendedButton((this.width - 75) / 2, this.topPos + 116, 75, 25, ModTextComponents.SELECT_BUTTON, pButton -> this.onPress());
         addButton(selectButton);
     }
 
@@ -59,7 +58,7 @@ public class ChooseSpecScreen extends Screen {
     }
 
     private void onPress() {
-        Minecraft.getInstance().displayGuiScreen(new ConfirmScreen(this::onCallback, this.playerSpecialization.getTranslation(), CHOOSE_CONFIRM));
+        Minecraft.getInstance().setScreen(new ConfirmScreen(this::onCallback, this.playerSpecialization.getTranslation(), ModTextComponents.CHOOSE_CONFIRM));
     }
 
     private void onCallback(boolean pCallback) {
@@ -67,7 +66,7 @@ public class ChooseSpecScreen extends Screen {
             NetworkHandler.sendToServer(new AddSpecC2SPacket(new Pair<>(this.playerSpecialization, true)));
             Minecraft.getInstance().popGuiLayer();
         } else {
-            Minecraft.getInstance().displayGuiScreen(this);
+            Minecraft.getInstance().setScreen(this);
         }
     }
 
