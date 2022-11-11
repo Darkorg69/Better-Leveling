@@ -15,11 +15,8 @@ public class BetterLeveling {
 
     public BetterLeveling() {
         ServerConfig.init();
-
         SpecRegistry.init();
-
         SkillRegistry.init();
-
         forgeEventBus.register(this);
     }
 }

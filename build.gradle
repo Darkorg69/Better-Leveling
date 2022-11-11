@@ -24,8 +24,6 @@ java.toolchain.languageVersion = JavaLanguageVersion.of(8)
 minecraft {
     mappings channel: 'parchment', version: mappings_version
 
-    //accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
-
     runs {
         client {
             workingDirectory project.file('run')
@@ -63,30 +61,14 @@ minecraft {
 
 sourceSets.main.resources { srcDir 'src/generated/resources' }
 
-repositories {
-    maven {
-        name = "Progwml6 maven"
-        url = "https://dvs1.progwml6.com/files/maven/"
-    }
-    maven {
-        name = "ModMaven"
-        url = "https://modmaven.dev"
-    }
-}
-
 dependencies {
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
-
-    // Apply Mixin AP
     annotationProcessor 'org.spongepowered:mixin:0.8.4:processor'
 }
 
-//Mixin task
 mixin {
     add sourceSets.main, "mixins.${modId}.refmap.json"
     config "mixins.${modId}.json"
-
-    //Enable to debug mixins
     debug.verbose = false
     debug.export = false
 }

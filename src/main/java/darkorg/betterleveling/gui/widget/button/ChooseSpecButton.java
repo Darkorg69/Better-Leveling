@@ -7,8 +7,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-import javax.annotation.Nonnull;
-
 @OnlyIn(Dist.CLIENT)
 public class ChooseSpecButton extends AbstractSpecButton {
 
@@ -17,7 +15,7 @@ public class ChooseSpecButton extends AbstractSpecButton {
     }
 
     @Override
-    public void renderButton(@Nonnull MatrixStack pMatrixStack, int pMouseX, int pMouseY, float pPartialTicks) {
+    public void renderButton(MatrixStack pMatrixStack, int pMouseX, int pMouseY, float pPartialTicks) {
         Minecraft minecraft = Minecraft.getInstance();
         RenderUtil.setShaderTextureButton();
         this.blit(pMatrixStack, this.x, this.y, 176, 0, this.width, this.height);

@@ -5,7 +5,7 @@ import com.mojang.datafixers.util.Pair;
 import darkorg.betterleveling.api.ISpecialization;
 import darkorg.betterleveling.gui.widget.button.ChooseSpecButton;
 import darkorg.betterleveling.network.NetworkHandler;
-import darkorg.betterleveling.network.chat.ModTextComponents;
+import darkorg.betterleveling.network.chat.ModComponents;
 import darkorg.betterleveling.network.packets.AddSpecC2SPacket;
 import darkorg.betterleveling.registry.SpecRegistry;
 import darkorg.betterleveling.util.RenderUtil;
@@ -16,18 +16,15 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.client.gui.widget.ExtendedButton;
 
-import javax.annotation.Nonnull;
-
 @OnlyIn(Dist.CLIENT)
 public class ChooseSpecScreen extends Screen {
-
-    private int leftPos, topPos;
-    private ISpecialization playerSpecialization;
     private final int imageWidth = 176;
     private final int imageHeight = 166;
+    private int leftPos, topPos;
+    private ISpecialization playerSpecialization;
 
     public ChooseSpecScreen() {
-        super(ModTextComponents.GUI_CHOOSE);
+        super(ModComponents.GUI_CHOOSE);
         this.playerSpecialization = SpecRegistry.getSpecRegistry().get(0);
     }
 
@@ -39,7 +36,7 @@ public class ChooseSpecScreen extends Screen {
         ChooseSpecButton chooseSpecButton = new ChooseSpecButton((this.width - 64) / 2, (this.height - 64) / 2 - 32, this.playerSpecialization, this::onValueChange);
         addButton(chooseSpecButton);
 
-        ExtendedButton selectButton = new ExtendedButton((this.width - 75) / 2, this.topPos + 116, 75, 25, ModTextComponents.SELECT_BUTTON, pButton -> this.onPress());
+        ExtendedButton selectButton = new ExtendedButton((this.width - 75) / 2, this.topPos + 116, 75, 25, ModComponents.SELECT_BUTTON, pButton -> this.onPress());
         addButton(selectButton);
     }
 
@@ -49,7 +46,7 @@ public class ChooseSpecScreen extends Screen {
     }
 
     @Override
-    public void render(@Nonnull MatrixStack pMatrixStack, int pMouseX, int pMouseY, float pPartialTick) {
+    public void render(MatrixStack pMatrixStack, int pMouseX, int pMouseY, float pPartialTick) {
         this.renderBackground(pMatrixStack);
         drawCenteredString(pMatrixStack, font, title, (width / 2), this.topPos - 10, 16777215);
         RenderUtil.setShaderTexture();
@@ -58,7 +55,7 @@ public class ChooseSpecScreen extends Screen {
     }
 
     private void onPress() {
-        Minecraft.getInstance().setScreen(new ConfirmScreen(this::onCallback, this.playerSpecialization.getTranslation(), ModTextComponents.CHOOSE_CONFIRM));
+        Minecraft.getInstance().setScreen(new ConfirmScreen(this::onCallback, this.playerSpecialization.getTranslation(), ModComponents.CHOOSE_CONFIRM));
     }
 
     private void onCallback(boolean pCallback) {

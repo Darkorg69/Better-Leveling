@@ -12,40 +12,26 @@ import java.util.function.Supplier;
 public class SyncDataS2CPacket {
     private final CompoundNBT data;
 
-    /**
-     * Packet constructor.
-     */
     public SyncDataS2CPacket(CompoundNBT pData) {
         this.data = pData;
     }
 
-    /**
-     * Decodes data from the packet buffer
-     */
-    public SyncDataS2CPacket(PacketBuffer packetBuffer) {
-        this.data = packetBuffer.readNbt();
+    public SyncDataS2CPacket(PacketBuffer buf) {
+        this.data = buf.readNbt();
     }
 
-    /**
-     * Encodes data to the packet buffer
-     */
-    public static void encode(SyncDataS2CPacket packet, PacketBuffer packetBuffer) {
-        packetBuffer.writeNbt(packet.data);
+    public static void encode(SyncDataS2CPacket packet, PacketBuffer buf) {
+        buf.writeNbt(packet.data);
     }
 
-    /**
-     * Handles the packet functionality
-     */
-    public static void handle(SyncDataS2CPacket packet, Supplier<NetworkEvent.Context> contextSupplier) {
-        NetworkEvent.Context context = contextSupplier.get();
-
+    public static void handle(SyncDataS2CPacket packet, Supplier<NetworkEvent.Context> supplier) {
+        NetworkEvent.Context context = supplier.get();
         if (context.getDirection().getReceptionSide().isClient()) {
             context.enqueueWork(() -> {
                 // HERE WE ARE ON THE CLIENT!
-                ClientPlayerEntity clientPlayer = Minecraft.getInstance().player;
-
-                if (clientPlayer != null) {
-                    clientPlayer.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(playerCapability -> {
+                ClientPlayerEntity localPlayer = Minecraft.getInstance().player;
+                if (localPlayer != null) {
+                    localPlayer.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(playerCapability -> {
                         playerCapability.receiveDataFromServer(packet.data);
                     });
                 }

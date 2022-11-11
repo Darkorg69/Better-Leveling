@@ -1,12 +1,11 @@
 {
   "replace": false,
   "values": [
-    "minecraft:coal_ore",
-    "minecraft:diamond_ore",
-    "minecraft:emerald_ore",
-    "minecraft:lapis_ore",
-    "minecraft:nether_gold_ore",
-    "minecraft:nether_quartz_ore",
-    "minecraft:redstone_ore"
+    "#forge:ores/coal",
+    "#forge:ores/diamond",
+    "#forge:ores/emerald",
+    "#forge:ores/lapis",
+    "#forge:ores/quartz",
+    "#forge:ores/redstone"
   ]
 }

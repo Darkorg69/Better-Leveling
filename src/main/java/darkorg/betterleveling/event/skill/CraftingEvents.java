@@ -1,12 +1,16 @@
 package darkorg.betterleveling.event.skill;
 
 import darkorg.betterleveling.BetterLeveling;
+import darkorg.betterleveling.capability.MachineCapabilityProvider;
 import darkorg.betterleveling.capability.PlayerCapabilityProvider;
+import darkorg.betterleveling.config.ServerConfig;
+import darkorg.betterleveling.network.chat.ModComponents;
 import darkorg.betterleveling.registry.AttributeModifiers;
 import darkorg.betterleveling.registry.ModTags;
 import darkorg.betterleveling.registry.SkillRegistry;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.IGrowable;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
@@ -15,15 +19,16 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.loot.RandomValueRange;
-import net.minecraft.tags.BlockTags;
+import net.minecraft.tileentity.AbstractFurnaceTileEntity;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.common.ForgeMod;
 import net.minecraftforge.common.IPlantable;
 import net.minecraftforge.common.PlantType;
-import net.minecraftforge.common.Tags;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.living.LivingDropsEvent;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.LogicalSide;
@@ -33,71 +38,70 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Random;
 
-@Mod.EventBusSubscriber(modid = BetterLeveling.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
+@Mod.EventBusSubscriber(modid = BetterLeveling.MOD_ID)
 public class CraftingEvents {
-    private static int tickCount;
+    private static int tick;
 
     @SubscribeEvent
     public static void onGreenThumb(TickEvent.PlayerTickEvent event) {
-        if (event.side == LogicalSide.SERVER) {
-            PlayerEntity player = event.player;
-            if (player instanceof ServerPlayerEntity) {
-                tickCount++;
-                if (tickCount >= 100) {
-                    tickCount = 0;
-                    ServerPlayerEntity serverPlayer = (ServerPlayerEntity) player;
-                    serverPlayer.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(capability -> {
-                        if (capability.isUnlocked(serverPlayer, SkillRegistry.GREEN_THUMB)) {
-                            int level = capability.getLevel(serverPlayer, SkillRegistry.GREEN_THUMB);
-                            if (level > 0) {
-                                float chance = level * 0.03F;
-                                ServerWorld serverLevel = serverPlayer.getLevel();
-                                if (serverLevel.random.nextFloat() <= chance) {
-                                    BlockPos.betweenClosedStream(serverPlayer.getBoundingBox().expandTowards(8.0F, 8.0F, 8.0F)).forEach(pos -> {
-                                        BlockState state = serverLevel.getBlockState(pos);
-                                        Block block = state.getBlock();
-                                        if (block instanceof IPlantable) {
-                                            IPlantable plant = (IPlantable) block;
-                                            PlantType plantType = plant.getPlantType(serverLevel, pos);
-                                            if (plantType == PlantType.CROP || plantType == PlantType.NETHER) {
-                                                state.randomTick(serverLevel, pos, serverLevel.random);
-                                            }
-                                        }
-                                    });
-                                }
-                            }
-                        }
-                    });
-                }
-            }
-        }
-    }
-
-    @SubscribeEvent
-    public static void onHarvestEfficiency(BlockEvent.BreakEvent event) {
-        PlayerEntity player = event.getPlayer();
-        if (!player.isCreative()) {
-            if (player instanceof ServerPlayerEntity) {
-                ServerPlayerEntity serverPlayer = (ServerPlayerEntity) player;
+        if (event.side == LogicalSide.SERVER && event.player instanceof ServerPlayerEntity) {
+            if (tick < 100) tick++;
+            else {
+                tick = 0;
+                ServerPlayerEntity serverPlayer = (ServerPlayerEntity) event.player;
                 serverPlayer.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(capability -> {
-                    if (capability.isUnlocked(serverPlayer, SkillRegistry.HARVEST_PROFICIENCY)) {
-                        int level = capability.getLevel(serverPlayer, SkillRegistry.HARVEST_PROFICIENCY);
+                    if (capability.isUnlocked(serverPlayer, SkillRegistry.GREEN_THUMB)) {
+                        int level = capability.getLevel(serverPlayer, SkillRegistry.GREEN_THUMB);
                         if (level > 0) {
-                            BlockState state = event.getState();
-                            if (state.getBlock().is(BlockTags.CROPS)) {
-                                Random random = new Random();
-                                ServerWorld serverLevel = serverPlayer.getLevel();
-                                List<ItemStack> drops = Block.getDrops(state, serverLevel, event.getPos(), null);
-                                drops.forEach(itemStack -> {
-                                    if (itemStack.getItem().is(Tags.Items.CROPS)) {
-                                        itemStack.setCount(RandomValueRange.between(0, level).getInt(random));
-                                        Block.popResource(serverLevel, event.getPos(), itemStack);
+                            float chance = level * 0.025F;
+                            ServerWorld serverLevel = serverPlayer.getLevel();
+                            if (serverLevel.random.nextFloat() <= chance) {
+                                BlockPos.betweenClosedStream(serverPlayer.getBoundingBox().inflate(8, 8, 8)).forEach(pos -> {
+                                    BlockState state = serverLevel.getBlockState(pos);
+                                    Block block = state.getBlock();
+                                    if (block instanceof IPlantable) {
+                                        IPlantable plant = (IPlantable) block;
+                                        PlantType type = plant.getPlantType(serverLevel, pos);
+                                        if (type == PlantType.CROP || type == PlantType.NETHER) {
+                                            state.randomTick(serverLevel, pos, serverLevel.random);
+                                        }
                                     }
                                 });
                             }
                         }
                     }
                 });
+            }
+        }
+    }
+
+    @SubscribeEvent
+    public static void onHarvestProficiency(BlockEvent.BreakEvent event) {
+        PlayerEntity player = event.getPlayer();
+        if (player instanceof ServerPlayerEntity && !player.isCreative()) {
+            ServerPlayerEntity serverPlayer = (ServerPlayerEntity) player;
+            BlockState state = event.getState();
+            Block block = state.getBlock();
+            if (state.is(ModTags.Blocks.CROPS) && block instanceof IGrowable) {
+                IGrowable growable = (IGrowable) block;
+                BlockPos pos = event.getPos();
+                ServerWorld serverLevel = serverPlayer.getLevel();
+                if (!growable.isValidBonemealTarget(serverLevel, pos, state, serverLevel.isClientSide)) {
+                    serverPlayer.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(capability -> {
+                        if (capability.isUnlocked(serverPlayer, SkillRegistry.HARVEST_PROFICIENCY)) {
+                            int level = capability.getLevel(serverPlayer, SkillRegistry.HARVEST_PROFICIENCY);
+                            if (level > 0) {
+                                List<ItemStack> drops = Block.getDrops(state, serverLevel, pos, null);
+                                drops.forEach(stack -> {
+                                    if (stack.getItem().is(ModTags.Items.CROPS)) {
+                                        stack.setCount(Math.round(stack.getCount() * RandomValueRange.between(0, level * 0.5F).getFloat(serverLevel.random)));
+                                        Block.popResource(serverLevel, pos, stack);
+                                    }
+                                });
+                            }
+                        }
+                    });
+                }
             }
         }
     }
@@ -113,10 +117,11 @@ public class CraftingEvents {
                     if (level > 0) {
                         Random random = new Random();
                         Collection<ItemEntity> drops = event.getDrops();
-                        drops.forEach(itemEntity -> {
-                            ItemStack itemStack = itemEntity.getItem();
-                            if (itemStack.getItem().is(ModTags.Items.SKINS)) {
-                                itemStack.setCount(itemStack.getCount() + RandomValueRange.between(0, level).getInt(random));
+                        drops.forEach(entity -> {
+                            ItemStack stack = entity.getItem();
+                            if (stack.getItem().is(ModTags.Items.ANIMAL_SKIN)) {
+                                int count = stack.getCount();
+                                stack.setCount(count + Math.round(count * RandomValueRange.between(0.0F, level * 0.5F).getFloat(random)));
                             }
                         });
                     }
@@ -127,19 +132,20 @@ public class CraftingEvents {
 
     @SubscribeEvent
     public static void onMeatGathering(LivingDropsEvent event) {
-        Entity trueSource = event.getSource().getDirectEntity();
-        if (trueSource instanceof ServerPlayerEntity) {
-            ServerPlayerEntity serverPlayer = (ServerPlayerEntity) trueSource;
+        Entity directEntity = event.getSource().getDirectEntity();
+        if (directEntity instanceof ServerPlayerEntity) {
+            ServerPlayerEntity serverPlayer = (ServerPlayerEntity) directEntity;
             serverPlayer.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(capability -> {
                 if (capability.isUnlocked(serverPlayer, SkillRegistry.MEAT_GATHERING)) {
                     int level = capability.getLevel(serverPlayer, SkillRegistry.MEAT_GATHERING);
                     if (level > 0) {
                         Random random = new Random();
                         Collection<ItemEntity> drops = event.getDrops();
-                        drops.forEach(itemEntity -> {
-                            ItemStack itemStack = itemEntity.getItem();
-                            if (itemStack.getItem().is(ModTags.Items.MEATS)) {
-                                itemStack.setCount(itemStack.getCount() + RandomValueRange.between(0, level).getInt(random));
+                        drops.forEach(entity -> {
+                            ItemStack stack = entity.getItem();
+                            if (stack.getItem().is(ModTags.Items.ANIMAL_MEAT)) {
+                                int count = stack.getCount();
+                                stack.setCount(count + Math.round(count * RandomValueRange.between(0.0F, level * 0.5F).getFloat(random)));
                             }
                         });
                     }
@@ -149,7 +155,7 @@ public class CraftingEvents {
     }
 
     @SubscribeEvent
-    public static void onSwimmingSpeed(TickEvent.PlayerTickEvent event) {
+    public static void onSwimSpeed(TickEvent.PlayerTickEvent event) {
         if (event.phase == TickEvent.Phase.START) {
             PlayerEntity player = event.player;
             if (player != null) {
@@ -157,10 +163,9 @@ public class CraftingEvents {
                     if (capability.isUnlocked(player, SkillRegistry.SWIM_SPEED)) {
                         int level = capability.getLevel(player, SkillRegistry.SWIM_SPEED);
                         if (level > 0) {
-                            float modifier = level * 0.1F;
                             ModifiableAttributeInstance attribute = player.getAttribute(ForgeMod.SWIM_SPEED.get());
                             if (attribute != null) {
-                                AttributeModifier attributeModifier = new AttributeModifier(AttributeModifiers.SWIM_SPEED_MODIFIER, SkillRegistry.SWIM_SPEED.getName(), modifier, AttributeModifier.Operation.MULTIPLY_BASE);
+                                AttributeModifier attributeModifier = new AttributeModifier(AttributeModifiers.SWIM_SPEED_MODIFIER, SkillRegistry.SWIM_SPEED.getName(), level * 0.1F, AttributeModifier.Operation.MULTIPLY_BASE);
                                 if (player.isSwimming()) {
                                     if (attribute.getModifier(AttributeModifiers.SWIM_SPEED_MODIFIER) == null) {
                                         attribute.addTransientModifier(attributeModifier);
@@ -171,6 +176,45 @@ public class CraftingEvents {
                                     }
                                 }
                             }
+                        }
+                    }
+                });
+            }
+        }
+    }
+
+    @SubscribeEvent
+    public static void onCookingSpeed(PlayerInteractEvent.RightClickBlock event) {
+        PlayerEntity player = event.getPlayer();
+        if (event.getSide() == LogicalSide.SERVER && player instanceof ServerPlayerEntity) {
+            ServerPlayerEntity serverPlayer = (ServerPlayerEntity) player;
+            TileEntity blockEntity = event.getWorld().getBlockEntity(event.getPos());
+            if (blockEntity instanceof AbstractFurnaceTileEntity) {
+                AbstractFurnaceTileEntity tileEntity = (AbstractFurnaceTileEntity) blockEntity;
+                tileEntity.getCapability(MachineCapabilityProvider.MACHINE_CAP).ifPresent(capability -> {
+                    if (capability.hasOwner()) {
+                        if (capability.isOwner(serverPlayer)) {
+                            if (serverPlayer.isCrouching() && event.getItemStack().isEmpty()) {
+                                capability.removeOwner();
+                                serverPlayer.displayClientMessage(ModComponents.UNREGISTER, true);
+                                event.setCanceled(true);
+                            }
+                        } else {
+                            if (serverPlayer.isCrouching() && event.getItemStack().isEmpty()) {
+                                serverPlayer.displayClientMessage(ModComponents.NOT_OWNED, true);
+                                event.setCanceled(true);
+                            } else {
+                                if (ServerConfig.LOCK_BOUND_MACHINES.get()) {
+                                    serverPlayer.displayClientMessage(ModComponents.NO_ACCESS, true);
+                                    event.setCanceled(true);
+                                }
+                            }
+                        }
+                    } else {
+                        if (serverPlayer.isCrouching() && event.getItemStack().isEmpty()) {
+                            capability.setOwner(serverPlayer);
+                            serverPlayer.displayClientMessage(ModComponents.REGISTER, true);
+                            event.setCanceled(true);
                         }
                     }
                 });

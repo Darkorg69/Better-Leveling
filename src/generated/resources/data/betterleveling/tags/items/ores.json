@@ -2,11 +2,8 @@
   "replace": false,
   "values": [
     "minecraft:coal",
-    "minecraft:diamond",
-    "minecraft:emerald",
-    "minecraft:lapis_ore",
-    "minecraft:gold_nugget",
-    "minecraft:quartz",
-    "minecraft:redstone"
+    "minecraft:redstone",
+    "#forge:gems",
+    "#forge:nuggets"
   ]
 }

@@ -5,12 +5,14 @@ import darkorg.betterleveling.capability.PlayerCapabilityProvider;
 import darkorg.betterleveling.registry.AttributeModifiers;
 import darkorg.betterleveling.registry.SkillRegistry;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.AbstractArrowEntity;
 import net.minecraft.item.BowItem;
+import net.minecraft.util.DamageSource;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.living.LivingEntityUseItemEvent;
@@ -22,18 +24,18 @@ import net.minecraftforge.fml.common.Mod;
 
 import java.util.Random;
 
-@Mod.EventBusSubscriber(modid = BetterLeveling.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
+@Mod.EventBusSubscriber(modid = BetterLeveling.MOD_ID)
 public class CombatEvents {
     @SubscribeEvent
     public static void onStrength(LivingHurtEvent event) {
-        Entity entity = event.getSource().getDirectEntity();
-        if (entity instanceof PlayerEntity) {
-            PlayerEntity player = (PlayerEntity) entity;
+        Entity directEntity = event.getSource().getDirectEntity();
+        if (directEntity instanceof PlayerEntity) {
+            PlayerEntity player = (PlayerEntity) directEntity;
             player.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(capability -> {
                 if (capability.isUnlocked(player, SkillRegistry.STRENGTH)) {
                     int level = capability.getLevel(player, SkillRegistry.STRENGTH);
                     if (level > 0) {
-                        float modifier = 1.0F + (level * 0.1F);
+                        float modifier = 1.0F + (level * 0.075F);
                         event.setAmount(event.getAmount() * modifier);
                     }
                 }
@@ -50,7 +52,7 @@ public class CombatEvents {
                 int level = capability.getLevel(player, SkillRegistry.CRITICAL_STRIKE);
                 if (level > 0) {
                     Random random = new Random();
-                    float chance = level * 0.05F;
+                    float chance = level * 0.03F;
                     if (random.nextFloat() < chance) {
                         event.setResult(Event.Result.ALLOW);
                     }
@@ -62,18 +64,16 @@ public class CombatEvents {
     @SubscribeEvent
     public static void onQuickDraw(LivingEntityUseItemEvent.Start event) {
         Entity entity = event.getEntity();
-        if (entity instanceof PlayerEntity) {
+        if (entity instanceof PlayerEntity && event.getItem().getItem() instanceof BowItem) {
             PlayerEntity player = (PlayerEntity) entity;
-            if (event.getItem().getItem() instanceof BowItem) {
-                player.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(capability -> {
-                    if (capability.isUnlocked(player, SkillRegistry.QUICK_DRAW)) {
-                        int level = capability.getLevel(player, SkillRegistry.QUICK_DRAW);
-                        if (level > 0) {
-                            event.setDuration(event.getDuration() - level);
-                        }
+            player.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(capability -> {
+                if (capability.isUnlocked(player, SkillRegistry.QUICK_DRAW)) {
+                    int level = capability.getLevel(player, SkillRegistry.QUICK_DRAW);
+                    if (level > 0) {
+                        event.setDuration(event.getDuration() - level);
                     }
-                });
-            }
+                }
+            });
         }
     }
 
@@ -95,6 +95,23 @@ public class CombatEvents {
                     }
                 });
             }
+        }
+    }
+
+    @SubscribeEvent
+    public static void onIronSkin(LivingHurtEvent event) {
+        LivingEntity entityLiving = event.getEntityLiving();
+        if (entityLiving instanceof PlayerEntity && event.getSource() != DamageSource.FALL) {
+            PlayerEntity player = (PlayerEntity) entityLiving;
+            player.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(capability -> {
+                if (capability.isUnlocked(player, SkillRegistry.IRON_SKIN)) {
+                    int level = capability.getLevel(player, SkillRegistry.IRON_SKIN);
+                    if (level > 0) {
+                        float modifier = 1.0F - (level * 0.03F);
+                        event.setAmount(event.getAmount() * modifier);
+                    }
+                }
+            });
         }
     }
 
@@ -125,23 +142,6 @@ public class CombatEvents {
                     }
                 });
             }
-        }
-    }
-
-    @SubscribeEvent
-    public static void onIronSkin(LivingHurtEvent event) {
-        Entity entity = event.getEntityLiving();
-        if (entity instanceof PlayerEntity) {
-            PlayerEntity player = (PlayerEntity) entity;
-            player.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(capability -> {
-                if (capability.isUnlocked(player, SkillRegistry.IRON_SKIN)) {
-                    int level = capability.getLevel(player, SkillRegistry.IRON_SKIN);
-                    if (level > 0) {
-                        float modifier = 1.0F - (level * 0.035F);
-                        event.setAmount(event.getAmount() * modifier);
-                    }
-                }
-            });
         }
     }
 }

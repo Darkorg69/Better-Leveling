@@ -1,7 +1,7 @@
 package darkorg.betterleveling.capability;
 
-import darkorg.betterleveling.api.IPlayerCapability;
-import darkorg.betterleveling.impl.PlayerCapability;
+import darkorg.betterleveling.api.IMachineCapability;
+import darkorg.betterleveling.impl.MachineCapability;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.Direction;
 import net.minecraftforge.common.capabilities.Capability;
@@ -9,20 +9,20 @@ import net.minecraftforge.common.capabilities.CapabilityInject;
 import net.minecraftforge.common.capabilities.ICapabilitySerializable;
 import net.minecraftforge.common.util.LazyOptional;
 
-public class PlayerCapabilityProvider implements ICapabilitySerializable<CompoundNBT> {
-    @CapabilityInject(IPlayerCapability.class)
-    public static Capability<IPlayerCapability> PLAYER_CAP = null;
+public class MachineCapabilityProvider implements ICapabilitySerializable<CompoundNBT> {
+    @CapabilityInject(IMachineCapability.class)
+    public static Capability<IMachineCapability> MACHINE_CAP = null;
 
-    private IPlayerCapability instance;
-    private final LazyOptional<IPlayerCapability> optional = LazyOptional.of(this::getCapability);
+    private IMachineCapability instance;
+    private final LazyOptional<IMachineCapability> optional = LazyOptional.of(this::getCapability);
 
-    private IPlayerCapability getCapability() {
-        return this.instance == null ? this.instance = new PlayerCapability() : this.instance;
+    private IMachineCapability getCapability() {
+        return this.instance == null ? this.instance = new MachineCapability() : this.instance;
     }
 
     @Override
     public <T> LazyOptional<T> getCapability(Capability<T> cap, Direction side) {
-        return PLAYER_CAP.orEmpty(cap, optional);
+        return MACHINE_CAP.orEmpty(cap, optional);
     }
 
     @Override

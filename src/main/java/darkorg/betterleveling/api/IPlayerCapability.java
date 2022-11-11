@@ -29,9 +29,11 @@ public interface IPlayerCapability {
 
     void setLevel(ServerPlayerEntity pServerPlayer, ISkill pSkill, int pLevel);
 
-    CompoundNBT getData();
+    CompoundNBT getNBTData();
 
-    void setData(CompoundNBT pData);
+    void setNBTData(CompoundNBT pData);
+
+    void resetPlayer(ServerPlayerEntity pServerPlayer);
 
     void receiveDataFromServer(CompoundNBT pData);
 

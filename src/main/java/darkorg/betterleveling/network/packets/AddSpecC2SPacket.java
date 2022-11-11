@@ -14,49 +14,28 @@ import java.util.function.Supplier;
 public class AddSpecC2SPacket {
     private final CompoundNBT data;
 
-    /**
-     * Packet constructor
-     */
     public AddSpecC2SPacket(Pair<ISpecialization, Boolean> pPair) {
         this.data = new CompoundNBT();
-
-        this.data.putString("Specialization", pPair.getFirst().getName());
+        this.data.putString("Spec", pPair.getFirst().getName());
         this.data.putBoolean("Value", pPair.getSecond());
     }
 
-    /**
-     * Decodes data from the packet buffer
-     *
-     * @param packetBuffer Packet buffer.
-     */
-    public AddSpecC2SPacket(PacketBuffer packetBuffer) {
-        this.data = packetBuffer.readNbt();
+    public AddSpecC2SPacket(PacketBuffer buf) {
+        this.data = buf.readNbt();
     }
 
-    /**
-     * Encodes data to the packet buffer
-     *
-     * @param packetBuffer Packet buffer.
-     */
-    public static void encode(AddSpecC2SPacket packet, PacketBuffer packetBuffer) {
-        packetBuffer.writeNbt(packet.data);
+    public static void encode(AddSpecC2SPacket packet, PacketBuffer buf) {
+        buf.writeNbt(packet.data);
     }
 
-    /**
-     * Handles the packet functionality
-     */
-    public static void handle(AddSpecC2SPacket packet, Supplier<NetworkEvent.Context> contextSupplier) {
-        NetworkEvent.Context context = contextSupplier.get();
-
+    public static void handle(AddSpecC2SPacket packet, Supplier<NetworkEvent.Context> supplier) {
+        NetworkEvent.Context context = supplier.get();
         context.enqueueWork(() -> {
             // HERE WE ARE ON THE SERVER!
-            ServerPlayerEntity sender = context.getSender();
-            ISpecialization specialization = CapabilityUtil.getSpecFromName(packet.data.getString("Specialization"));
-
-            if (sender != null) {
-                sender.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(capability -> {
-                    boolean value = packet.data.getBoolean("Value");
-                    capability.addUnlocked(sender, specialization, value);
+            ServerPlayerEntity serverPlayer = context.getSender();
+            if (serverPlayer != null) {
+                serverPlayer.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(capability -> {
+                    capability.addUnlocked(serverPlayer, CapabilityUtil.getSpecFromName(packet.data.getString("Spec")), packet.data.getBoolean("Value"));
                 });
             }
         });

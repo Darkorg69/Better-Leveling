@@ -1,8 +1,9 @@
 {
   "replace": false,
   "values": [
-    "minecraft:leather",
+    "minecraft:feather",
     "minecraft:rabbit_hide",
-    "#minecraft:wool"
+    "#minecraft:wool",
+    "#forge:leather"
   ]
 }

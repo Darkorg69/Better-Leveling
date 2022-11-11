@@ -62,7 +62,7 @@ public class Skill implements ISkill {
     }
 
     @Override
-    public int getLevelCost(int pLevel) {
+    public int getIncreaseCost(int pLevel) {
         return Math.round((14 * pLevel) / 9.0F) + 1;
     }
 
@@ -83,8 +83,7 @@ public class Skill implements ISkill {
 
     @Override
     public TranslationTextComponent getDescriptionIndexOf(int pIndex) {
-        int index = Math.max(1, pIndex);
-        return new TranslationTextComponent(getDescription().getKey() + index);
+        return new TranslationTextComponent(getDescription().getKey() + Math.max(1, pIndex));
     }
 
     @Override
@@ -95,10 +94,5 @@ public class Skill implements ISkill {
     @Override
     public Map<ISkill, Integer> getPrerequisites() {
         return this.prerequisites;
-    }
-
-    @Override
-    public boolean hasPrerequisites() {
-        return !this.getPrerequisites().isEmpty();
     }
 }

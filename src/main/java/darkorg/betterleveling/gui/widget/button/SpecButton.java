@@ -7,8 +7,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-import javax.annotation.Nonnull;
-
 @OnlyIn(Dist.CLIENT)
 public class SpecButton extends AbstractSpecButton {
     private final boolean isUnlocked;
@@ -21,7 +19,7 @@ public class SpecButton extends AbstractSpecButton {
     }
 
     @Override
-    public void renderButton(@Nonnull MatrixStack pMatrixStack, int pMouseX, int pMouseY, float pPartialTick) {
+    public void renderButton(MatrixStack pMatrixStack, int pMouseX, int pMouseY, float pPartialTick) {
         Minecraft minecraft = Minecraft.getInstance();
         RenderUtil.setShaderTextureButton();
         if (!this.isUnlocked) {
@@ -30,7 +28,7 @@ public class SpecButton extends AbstractSpecButton {
             this.blit(pMatrixStack, this.x, this.y, 32, 166, this.width, this.height);
         }
         drawCenteredString(pMatrixStack, minecraft.font, this.value.getTranslation(), this.x + 16, this.y - 10, 16777215);
-        if (this.isHovered() || this.isFocused()) {
+        if (isHovered() || isFocused()) {
             this.renderToolTip(pMatrixStack, pMouseX, pMouseY);
         }
         this.renderBg(pMatrixStack, minecraft, pMouseX, pMouseY);
@@ -38,7 +36,7 @@ public class SpecButton extends AbstractSpecButton {
     }
 
     @Override
-    public void renderToolTip(@Nonnull MatrixStack pMatrixStack, int pMouseX, int pMouseY) {
+    public void renderToolTip(MatrixStack pMatrixStack, int pMouseX, int pMouseY) {
         this.onTooltip.onTooltip(pMatrixStack, pMouseX, pMouseY);
     }
 

@@ -12,20 +12,19 @@ import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
-@Mod.EventBusSubscriber(modid = BetterLeveling.MOD_ID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.FORGE)
+@Mod.EventBusSubscriber(modid = BetterLeveling.MOD_ID, value = Dist.CLIENT)
 public class ClientForgeEvents {
     @SubscribeEvent
     public static void onKeyInput(InputEvent.KeyInputEvent event) {
         if (KeyMappings.OPEN_GUI.consumeClick()) {
             Minecraft minecraft = Minecraft.getInstance();
-            ClientPlayerEntity clientPlayer = minecraft.player;
-
-            if (clientPlayer != null) {
-                clientPlayer.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(capability -> {
-                    if (capability.hasUnlocked(clientPlayer)) {
+            ClientPlayerEntity localPlayer = minecraft.player;
+            if (localPlayer != null) {
+                localPlayer.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(capability -> {
+                    if (capability.hasUnlocked(localPlayer)) {
                         minecraft.setScreen(new SpecsScreen());
                     } else {
-                        if (capability.canUnlock(clientPlayer)) {
+                        if (capability.canUnlock(localPlayer)) {
                             minecraft.setScreen(new ChooseSpecScreen());
                         }
                     }

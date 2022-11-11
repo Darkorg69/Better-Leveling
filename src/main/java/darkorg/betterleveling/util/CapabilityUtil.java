@@ -9,14 +9,14 @@ import java.util.List;
 
 public class CapabilityUtil {
     public static ISpecialization getSpecFromName(String name) {
-        return SpecRegistry.getSpecHashMap().get(name);
+        return SpecRegistry.getSpecNameMap().get(name);
     }
 
     public static ISkill getSkillFromName(String pName) {
-        return SkillRegistry.getNameSkillMap().get(pName);
+        return SkillRegistry.getSkillNameMap().get(pName);
     }
 
     public static List<ISkill> getSkillsFromSpec(ISpecialization pSpecialization) {
-        return SkillRegistry.getSpecSkillMap().get(pSpecialization);
+        return SkillRegistry.getSkillSpecMap().get(pSpecialization);
     }
 }

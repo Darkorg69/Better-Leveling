@@ -6,8 +6,10 @@ import net.minecraft.data.DataGenerator;
 import net.minecraft.data.ItemTagsProvider;
 import net.minecraft.item.Items;
 import net.minecraft.tags.ItemTags;
+import net.minecraftforge.common.Tags;
 import net.minecraftforge.common.data.ExistingFileHelper;
 
+@SuppressWarnings("unchecked")
 public class ModItemTagsProvider extends ItemTagsProvider {
     public ModItemTagsProvider(DataGenerator dataGenerator, BlockTagsProvider blockTagProvider, String modId, ExistingFileHelper existingFileHelper) {
         super(dataGenerator, blockTagProvider, modId, existingFileHelper);
@@ -15,13 +17,12 @@ public class ModItemTagsProvider extends ItemTagsProvider {
 
     @Override
     protected void addTags() {
-        this.copy(ModTags.Blocks.TREASURE_BLOCKS, ModTags.Items.TREASURE_BLOCKS);
-        this.tag(ModTags.Items.COMMON_LOOT).add(Items.ARROW, Items.CLAY_BALL, Items.GLASS_BOTTLE, Items.STICK);
-        this.tag(ModTags.Items.CROPS).add(Items.BEETROOT, Items.COCOA_BEANS, Items.NETHER_WART, Items.POTATO, Items.SWEET_BERRIES, Items.WHEAT);
-        this.tag(ModTags.Items.MEATS).add(Items.BEEF, Items.MUTTON, Items.PORKCHOP, Items.ROTTEN_FLESH);
-        this.tag(ModTags.Items.ORES).add(Items.COAL, Items.DIAMOND, Items.EMERALD, Items.LAPIS_ORE, Items.GOLD_NUGGET, Items.QUARTZ, Items.REDSTONE);
-        this.tag(ModTags.Items.RARE_LOOT).add(Items.DIAMOND, Items.GOLDEN_PICKAXE, Items.GOLDEN_SHOVEL);
-        this.tag(ModTags.Items.SKINS).add(Items.LEATHER, Items.RABBIT_HIDE).addTag(ItemTags.WOOL);
-        this.tag(ModTags.Items.UNCOMMON_LOOT).add(Items.GOLD_NUGGET, Items.IRON_NUGGET);
+        tag(ModTags.Items.ANIMAL_MEAT).add(Items.BEEF, Items.CHICKEN, Items.MUTTON, Items.PORKCHOP, Items.RABBIT, Items.ROTTEN_FLESH);
+        tag(ModTags.Items.ANIMAL_SKIN).add(Items.FEATHER, Items.RABBIT_HIDE).addTags(ItemTags.WOOL, Tags.Items.LEATHER);
+        tag(ModTags.Items.CROPS).add(Items.COCOA_BEANS, Items.SWEET_BERRIES).addTags(Tags.Items.CROPS);
+        tag(ModTags.Items.ORES).add(Items.COAL, Items.REDSTONE).addTags(Tags.Items.GEMS, Tags.Items.NUGGETS);
+        tag(ModTags.Items.TREASURE_COMMON).add(Items.CLAY_BALL).addTags(Tags.Items.STRING);
+        tag(ModTags.Items.TREASURE_RARE).add(Items.GOLDEN_SHOVEL).addTags(Tags.Items.GEMS, Tags.Items.RODS);
+        tag(ModTags.Items.TREASURE_UNCOMMON).add(Items.ARROW).addTags(Tags.Items.DUSTS, Tags.Items.NUGGETS);
     }
 }

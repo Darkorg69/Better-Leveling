@@ -12,11 +12,11 @@ public class PlayerCapabilityStorage implements Capability.IStorage<IPlayerCapab
     @Nullable
     @Override
     public INBT writeNBT(Capability<IPlayerCapability> capability, IPlayerCapability instance, Direction side) {
-        return instance.getData();
+        return instance.getNBTData();
     }
 
     @Override
     public void readNBT(Capability<IPlayerCapability> capability, IPlayerCapability instance, Direction side, INBT nbt) {
-        instance.setData((CompoundNBT) nbt);
+        instance.setNBTData((CompoundNBT) nbt);
     }
 }

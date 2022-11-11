@@ -21,34 +21,36 @@ public class NetworkHandler {
     }
 
     public static void init() {
-        SimpleChannel simpleChannel = NetworkRegistry.ChannelBuilder.named(new ResourceLocation(BetterLeveling.MOD_ID, "messages")).networkProtocolVersion(() -> "1.0").clientAcceptedVersions(s -> true).serverAcceptedVersions(s -> true).simpleChannel();
+        SimpleChannel instance = NetworkRegistry.ChannelBuilder.named(new ResourceLocation(BetterLeveling.MOD_ID, "messages"))
+                .networkProtocolVersion(() -> "1.0")
+                .clientAcceptedVersions(s -> true)
+                .serverAcceptedVersions(s -> true)
+                .simpleChannel();
 
-        INSTANCE = simpleChannel;
+        INSTANCE = instance;
 
-        //Client to server packets
-        simpleChannel.messageBuilder(AddSpecC2SPacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
+        instance.messageBuilder(AddSpecC2SPacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
                 .decoder(AddSpecC2SPacket::new)
                 .encoder(AddSpecC2SPacket::encode)
                 .consumer(AddSpecC2SPacket::handle)
                 .add();
-        simpleChannel.messageBuilder(AddSkillC2SPacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
+        instance.messageBuilder(AddSkillC2SPacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
                 .decoder(AddSkillC2SPacket::new)
                 .encoder(AddSkillC2SPacket::encode)
                 .consumer(AddSkillC2SPacket::handle)
                 .add();
-        //Server to client packets
-        simpleChannel.messageBuilder(SyncDataS2CPacket.class, id(), NetworkDirection.PLAY_TO_CLIENT)
+        instance.messageBuilder(SyncDataS2CPacket.class, id(), NetworkDirection.PLAY_TO_CLIENT)
                 .decoder(SyncDataS2CPacket::new)
                 .encoder(SyncDataS2CPacket::encode)
                 .consumer(SyncDataS2CPacket::handle)
                 .add();
     }
 
-    public static <MSG> void sendToServer(MSG message) {
-        INSTANCE.sendToServer(message);
+    public static <MSG> void sendToServer(MSG pMessage) {
+        INSTANCE.sendToServer(pMessage);
     }
 
-    public static <MSG> void sendToPlayer(MSG message, ServerPlayerEntity player) {
-        INSTANCE.send(PacketDistributor.PLAYER.with(() -> player), message);
+    public static <MSG> void sendToPlayer(MSG pMessage, ServerPlayerEntity pServerPlayer) {
+        INSTANCE.send(PacketDistributor.PLAYER.with(() -> pServerPlayer), pMessage);
     }
 }

@@ -1,12 +1,12 @@
 package darkorg.betterleveling.impl;
 
-import darkorg.betterleveling.api.ITileCapability;
+import darkorg.betterleveling.api.IMachineCapability;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
 
 import java.util.UUID;
 
-public class TileCapability implements ITileCapability {
+public class MachineCapability implements IMachineCapability {
     private UUID ownerId;
 
     @Override
@@ -35,18 +35,16 @@ public class TileCapability implements ITileCapability {
     }
 
     @Override
-    public CompoundNBT writeNBT() {
+    public CompoundNBT getNBTData() {
         CompoundNBT data = new CompoundNBT();
-
         if (this.hasOwner()) {
             data.putUUID("Owner", ownerId);
         }
-
         return data;
     }
 
     @Override
-    public void readNBT(CompoundNBT pData) {
+    public void setNBTData(CompoundNBT pData) {
         if (pData.contains("Owner")) {
             this.ownerId = pData.getUUID("Owner");
         }

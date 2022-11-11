@@ -1,7 +1,7 @@
 package darkorg.betterleveling.mixin;
 
+import darkorg.betterleveling.capability.MachineCapabilityProvider;
 import darkorg.betterleveling.capability.PlayerCapabilityProvider;
-import darkorg.betterleveling.capability.TileEntityCapabilityProvider;
 import darkorg.betterleveling.registry.SkillRegistry;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
@@ -36,7 +36,7 @@ public abstract class MixinAbstractFurnaceTileEntity extends LockableTileEntity 
     protected void getModifiedCookTime(CallbackInfoReturnable<Integer> cir) {
         if (this.level instanceof ServerWorld) {
             ServerWorld serverLevel = (ServerWorld) this.level;
-            this.getCapability(TileEntityCapabilityProvider.TILE_CAP).ifPresent(capability -> {
+            this.getCapability(MachineCapabilityProvider.MACHINE_CAP).ifPresent(capability -> {
                 if (capability.hasOwner()) {
                     PlayerEntity player = serverLevel.getPlayerByUUID(capability.getOwnerId());
                     if (player instanceof ServerPlayerEntity) {

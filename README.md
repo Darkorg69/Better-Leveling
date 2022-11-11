@@ -4,24 +4,31 @@
 
 This mod adds a functional RPG skill system into Minecraft.
 
+## Notice
+
+This mod is for `Forge` only!
+
 ## Features
 
-You can choose one of 3 specializations for your first after you reach certain level. _(5 by default)_
+You can choose one of 3 specializations for your first after you reach certain level. `(5 by default)`
 
 Each specialization has 6 skills which you can level up by spending your experience levels.
 
-## Important
+## Important!
 
 The default key for opening the GUI is `B`.
+
+This mod is not compatible with [FastFurnace](https://www.curseforge.com/minecraft/mc-mods/fastfurnace), instead
+use [FastFurnace minus Replacement](https://www.curseforge.com/minecraft/mc-mods/fastfurnace-minus-replacement).
 
 ## Specializations & Skills
 
 ### Combat
 
 1. Strength  
-   `Increase your strength and deal more damage.`
+   `Increase strength and deal more damage.`
 2. Critical Strike  
-   `Increase your chance of landing a critical hit!`
+   `Increase chance of landing a critical hit!`
 3. Quick-Draw  
    `Decrease the time needed to charge a bow.`
 4. Arrow speed  
@@ -33,16 +40,14 @@ The default key for opening the GUI is `B`.
 
 ### Crafting
 
-Potential loot has a `level ÷ (level + 3)`% chance to drop.
-
 1. Green Thumb  
    `Grow crops around you faster!`
 2. Harvest Proficiency  
-   `Harvest crops more proficiently, increasing potential loot.`
+   `Increase drops from harvesting crops.`
 3. Skinning  
-   `Increase potential skin drops from killing animals.`
+   `Increase skin drops from killing animals.`
 4. Meat Gathering  
-   `Increase potential meat drops from killing animals.`
+   `Increase meat drops from killing animals.`
 5. Swim Speed  
    `Increase ability to swim underwater.`
 6. Cooking Speed  
@@ -66,11 +71,19 @@ Potential loot has a `level ÷ (level + 3)`% chance to drop.
 6. Sprint Speed  
    `Sprint faster, travel more.`
 
-## Notice
+## Media
 
-This mod is for **FORGE** only!  
-This mod is not compatible with [FastFurnace](https://www.curseforge.com/minecraft/mc-mods/fastfurnace), instead
-use [FastFurnace minus Replacement](https://www.curseforge.com/minecraft/mc-mods/fastfurnace-minus-replacement).
+After reaching level 5, press `B` and choose your first specialization.  
+![Choose your first specialization](https://i.ibb.co/Snztyth/choose.gif)
+
+Level up your skills!  
+![Specialization Menu](https://i.ibb.co/T1hjBL3/spec.png)
+
+![Skill Menu](https://i.ibb.co/7vZpFDw/skill.png)
+
+Unlock other specializations.
+
+![Unlock Specialization](https://i.ibb.co/72GjxBS/unlock-spec.png)
 
 ## FAQ
 

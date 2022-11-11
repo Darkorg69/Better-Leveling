@@ -4,32 +4,31 @@ import darkorg.betterleveling.BetterLeveling;
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.tags.ITag;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.common.Tags;
 
 public class ModTags {
     public static class Blocks {
-        public static final Tags.IOptionalNamedTag<Block> CROPS = createTag("crops");
-        public static final Tags.IOptionalNamedTag<Block> ORES = createTag("ores");
-        public static final Tags.IOptionalNamedTag<Block> TREASURE_BLOCKS = createTag("treasure_blocks");
+        public static final ITag.INamedTag<Block> CROPS = createTag("crops");
+        public static final ITag.INamedTag<Block> ORES = createTag("ores");
+        public static final ITag.INamedTag<Block> TREASURE_BLOCKS = createTag("treasure_blocks");
 
-        private static Tags.IOptionalNamedTag<Block> createTag(String pName) {
+        private static ITag.INamedTag<Block> createTag(String pName) {
             return BlockTags.createOptional(new ResourceLocation(BetterLeveling.MOD_ID, pName));
         }
     }
 
     public static class Items {
-        public static final Tags.IOptionalNamedTag<Item> COMMON_LOOT = createTag("common_loot");
-        public static final Tags.IOptionalNamedTag<Item> CROPS = createTag("crops");
-        public static final Tags.IOptionalNamedTag<Item> MEATS = createTag("meats");
-        public static final Tags.IOptionalNamedTag<Item> ORES = createTag("ores");
-        public static final Tags.IOptionalNamedTag<Item> RARE_LOOT = createTag("rare_loot");
-        public static final Tags.IOptionalNamedTag<Item> SKINS = createTag("skins");
-        public static final Tags.IOptionalNamedTag<Item> TREASURE_BLOCKS = createTag("treasure_blocks");
-        public static final Tags.IOptionalNamedTag<Item> UNCOMMON_LOOT = createTag("uncommon_loot");
+        public static final ITag.INamedTag<Item> ANIMAL_MEAT = createTag("animal_meat");
+        public static final ITag.INamedTag<Item> ANIMAL_SKIN = createTag("animal_skin");
+        public static final ITag.INamedTag<Item> CROPS = createTag("crops");
+        public static final ITag.INamedTag<Item> ORES = createTag("ores");
+        public static final ITag.INamedTag<Item> TREASURE_COMMON = createTag("treasure_common");
+        public static final ITag.INamedTag<Item> TREASURE_RARE = createTag("treasure_rare");
+        public static final ITag.INamedTag<Item> TREASURE_UNCOMMON = createTag("treasure_uncommon");
 
-        private static Tags.IOptionalNamedTag<Item> createTag(String pName) {
+        private static ITag.INamedTag<Item> createTag(String pName) {
             return ItemTags.createOptional(new ResourceLocation(BetterLeveling.MOD_ID, pName));
         }
     }

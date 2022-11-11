@@ -3,7 +3,7 @@ package darkorg.betterleveling.network.chat;
 import darkorg.betterleveling.BetterLeveling;
 import net.minecraft.util.text.TranslationTextComponent;
 
-public class ModTextComponents {
+public class ModComponents {
     public static final TranslationTextComponent CANNOT_DECREASE = new TranslationTextComponent(BetterLeveling.MOD_ID + ".gui.cannot_decrease");
     public static final TranslationTextComponent CANNOT_INCREASE = new TranslationTextComponent(BetterLeveling.MOD_ID + ".gui.cannot_increase");
     public static final TranslationTextComponent CHOOSE_CONFIRM = new TranslationTextComponent(BetterLeveling.MOD_ID + ".gui.choose.confirm");
@@ -13,6 +13,9 @@ public class ModTextComponents {
     public static final TranslationTextComponent CONFIRM_UNLOCK = new TranslationTextComponent(BetterLeveling.MOD_ID + ".gui.unlock.confirm");
     public static final TranslationTextComponent CURRENT_LEVEL = new TranslationTextComponent(BetterLeveling.MOD_ID + ".gui.current_level");
     public static final TranslationTextComponent DECREASE_BUTTON = new TranslationTextComponent(BetterLeveling.MOD_ID + ".gui.decrease");
+    public static final TranslationTextComponent FAILURE_CAPABILITY = new TranslationTextComponent(BetterLeveling.MOD_ID + ".command.failure.capability");
+    public static final TranslationTextComponent FAILURE_SKILL = new TranslationTextComponent(BetterLeveling.MOD_ID + ".command.failure.skill");
+    public static final TranslationTextComponent FAILURE_SPECIALIZATION = new TranslationTextComponent(BetterLeveling.MOD_ID + ".command.failure.spec");
     public static final TranslationTextComponent GUI_CHOOSE = new TranslationTextComponent(BetterLeveling.MOD_ID + ".gui.choose_spec");
     public static final TranslationTextComponent INCREASE_BUTTON = new TranslationTextComponent(BetterLeveling.MOD_ID + ".gui.increase");
     public static final TranslationTextComponent LEVEL = new TranslationTextComponent(BetterLeveling.MOD_ID + ".gui.level");

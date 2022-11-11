@@ -1,11 +1,8 @@
 {
   "replace": false,
   "values": [
-    "minecraft:beetroot",
     "minecraft:cocoa_beans",
-    "minecraft:nether_wart",
-    "minecraft:potato",
     "minecraft:sweet_berries",
-    "minecraft:wheat"
+    "#forge:crops"
   ]
 }

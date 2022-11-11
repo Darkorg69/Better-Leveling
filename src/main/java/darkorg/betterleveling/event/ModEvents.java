@@ -1,15 +1,15 @@
 package darkorg.betterleveling.event;
 
 import darkorg.betterleveling.BetterLeveling;
+import darkorg.betterleveling.api.IMachineCapability;
 import darkorg.betterleveling.api.IPlayerCapability;
-import darkorg.betterleveling.api.ITileCapability;
+import darkorg.betterleveling.capability.MachineCapabilityStorage;
 import darkorg.betterleveling.capability.PlayerCapabilityStorage;
-import darkorg.betterleveling.capability.TileEntityCapabilityStorage;
 import darkorg.betterleveling.data.ModBlockTagsProvider;
 import darkorg.betterleveling.data.ModItemTagsProvider;
 import darkorg.betterleveling.data.ModLanguageProvider;
+import darkorg.betterleveling.impl.MachineCapability;
 import darkorg.betterleveling.impl.PlayerCapability;
-import darkorg.betterleveling.impl.TileCapability;
 import darkorg.betterleveling.network.NetworkHandler;
 import net.minecraft.data.DataGenerator;
 import net.minecraftforge.common.capabilities.CapabilityManager;
@@ -24,7 +24,7 @@ public class ModEvents {
     @SubscribeEvent
     public static void onCommonSetup(FMLCommonSetupEvent event) {
         CapabilityManager.INSTANCE.register(IPlayerCapability.class, new PlayerCapabilityStorage(), PlayerCapability::new);
-        CapabilityManager.INSTANCE.register(ITileCapability.class, new TileEntityCapabilityStorage(), TileCapability::new);
+        CapabilityManager.INSTANCE.register(IMachineCapability.class, new MachineCapabilityStorage(), MachineCapability::new);
         event.enqueueWork(NetworkHandler::init);
     }
 

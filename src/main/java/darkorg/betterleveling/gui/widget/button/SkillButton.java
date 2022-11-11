@@ -14,19 +14,16 @@ import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-import javax.annotation.Nonnull;
-
 @OnlyIn(Dist.CLIENT)
 public class SkillButton extends AbstractButton {
+    private final ISkill playerSkill;
+    private final ItemStack representativeStack;
+    private final OnTooltip onTooltip;
     private int level;
     private boolean isUnlocked;
     private boolean isMaxLevel;
-    private ClientPlayerEntity clientPlayer;
+    private ClientPlayerEntity localPlayer;
     private IPlayerCapability playerCapability;
-
-    private final ISkill playerSkill;
-    private final ItemStack representativeStack;
-    private final SkillButton.OnTooltip onTooltip;
 
     public SkillButton(int pX, int pY, ISkill pPlayerSkill, OnTooltip pOnTooltip) {
         super(pX, pY, 32, 32, new TranslationTextComponent(""));
@@ -37,13 +34,13 @@ public class SkillButton extends AbstractButton {
     }
 
     private void init() {
-        this.clientPlayer = Minecraft.getInstance().player;
+        this.localPlayer = Minecraft.getInstance().player;
 
-        if (this.clientPlayer != null) {
-            this.clientPlayer.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(pCapability -> {
+        if (this.localPlayer != null) {
+            this.localPlayer.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(pCapability -> {
                 this.playerCapability = pCapability;
-                this.level = this.playerCapability.getLevel(this.clientPlayer, this.playerSkill);
-                this.isUnlocked = this.playerCapability.isUnlocked(this.clientPlayer, this.playerSkill);
+                this.level = this.playerCapability.getLevel(this.localPlayer, this.playerSkill);
+                this.isUnlocked = this.playerCapability.isUnlocked(this.localPlayer, this.playerSkill);
                 this.isMaxLevel = this.playerSkill.isMaxLevel(this.level);
             });
         }
@@ -56,7 +53,7 @@ public class SkillButton extends AbstractButton {
     }
 
     @Override
-    public void renderButton(@Nonnull MatrixStack pMatrixStack, int pMouseX, int pMouseY, float pPartialTick) {
+    public void renderButton(MatrixStack pMatrixStack, int pMouseX, int pMouseY, float pPartialTick) {
         Minecraft minecraft = Minecraft.getInstance();
 
         RenderUtil.setShaderTextureButton();
@@ -82,7 +79,7 @@ public class SkillButton extends AbstractButton {
     }
 
     @Override
-    public void renderToolTip(@Nonnull MatrixStack pMatrixStack, int pMouseX, int pMouseY) {
+    public void renderToolTip(MatrixStack pMatrixStack, int pMouseX, int pMouseY) {
         this.onTooltip.onTooltip(this, pMatrixStack, pMouseX, pMouseY);
     }
 

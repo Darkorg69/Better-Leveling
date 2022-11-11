@@ -5,27 +5,28 @@ import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.config.ModConfig;
 
 public class ServerConfig {
-    public static ForgeConfigSpec SERVER_CONFIG;
+    public static final ForgeConfigSpec SPEC;
 
-    public static ForgeConfigSpec.BooleanValue resetOnDeath;
-    public static ForgeConfigSpec.BooleanValue lockBoundFurnaces;
-    public static ForgeConfigSpec.IntValue firstSpecLevelCost;
+    public static final ForgeConfigSpec.ConfigValue<Boolean> RESET_ON_DEATH;
+    public static final ForgeConfigSpec.ConfigValue<Boolean> LOCK_BOUND_MACHINES;
+    public static final ForgeConfigSpec.ConfigValue<Integer> FIRST_SPEC_COST;
 
-    private static void build() {
-        ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
+    public static final ForgeConfigSpec.Builder BUILDER = new ForgeConfigSpec.Builder();
 
-        builder.push("Better Leveling Server Config");
+    static {
+        BUILDER.push("Better Leveling Server Configuration");
 
-        resetOnDeath = builder.comment("If all progress should be lost on death. (Hardcore mode)").define("resetOnDeath", false);
-        lockBoundFurnaces = builder.comment("If set to true, bound machines (ex.Furnace) will be usable only by their owners").define("lockBoundFurnaces", false);
-        firstSpecLevelCost = builder.comment("How much levels should the player have before choosing his first specialization (if set to 0, none will be required)").defineInRange("firstSpecLevelCost", 5, 0, Integer.MAX_VALUE);
-
-        builder.pop();
-        SERVER_CONFIG = builder.build();
+        RESET_ON_DEATH = BUILDER.comment("If all progress should be lost on death")
+                .define("Reset on death", false);
+        LOCK_BOUND_MACHINES = BUILDER.comment("If bound machines should be usable only by their owners")
+                .define("Lock bound machines", false);
+        FIRST_SPEC_COST = BUILDER.comment("How much levels the player needs before choosing his first specialization")
+                .defineInRange("First specialization cost", 5, 0, Integer.MAX_VALUE);
+        BUILDER.pop();
+        SPEC = BUILDER.build();
     }
 
     public static void init() {
-        build();
-        ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, SERVER_CONFIG);
+        ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, SPEC);
     }
 }

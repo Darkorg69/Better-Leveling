@@ -14,13 +14,13 @@ import java.util.List;
 
 @OnlyIn(Dist.CLIENT)
 public abstract class AbstractSpecButton extends AbstractButton {
-    private int index;
+    private final OnValueChange onValueChange;
+    private final List<ISpecialization> values = SpecRegistry.getSpecRegistry();
     protected ISpecialization value;
     protected ITextComponent translation;
     protected ITextComponent description;
     protected ItemStack representativeItemStack;
-    private final AbstractSpecButton.OnValueChange onValueChange;
-    private final List<ISpecialization> values = SpecRegistry.getSpecRegistry();
+    private int index;
 
     public AbstractSpecButton(int pX, int pY, int pWidth, int pHeight, ISpecialization pValue, OnValueChange pOnValueChange) {
         super(pX, pY, pWidth, pHeight, new TranslationTextComponent(""));

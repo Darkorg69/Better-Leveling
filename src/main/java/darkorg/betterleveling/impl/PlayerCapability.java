@@ -5,7 +5,7 @@ import darkorg.betterleveling.api.ISkill;
 import darkorg.betterleveling.api.ISpecialization;
 import darkorg.betterleveling.config.ServerConfig;
 import darkorg.betterleveling.network.NetworkHandler;
-import darkorg.betterleveling.network.chat.ModTextComponents;
+import darkorg.betterleveling.network.chat.ModComponents;
 import darkorg.betterleveling.network.packets.SyncDataS2CPacket;
 import darkorg.betterleveling.registry.SkillRegistry;
 import darkorg.betterleveling.registry.SpecRegistry;
@@ -23,23 +23,18 @@ import java.util.List;
 import java.util.Map;
 
 public class PlayerCapability implements IPlayerCapability {
-    private CompoundNBT data;
-
     private final Map<ISpecialization, Boolean> specMap;
     private final Map<ISkill, Integer> skillMap;
+    private CompoundNBT data;
 
     public PlayerCapability() {
         this.data = new CompoundNBT();
-
         ListNBT specs = new ListNBT();
         ListNBT skills = new ListNBT();
-
         this.data.put("Specs", specs);
         this.data.put("Skills", skills);
-
         SpecRegistry.getSpecRegistry().forEach(pSpecialization -> setUnlocked(pSpecialization, false));
         SkillRegistry.getSkillRegistry().forEach(pSkill -> setLevel(pSkill, 0));
-
         this.specMap = new HashMap<>();
         this.skillMap = new HashMap<>();
     }
@@ -48,7 +43,6 @@ public class PlayerCapability implements IPlayerCapability {
     public boolean hasUnlocked(PlayerEntity pPlayer) {
         for (ISpecialization playerSpecialization : SpecRegistry.getSpecRegistry()) {
             boolean unlocked = getUnlocked(pPlayer, playerSpecialization);
-
             if (unlocked) {
                 return true;
             }
@@ -59,10 +53,8 @@ public class PlayerCapability implements IPlayerCapability {
     @Override
     public boolean getUnlocked(PlayerEntity pPlayer, ISpecialization pSpecialization) {
         if (pPlayer.level.isClientSide) return this.specMap.getOrDefault(pSpecialization, false);
-
         for (INBT tag : this.data.getList("Specs", 10)) {
             CompoundNBT nbt = (CompoundNBT) tag;
-
             if (nbt.getString("Name").equals(pSpecialization.getName())) {
                 return nbt.getBoolean("Unlocked");
             }
@@ -74,31 +66,29 @@ public class PlayerCapability implements IPlayerCapability {
     public void addUnlocked(ServerPlayerEntity pServerPlayer, ISpecialization pSpecialization, boolean pUnlocked) {
         if (hasUnlocked(pServerPlayer)) {
             int unlockCost = pSpecialization.getLevelCost();
-
             if (unlockCost <= pServerPlayer.experienceLevel) {
                 pServerPlayer.giveExperienceLevels(-unlockCost);
                 setUnlocked(pServerPlayer, pSpecialization, pUnlocked);
             } else {
-                pServerPlayer.displayClientMessage(ModTextComponents.NOT_ENOUGH_XP, true);
+                pServerPlayer.displayClientMessage(ModComponents.NOT_ENOUGH_XP, true);
             }
         } else {
-            pServerPlayer.giveExperienceLevels(-ServerConfig.firstSpecLevelCost.get());
+            pServerPlayer.giveExperienceLevels(-ServerConfig.FIRST_SPEC_COST.get());
             setUnlocked(pServerPlayer, pSpecialization, pUnlocked);
         }
     }
 
     @Override
     public void setUnlocked(ServerPlayerEntity pServerPlayer, ISpecialization pSpecialization, boolean pUnlocked) {
-        setUnlocked(pSpecialization, true);
+        setUnlocked(pSpecialization, pUnlocked);
         sendDataToPlayer(pServerPlayer);
     }
 
     @Override
     public boolean canUnlock(PlayerEntity pPlayer) {
-        boolean canUnlock = pPlayer.experienceLevel >= ServerConfig.firstSpecLevelCost.get();
-
+        boolean canUnlock = pPlayer.experienceLevel >= ServerConfig.FIRST_SPEC_COST.get();
         if (!canUnlock) {
-            pPlayer.displayClientMessage(new TranslationTextComponent("").append(ModTextComponents.CHOOSE_NO_XP).append(" ").append(String.valueOf(ServerConfig.firstSpecLevelCost.get())), true);
+            pPlayer.displayClientMessage(new TranslationTextComponent("").append(ModComponents.CHOOSE_NO_XP).append(" ").append(String.valueOf(ServerConfig.FIRST_SPEC_COST.get())), true);
         }
         return canUnlock;
     }
@@ -111,23 +101,19 @@ public class PlayerCapability implements IPlayerCapability {
     @Override
     public List<ISpecialization> getAllUnlocked(PlayerEntity pPlayer) {
         List<ISpecialization> unlockedList = new ArrayList<>();
-
-        SpecRegistry.getSpecRegistry().forEach(PlayerEntitySpec -> {
-            if (getUnlocked(pPlayer, PlayerEntitySpec)) {
-                unlockedList.add(PlayerEntitySpec);
+        SpecRegistry.getSpecRegistry().forEach(PlayerSpec -> {
+            if (getUnlocked(pPlayer, PlayerSpec)) {
+                unlockedList.add(PlayerSpec);
             }
         });
-
         return unlockedList;
     }
 
     @Override
     public int getLevel(PlayerEntity pPlayer, ISkill pSkill) {
         if (pPlayer.level.isClientSide) return this.skillMap.getOrDefault(pSkill, 0);
-
         for (INBT tag : this.data.getList("Skills", 10)) {
             CompoundNBT nbt = (CompoundNBT) tag;
-
             if (nbt.getString("Name").equals(pSkill.getName())) {
                 return nbt.getInt("Level");
             }
@@ -144,24 +130,23 @@ public class PlayerCapability implements IPlayerCapability {
     @Override
     public void addLevel(ServerPlayerEntity pServerPlayer, ISkill pSkill, int pLevel) {
         int currentLevel = getLevel(pServerPlayer, pSkill);
-
         if (pLevel > 0) {
             if (currentLevel >= pSkill.getMaxLevel()) {
-                pServerPlayer.displayClientMessage(ModTextComponents.CANNOT_INCREASE, true);
+                pServerPlayer.displayClientMessage(ModComponents.CANNOT_INCREASE, true);
             } else {
-                int levelCost = pSkill.getLevelCost(currentLevel);
+                int levelCost = pSkill.getIncreaseCost(currentLevel);
                 if (levelCost <= pServerPlayer.experienceLevel) {
                     pServerPlayer.giveExperienceLevels(-levelCost);
                     setLevel(pServerPlayer, pSkill, currentLevel + pLevel);
                 } else {
-                    pServerPlayer.displayClientMessage(ModTextComponents.NOT_ENOUGH_XP, true);
+                    pServerPlayer.displayClientMessage(ModComponents.NOT_ENOUGH_XP, true);
                 }
             }
         } else {
             if (currentLevel <= pSkill.getMinLevel()) {
-                pServerPlayer.displayClientMessage(ModTextComponents.CANNOT_DECREASE, true);
+                pServerPlayer.displayClientMessage(ModComponents.CANNOT_DECREASE, true);
             } else {
-                pServerPlayer.giveExperienceLevels(currentLevel);
+                pServerPlayer.giveExperienceLevels(Math.round(pSkill.getIncreaseCost(currentLevel - 1) / 2.0F));
                 setLevel((pServerPlayer), pSkill, currentLevel + pLevel);
             }
         }
@@ -170,16 +155,11 @@ public class PlayerCapability implements IPlayerCapability {
     @Override
     public boolean isUnlocked(PlayerEntity pPlayer, ISkill pSkill) {
         if (getUnlocked(pPlayer, pSkill.getParentSpec())) {
-            Map<ISkill, Integer> prerequisites = pSkill.getPrerequisites();
-
             List<Boolean> logicalResult = new ArrayList<>();
-
-            prerequisites.forEach((prerequisite, level) -> {
+            pSkill.getPrerequisites().forEach((prerequisite, level) -> {
                 getLevel(pPlayer, prerequisite);
-
                 logicalResult.add(getLevel(pPlayer, prerequisite) >= level);
             });
-
             return !logicalResult.contains(false);
         } else {
             return false;
@@ -187,39 +167,43 @@ public class PlayerCapability implements IPlayerCapability {
     }
 
     @Override
-    public CompoundNBT getData() {
+    public CompoundNBT getNBTData() {
         return this.data;
     }
 
     @Override
-    public void setData(CompoundNBT pData) {
+    public void setNBTData(CompoundNBT pData) {
         this.data = pData;
     }
 
     @Override
     public void sendDataToPlayer(ServerPlayerEntity pServerPlayer) {
         CompoundNBT data = new CompoundNBT();
-
         ListNBT specs = new ListNBT();
         ListNBT skills = new ListNBT();
 
-        SpecRegistry.getSpecRegistry().forEach(PlayerEntitySpec -> {
+        SpecRegistry.getSpecRegistry().forEach(PlayerSpec -> {
             CompoundNBT tag = new CompoundNBT();
-            tag.putString("Name", PlayerEntitySpec.getName());
-            tag.putBoolean("Unlocked", getUnlocked(pServerPlayer, PlayerEntitySpec));
+            tag.putString("Name", PlayerSpec.getName());
+            tag.putBoolean("Unlocked", getUnlocked(pServerPlayer, PlayerSpec));
             specs.add(tag);
         });
         data.put("Specs", specs);
 
-        SkillRegistry.getSkillRegistry().forEach(PlayerEntitySkill -> {
+        SkillRegistry.getSkillRegistry().forEach(PlayerSkill -> {
             CompoundNBT tag = new CompoundNBT();
-            tag.putString("Name", PlayerEntitySkill.getName());
-            tag.putInt("Level", getLevel(pServerPlayer, PlayerEntitySkill));
+            tag.putString("Name", PlayerSkill.getName());
+            tag.putInt("Level", getLevel(pServerPlayer, PlayerSkill));
             skills.add(tag);
         });
         data.put("Skills", skills);
 
         NetworkHandler.sendToPlayer(new SyncDataS2CPacket(data), pServerPlayer);
+    }
+
+    @Override
+    public void resetPlayer(ServerPlayerEntity pServerPlayer) {
+
     }
 
     @Override
@@ -242,10 +226,8 @@ public class PlayerCapability implements IPlayerCapability {
 
     private void putUnlocked(ISpecialization pSpecialization, boolean pUnlocked) {
         CompoundNBT tag = new CompoundNBT();
-
         tag.putString("Name", pSpecialization.getName());
         tag.putBoolean("Unlocked", pUnlocked);
-
         this.data.getList("Specs", 10).add(tag);
     }
 
@@ -256,7 +238,6 @@ public class PlayerCapability implements IPlayerCapability {
         } else {
             for (INBT tag : this.data.getList("Specs", 10)) {
                 CompoundNBT nbt = (CompoundNBT) tag;
-
                 if (nbt.getString("Name").equals(pSpecialization.getName())) {
                     nbt.putBoolean("Unlocked", pUnlocked);
                     return;
@@ -284,10 +265,8 @@ public class PlayerCapability implements IPlayerCapability {
 
     private void putLevel(ISkill pSkill, int pLevel) {
         CompoundNBT skill = new CompoundNBT();
-
         skill.putString("Name", pSkill.getName());
         skill.putInt("Level", pLevel);
-
         this.data.getList("Skills", 10).add(skill);
     }
 }

@@ -10,7 +10,7 @@ public interface ISkill {
 
     int getMaxLevel();
 
-    int getLevelCost(int pLevel);
+    int getIncreaseCost(int pLevel);
 
     boolean isMinLevel(int pLevel);
 
@@ -29,7 +29,5 @@ public interface ISkill {
     ItemStack getRepresentativeItemStack();
 
     Map<ISkill, Integer> getPrerequisites();
-
-    boolean hasPrerequisites();
 }
 
