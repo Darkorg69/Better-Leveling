@@ -6,7 +6,7 @@ import darkorg.betterleveling.gui.screen.ChooseSpecScreen;
 import darkorg.betterleveling.gui.screen.SpecsScreen;
 import darkorg.betterleveling.key.KeyMappings;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.player.ClientPlayerEntity;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -18,7 +18,7 @@ public class ClientForgeEvents {
     public static void onKeyInput(InputEvent.KeyInputEvent event) {
         if (KeyMappings.OPEN_GUI.consumeClick()) {
             Minecraft minecraft = Minecraft.getInstance();
-            ClientPlayerEntity localPlayer = minecraft.player;
+            LocalPlayer localPlayer = minecraft.player;
             if (localPlayer != null) {
                 localPlayer.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(capability -> {
                     if (capability.hasUnlocked(localPlayer)) {

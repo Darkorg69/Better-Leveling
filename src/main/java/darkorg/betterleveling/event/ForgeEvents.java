@@ -8,12 +8,12 @@ import darkorg.betterleveling.command.ResetCommand;
 import darkorg.betterleveling.command.SetSkillCommand;
 import darkorg.betterleveling.command.SetSpecializationCommand;
 import darkorg.betterleveling.config.ServerConfig;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.tileentity.AbstractFurnaceTileEntity;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.block.entity.AbstractFurnaceBlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
@@ -26,9 +26,7 @@ import net.minecraftforge.server.command.ConfigCommand;
 public class ForgeEvents {
     @SubscribeEvent
     public static void onAttachCapabilitiesEntity(AttachCapabilitiesEvent<Entity> event) {
-        Entity object = event.getObject();
-        if (object instanceof PlayerEntity) {
-            PlayerEntity player = (PlayerEntity) object;
+        if (event.getObject() instanceof Player player) {
             if (!player.getCapability(PlayerCapabilityProvider.PLAYER_CAP).isPresent()) {
                 event.addCapability(new ResourceLocation(BetterLeveling.MOD_ID, "player"), new PlayerCapabilityProvider());
             }
@@ -36,21 +34,17 @@ public class ForgeEvents {
     }
 
     @SubscribeEvent
-    public static void onAttachCapabilitiesBlockEntity(AttachCapabilitiesEvent<TileEntity> event) {
-        TileEntity object = event.getObject();
-        if (object instanceof AbstractFurnaceTileEntity) {
-            AbstractFurnaceTileEntity tileEntity = (AbstractFurnaceTileEntity) object;
+    public static void onAttachCapabilitiesBlockEntity(AttachCapabilitiesEvent<BlockEntity> event) {
+        if (event.getObject() instanceof AbstractFurnaceBlockEntity tileEntity) {
             if (!tileEntity.getCapability(MachineCapabilityProvider.MACHINE_CAP).isPresent()) {
-                event.addCapability(new ResourceLocation(BetterLeveling.MOD_ID, "block"), new MachineCapabilityProvider());
+                event.addCapability(new ResourceLocation(BetterLeveling.MOD_ID, "machine"), new MachineCapabilityProvider());
             }
         }
     }
 
     @SubscribeEvent
     public static void onEntityJoinLevel(EntityJoinWorldEvent event) {
-        Entity entity = event.getEntity();
-        if (entity instanceof ServerPlayerEntity) {
-            ServerPlayerEntity serverPlayer = (ServerPlayerEntity) entity;
+        if (event.getEntity() instanceof ServerPlayer serverPlayer) {
             if (!serverPlayer.level.isClientSide) {
                 serverPlayer.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(capability -> {
                     capability.sendDataToPlayer(serverPlayer);
@@ -62,12 +56,14 @@ public class ForgeEvents {
     @SubscribeEvent
     public static void onPlayerClone(PlayerEvent.Clone event) {
         if (!event.isWasDeath() || !ServerConfig.RESET_ON_DEATH.get()) {
-            PlayerEntity original = event.getOriginal();
+            Player original = event.getOriginal();
+            original.reviveCaps();
             original.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(oldCap -> {
                 event.getEntity().getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(newCap -> {
                     newCap.setNBTData(oldCap.getNBTData());
                 });
             });
+            original.invalidateCaps();
         }
     }
 

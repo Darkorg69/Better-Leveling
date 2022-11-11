@@ -2,20 +2,20 @@ package darkorg.betterleveling.impl;
 
 import darkorg.betterleveling.api.ISpecialization;
 import darkorg.betterleveling.util.CapabilityUtil;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 
 public class Specialization implements ISpecialization {
     private final String name;
-    private final TranslationTextComponent translation;
-    private final TranslationTextComponent description;
+    private final TranslatableComponent translation;
+    private final TranslatableComponent description;
     private final ItemStack representativeStack;
 
     public Specialization(String pNamespace, String pName, Item pItem) {
         this.name = pName;
-        this.translation = new TranslationTextComponent(pNamespace + ".spec." + pName);
-        this.description = new TranslationTextComponent(pNamespace + ".spec." + pName + ".desc");
+        this.translation = new TranslatableComponent(pNamespace + ".spec." + pName);
+        this.description = new TranslatableComponent(pNamespace + ".spec." + pName + ".desc");
         this.representativeStack = new ItemStack(pItem);
     }
 
@@ -30,12 +30,12 @@ public class Specialization implements ISpecialization {
     }
 
     @Override
-    public TranslationTextComponent getTranslation() {
+    public TranslatableComponent getTranslation() {
         return this.translation;
     }
 
     @Override
-    public TranslationTextComponent getDescription() {
+    public TranslatableComponent getDescription() {
         return this.description;
     }
 

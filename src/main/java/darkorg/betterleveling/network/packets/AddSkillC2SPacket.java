@@ -4,27 +4,27 @@ import com.mojang.datafixers.util.Pair;
 import darkorg.betterleveling.api.ISkill;
 import darkorg.betterleveling.capability.PlayerCapabilityProvider;
 import darkorg.betterleveling.util.CapabilityUtil;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraftforge.network.NetworkEvent;
 
 import java.util.function.Supplier;
 
 public class AddSkillC2SPacket {
-    private final CompoundNBT data;
+    private final CompoundTag data;
 
     public AddSkillC2SPacket(Pair<ISkill, Integer> pPair) {
-        this.data = new CompoundNBT();
+        this.data = new CompoundTag();
         this.data.putString("Skill", pPair.getFirst().getName());
         this.data.putInt("Value", pPair.getSecond());
     }
 
-    public AddSkillC2SPacket(PacketBuffer buf) {
+    public AddSkillC2SPacket(FriendlyByteBuf buf) {
         this.data = buf.readNbt();
     }
 
-    public static void encode(AddSkillC2SPacket packet, PacketBuffer buf) {
+    public static void encode(AddSkillC2SPacket packet, FriendlyByteBuf buf) {
         buf.writeNbt(packet.data);
     }
 
@@ -32,7 +32,7 @@ public class AddSkillC2SPacket {
         NetworkEvent.Context context = supplier.get();
         context.enqueueWork(() -> {
             // HERE WE ARE ON THE SERVER!
-            ServerPlayerEntity serverPlayer = context.getSender();
+            ServerPlayer serverPlayer = context.getSender();
             if (serverPlayer != null) {
                 serverPlayer.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(capability -> {
                     capability.addLevel(serverPlayer, CapabilityUtil.getSkillFromName(packet.data.getString("Skill")), packet.data.getInt("Value"));

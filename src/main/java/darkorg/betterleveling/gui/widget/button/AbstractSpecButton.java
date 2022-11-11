@@ -2,11 +2,12 @@ package darkorg.betterleveling.gui.widget.button;
 
 import darkorg.betterleveling.api.ISpecialization;
 import darkorg.betterleveling.registry.SpecRegistry;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.button.AbstractButton;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.client.gui.components.AbstractButton;
+import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -17,19 +18,24 @@ public abstract class AbstractSpecButton extends AbstractButton {
     private final OnValueChange onValueChange;
     private final List<ISpecialization> values = SpecRegistry.getSpecRegistry();
     protected ISpecialization value;
-    protected ITextComponent translation;
-    protected ITextComponent description;
+    protected Component translation;
+    protected Component description;
     protected ItemStack representativeItemStack;
     private int index;
 
     public AbstractSpecButton(int pX, int pY, int pWidth, int pHeight, ISpecialization pValue, OnValueChange pOnValueChange) {
-        super(pX, pY, pWidth, pHeight, new TranslationTextComponent(""));
+        super(pX, pY, pWidth, pHeight, new TranslatableComponent(""));
         this.index = values.indexOf(pValue);
         this.value = pValue;
         this.translation = pValue.getTranslation();
         this.description = pValue.getDescription();
         this.representativeItemStack = pValue.getRepresentativeItemStack();
         this.onValueChange = pOnValueChange;
+    }
+
+    @Override
+    public void updateNarration(NarrationElementOutput pNarrationElementOutput) {
+
     }
 
     @Override

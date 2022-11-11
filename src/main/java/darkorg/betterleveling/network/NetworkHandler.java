@@ -4,12 +4,12 @@ import darkorg.betterleveling.BetterLeveling;
 import darkorg.betterleveling.network.packets.AddSkillC2SPacket;
 import darkorg.betterleveling.network.packets.AddSpecC2SPacket;
 import darkorg.betterleveling.network.packets.SyncDataS2CPacket;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.network.NetworkDirection;
-import net.minecraftforge.fml.network.NetworkRegistry;
-import net.minecraftforge.fml.network.PacketDistributor;
-import net.minecraftforge.fml.network.simple.SimpleChannel;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraftforge.network.NetworkDirection;
+import net.minecraftforge.network.NetworkRegistry;
+import net.minecraftforge.network.PacketDistributor;
+import net.minecraftforge.network.simple.SimpleChannel;
 
 public class NetworkHandler {
     private static SimpleChannel INSTANCE;
@@ -50,7 +50,7 @@ public class NetworkHandler {
         INSTANCE.sendToServer(pMessage);
     }
 
-    public static <MSG> void sendToPlayer(MSG pMessage, ServerPlayerEntity pServerPlayer) {
+    public static <MSG> void sendToPlayer(MSG pMessage, ServerPlayer pServerPlayer) {
         INSTANCE.send(PacketDistributor.PLAYER.with(() -> pServerPlayer), pMessage);
     }
 }

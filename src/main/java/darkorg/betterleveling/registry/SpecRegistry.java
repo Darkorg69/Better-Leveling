@@ -3,7 +3,7 @@ package darkorg.betterleveling.registry;
 import darkorg.betterleveling.BetterLeveling;
 import darkorg.betterleveling.api.ISpecialization;
 import darkorg.betterleveling.impl.Specialization;
-import net.minecraft.item.Items;
+import net.minecraft.world.item.Items;
 
 import java.util.ArrayList;
 import java.util.HashMap;

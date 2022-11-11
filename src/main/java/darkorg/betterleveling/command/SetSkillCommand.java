@@ -7,18 +7,18 @@ import darkorg.betterleveling.api.ISkill;
 import darkorg.betterleveling.capability.PlayerCapabilityProvider;
 import darkorg.betterleveling.network.chat.ModComponents;
 import darkorg.betterleveling.util.CapabilityUtil;
-import net.minecraft.command.CommandSource;
-import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.server.level.ServerPlayer;
 
 import static com.mojang.brigadier.arguments.IntegerArgumentType.getInteger;
 import static com.mojang.brigadier.arguments.IntegerArgumentType.integer;
 import static com.mojang.brigadier.arguments.StringArgumentType.getString;
 import static com.mojang.brigadier.arguments.StringArgumentType.string;
-import static net.minecraft.command.Commands.argument;
-import static net.minecraft.command.Commands.literal;
+import static net.minecraft.commands.Commands.argument;
+import static net.minecraft.commands.Commands.literal;
 
 public class SetSkillCommand {
-    public SetSkillCommand(CommandDispatcher<CommandSource> pDispatcher) {
+    public SetSkillCommand(CommandDispatcher<CommandSourceStack> pDispatcher) {
         pDispatcher.register(
                 literal(BetterLeveling.MOD_ID)
                         .requires(source -> source.hasPermission(2))
@@ -32,8 +32,8 @@ public class SetSkillCommand {
         );
     }
 
-    private int setSkill(CommandSource pSource, String pSkill, int pLevel) throws CommandSyntaxException {
-        ServerPlayerEntity serverPlayer = pSource.getPlayerOrException();
+    private int setSkill(CommandSourceStack pSource, String pSkill, int pLevel) throws CommandSyntaxException {
+        ServerPlayer serverPlayer = pSource.getPlayerOrException();
 
         if (!serverPlayer.getCapability(PlayerCapabilityProvider.PLAYER_CAP).isPresent()) {
             pSource.sendFailure(ModComponents.FAILURE_CAPABILITY);

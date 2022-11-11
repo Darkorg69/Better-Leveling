@@ -6,13 +6,13 @@ import darkorg.betterleveling.BetterLeveling;
 import darkorg.betterleveling.capability.PlayerCapabilityProvider;
 import darkorg.betterleveling.registry.SkillRegistry;
 import darkorg.betterleveling.registry.SpecRegistry;
-import net.minecraft.command.CommandSource;
-import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.server.level.ServerPlayer;
 
-import static net.minecraft.command.Commands.literal;
+import static net.minecraft.commands.Commands.literal;
 
 public class ResetCommand {
-    public ResetCommand(CommandDispatcher<CommandSource> pDispatcher) {
+    public ResetCommand(CommandDispatcher<CommandSourceStack> pDispatcher) {
         pDispatcher.register(
                 literal(BetterLeveling.MOD_ID)
                         .requires(pSource -> pSource.hasPermission(2))
@@ -23,8 +23,8 @@ public class ResetCommand {
         );
     }
 
-    private int resetPlayer(CommandSource pSource) throws CommandSyntaxException {
-        ServerPlayerEntity serverPlayer = pSource.getPlayerOrException();
+    private int resetPlayer(CommandSourceStack pSource) throws CommandSyntaxException {
+        ServerPlayer serverPlayer = pSource.getPlayerOrException();
 
         serverPlayer.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(capability -> {
             SpecRegistry.getSpecRegistry().forEach(specialization -> capability.setUnlocked(serverPlayer, specialization, false));

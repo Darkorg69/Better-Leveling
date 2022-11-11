@@ -1,16 +1,16 @@
 package darkorg.betterleveling.api;
 
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.world.item.ItemStack;
 
 public interface ISpecialization {
     int getLevelCost();
 
     String getName();
 
-    TranslationTextComponent getTranslation();
+    TranslatableComponent getTranslation();
 
-    TranslationTextComponent getDescription();
+    TranslatableComponent getDescription();
 
     ItemStack getRepresentativeItemStack();
 }

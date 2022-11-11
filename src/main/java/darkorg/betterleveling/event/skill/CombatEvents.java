@@ -4,15 +4,13 @@ import darkorg.betterleveling.BetterLeveling;
 import darkorg.betterleveling.capability.PlayerCapabilityProvider;
 import darkorg.betterleveling.registry.AttributeModifiers;
 import darkorg.betterleveling.registry.SkillRegistry;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.ai.attributes.AttributeModifier;
-import net.minecraft.entity.ai.attributes.Attributes;
-import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.projectile.AbstractArrowEntity;
-import net.minecraft.item.BowItem;
-import net.minecraft.util.DamageSource;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.AbstractArrow;
+import net.minecraft.world.item.BowItem;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.living.LivingEntityUseItemEvent;
@@ -28,9 +26,7 @@ import java.util.Random;
 public class CombatEvents {
     @SubscribeEvent
     public static void onStrength(LivingHurtEvent event) {
-        Entity directEntity = event.getSource().getDirectEntity();
-        if (directEntity instanceof PlayerEntity) {
-            PlayerEntity player = (PlayerEntity) directEntity;
+        if (event.getSource().getDirectEntity() instanceof Player player) {
             player.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(capability -> {
                 if (capability.isUnlocked(player, SkillRegistry.STRENGTH)) {
                     int level = capability.getLevel(player, SkillRegistry.STRENGTH);
@@ -46,7 +42,7 @@ public class CombatEvents {
     @SubscribeEvent
     public static void onCriticalStrike(CriticalHitEvent event) {
         if (event.isVanillaCritical()) event.setResult(Event.Result.DENY);
-        PlayerEntity player = event.getPlayer();
+        Player player = event.getPlayer();
         player.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(capability -> {
             if (capability.isUnlocked(player, SkillRegistry.CRITICAL_STRIKE)) {
                 int level = capability.getLevel(player, SkillRegistry.CRITICAL_STRIKE);
@@ -63,9 +59,7 @@ public class CombatEvents {
 
     @SubscribeEvent
     public static void onQuickDraw(LivingEntityUseItemEvent.Start event) {
-        Entity entity = event.getEntity();
-        if (entity instanceof PlayerEntity && event.getItem().getItem() instanceof BowItem) {
-            PlayerEntity player = (PlayerEntity) entity;
+        if (event.getEntity() instanceof Player player && event.getItem().getItem() instanceof BowItem) {
             player.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(capability -> {
                 if (capability.isUnlocked(player, SkillRegistry.QUICK_DRAW)) {
                     int level = capability.getLevel(player, SkillRegistry.QUICK_DRAW);
@@ -79,30 +73,22 @@ public class CombatEvents {
 
     @SubscribeEvent
     public static void onArrowSpeed(EntityJoinWorldEvent event) {
-        Entity entity = event.getEntity();
-        if (entity instanceof AbstractArrowEntity) {
-            AbstractArrowEntity arrow = (AbstractArrowEntity) entity;
-            Entity owner = arrow.getOwner();
-            if (owner instanceof PlayerEntity) {
-                PlayerEntity player = (PlayerEntity) owner;
-                player.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(capability -> {
-                    if (capability.isUnlocked(player, SkillRegistry.ARROW_SPEED)) {
-                        int level = capability.getLevel(player, SkillRegistry.ARROW_SPEED);
-                        if (level > 0) {
-                            float modifier = 1.0F + (level * 0.03F);
-                            arrow.setDeltaMovement(arrow.getDeltaMovement().scale(modifier));
-                        }
+        if (event.getEntity() instanceof AbstractArrow arrow && arrow.getOwner() instanceof Player player) {
+            player.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(capability -> {
+                if (capability.isUnlocked(player, SkillRegistry.ARROW_SPEED)) {
+                    int level = capability.getLevel(player, SkillRegistry.ARROW_SPEED);
+                    if (level > 0) {
+                        float modifier = 1.0F + (level * 0.03F);
+                        arrow.setDeltaMovement(arrow.getDeltaMovement().scale(modifier));
                     }
-                });
-            }
+                }
+            });
         }
     }
 
     @SubscribeEvent
     public static void onIronSkin(LivingHurtEvent event) {
-        LivingEntity entityLiving = event.getEntityLiving();
-        if (entityLiving instanceof PlayerEntity && event.getSource() != DamageSource.FALL) {
-            PlayerEntity player = (PlayerEntity) entityLiving;
+        if (event.getEntityLiving() instanceof Player player && event.getSource() != DamageSource.FALL) {
             player.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(capability -> {
                 if (capability.isUnlocked(player, SkillRegistry.IRON_SKIN)) {
                     int level = capability.getLevel(player, SkillRegistry.IRON_SKIN);
@@ -118,14 +104,14 @@ public class CombatEvents {
     @SubscribeEvent
     public static void onSneakSpeed(TickEvent.PlayerTickEvent event) {
         if (event.phase == TickEvent.Phase.START) {
-            PlayerEntity player = event.player;
+            Player player = event.player;
             if (player != null) {
                 player.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(capability -> {
                     if (capability.isUnlocked(player, SkillRegistry.SNEAK_SPEED)) {
                         int level = capability.getLevel(player, SkillRegistry.SNEAK_SPEED);
                         if (level > 0) {
                             float modifier = level * 0.05F;
-                            ModifiableAttributeInstance attribute = player.getAttribute(Attributes.MOVEMENT_SPEED);
+                            AttributeInstance attribute = player.getAttribute(Attributes.MOVEMENT_SPEED);
                             if (attribute != null) {
                                 AttributeModifier attributeModifier = new AttributeModifier(AttributeModifiers.SNEAK_SPEED_MODIFIER, SkillRegistry.SNEAK_SPEED.getName(), modifier, AttributeModifier.Operation.MULTIPLY_BASE);
                                 if (player.isCrouching()) {

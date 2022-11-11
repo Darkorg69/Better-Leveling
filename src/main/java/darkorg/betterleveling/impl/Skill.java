@@ -3,9 +3,9 @@ package darkorg.betterleveling.impl;
 import com.mojang.datafixers.util.Pair;
 import darkorg.betterleveling.api.ISkill;
 import darkorg.betterleveling.api.ISpecialization;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -14,8 +14,8 @@ public class Skill implements ISkill {
     private final String name;
     private final int minLevel;
     private final int maxLevel;
-    private final TranslationTextComponent translation;
-    private final TranslationTextComponent description;
+    private final TranslatableComponent translation;
+    private final TranslatableComponent description;
     private final ISpecialization parentSpec;
     private final ItemStack representativeItemStack;
     private final Map<ISkill, Integer> prerequisites;
@@ -25,8 +25,8 @@ public class Skill implements ISkill {
         this.name = pName;
         this.minLevel = pMinLevel;
         this.maxLevel = pMaxLevel;
-        this.translation = new TranslationTextComponent(pMod + "." + pName);
-        this.description = new TranslationTextComponent(pMod + "." + pName + ".desc");
+        this.translation = new TranslatableComponent(pMod + "." + pName);
+        this.description = new TranslatableComponent(pMod + "." + pName + ".desc");
         this.parentSpec = pParentSpec;
         this.representativeItemStack = new ItemStack(pRepresentativeItem);
         this.prerequisites = new HashMap<>();
@@ -72,18 +72,18 @@ public class Skill implements ISkill {
     }
 
     @Override
-    public TranslationTextComponent getTranslation() {
+    public TranslatableComponent getTranslation() {
         return this.translation;
     }
 
     @Override
-    public TranslationTextComponent getDescription() {
+    public TranslatableComponent getDescription() {
         return this.description;
     }
 
     @Override
-    public TranslationTextComponent getDescriptionIndexOf(int pIndex) {
-        return new TranslationTextComponent(getDescription().getKey() + Math.max(1, pIndex));
+    public TranslatableComponent getDescriptionIndexOf(int pIndex) {
+        return new TranslatableComponent(getDescription().getKey() + Math.max(1, pIndex));
     }
 
     @Override

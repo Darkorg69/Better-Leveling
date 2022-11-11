@@ -1,41 +1,41 @@
 package darkorg.betterleveling.api;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
 
 import java.util.List;
 
 public interface IPlayerCapability {
-    boolean canUnlock(PlayerEntity pPlayer);
+    boolean canUnlock(Player pPlayer);
 
-    boolean hasUnlocked(PlayerEntity pPlayer);
+    boolean hasUnlocked(Player pPlayer);
 
-    ISpecialization getFirstUnlocked(PlayerEntity pPlayer);
+    ISpecialization getFirstUnlocked(Player pPlayer);
 
-    List<ISpecialization> getAllUnlocked(PlayerEntity pPlayer);
+    List<ISpecialization> getAllUnlocked(Player pPlayer);
 
-    boolean getUnlocked(PlayerEntity pPlayer, ISpecialization pSpecialization);
+    boolean getUnlocked(Player pPlayer, ISpecialization pSpecialization);
 
-    void addUnlocked(ServerPlayerEntity pServerPlayer, ISpecialization pSpecialization, boolean pUnlocked);
+    void addUnlocked(ServerPlayer pServerPlayer, ISpecialization pSpecialization, boolean pUnlocked);
 
-    void setUnlocked(ServerPlayerEntity pServerPlayer, ISpecialization pSpecialization, boolean pUnlocked);
+    void setUnlocked(ServerPlayer pServerPlayer, ISpecialization pSpecialization, boolean pUnlocked);
 
-    boolean isUnlocked(PlayerEntity pPlayer, ISkill pSkill);
+    boolean isUnlocked(Player pPlayer, ISkill pSkill);
 
-    int getLevel(PlayerEntity pPlayer, ISkill pSkill);
+    int getLevel(Player pPlayer, ISkill pSkill);
 
-    void addLevel(ServerPlayerEntity pServerPlayer, ISkill pSkill, int pLevel);
+    void addLevel(ServerPlayer pServerPlayer, ISkill pSkill, int pLevel);
 
-    void setLevel(ServerPlayerEntity pServerPlayer, ISkill pSkill, int pLevel);
+    void setLevel(ServerPlayer pServerPlayer, ISkill pSkill, int pLevel);
 
-    CompoundNBT getNBTData();
+    CompoundTag getNBTData();
 
-    void setNBTData(CompoundNBT pData);
+    void setNBTData(CompoundTag pData);
 
-    void resetPlayer(ServerPlayerEntity pServerPlayer);
+    void resetPlayer(ServerPlayer pServerPlayer);
 
-    void receiveDataFromServer(CompoundNBT pData);
+    void receiveDataFromServer(CompoundTag pData);
 
-    void sendDataToPlayer(ServerPlayerEntity pServerPlayer);
+    void sendDataToPlayer(ServerPlayer pServerPlayer);
 }

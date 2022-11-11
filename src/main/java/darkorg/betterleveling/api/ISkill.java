@@ -1,7 +1,7 @@
 package darkorg.betterleveling.api;
 
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.world.item.ItemStack;
 
 import java.util.Map;
 
@@ -20,11 +20,11 @@ public interface ISkill {
 
     ISpecialization getParentSpec();
 
-    TranslationTextComponent getTranslation();
+    TranslatableComponent getTranslation();
 
-    TranslationTextComponent getDescription();
+    TranslatableComponent getDescription();
 
-    TranslationTextComponent getDescriptionIndexOf(int pIndex);
+    TranslatableComponent getDescriptionIndexOf(int pIndex);
 
     ItemStack getRepresentativeItemStack();
 

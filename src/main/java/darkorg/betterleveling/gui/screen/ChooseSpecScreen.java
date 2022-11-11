@@ -1,6 +1,6 @@
 package darkorg.betterleveling.gui.screen;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.datafixers.util.Pair;
 import darkorg.betterleveling.api.ISpecialization;
 import darkorg.betterleveling.gui.widget.button.ChooseSpecButton;
@@ -10,11 +10,11 @@ import darkorg.betterleveling.network.packets.AddSpecC2SPacket;
 import darkorg.betterleveling.registry.SpecRegistry;
 import darkorg.betterleveling.util.RenderUtil;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screen.ConfirmScreen;
-import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.screens.ConfirmScreen;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.fml.client.gui.widget.ExtendedButton;
+import net.minecraftforge.client.gui.widget.ExtendedButton;
 
 @OnlyIn(Dist.CLIENT)
 public class ChooseSpecScreen extends Screen {
@@ -34,10 +34,10 @@ public class ChooseSpecScreen extends Screen {
         this.topPos = (height - imageHeight) / 2;
 
         ChooseSpecButton chooseSpecButton = new ChooseSpecButton((this.width - 64) / 2, (this.height - 64) / 2 - 32, this.playerSpecialization, this::onValueChange);
-        addButton(chooseSpecButton);
+        addRenderableWidget(chooseSpecButton);
 
         ExtendedButton selectButton = new ExtendedButton((this.width - 75) / 2, this.topPos + 116, 75, 25, ModComponents.SELECT_BUTTON, pButton -> this.onPress());
-        addButton(selectButton);
+        addRenderableWidget(selectButton);
     }
 
     @Override
@@ -46,12 +46,12 @@ public class ChooseSpecScreen extends Screen {
     }
 
     @Override
-    public void render(MatrixStack pMatrixStack, int pMouseX, int pMouseY, float pPartialTick) {
-        this.renderBackground(pMatrixStack);
-        drawCenteredString(pMatrixStack, font, title, (width / 2), this.topPos - 10, 16777215);
+    public void render(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
+        this.renderBackground(pPoseStack);
+        drawCenteredString(pPoseStack, font, title, (width / 2), this.topPos - 10, 16777215);
         RenderUtil.setShaderTexture();
-        blit(pMatrixStack, this.leftPos, this.topPos, 0, 0, imageWidth, imageHeight);
-        super.render(pMatrixStack, pMouseX, pMouseY, pPartialTick);
+        blit(pPoseStack, this.leftPos, this.topPos, 0, 0, imageWidth, imageHeight);
+        super.render(pPoseStack, pMouseX, pMouseY, pPartialTick);
     }
 
     private void onPress() {

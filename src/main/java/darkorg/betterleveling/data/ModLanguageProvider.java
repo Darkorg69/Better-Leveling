@@ -7,7 +7,7 @@ import darkorg.betterleveling.network.chat.ModComponents;
 import darkorg.betterleveling.registry.SkillRegistry;
 import darkorg.betterleveling.registry.SpecRegistry;
 import net.minecraft.data.DataGenerator;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraftforge.common.data.LanguageProvider;
 
 public class ModLanguageProvider extends LanguageProvider {
@@ -132,7 +132,7 @@ public class ModLanguageProvider extends LanguageProvider {
         addDescriptionIndexOf(SkillRegistry.WOODCUTTING, 1, "+10% speed per level");
     }
 
-    private void add(TranslationTextComponent pTranslatableComponent, String pTranslation) {
+    private void add(TranslatableComponent pTranslatableComponent, String pTranslation) {
         add(pTranslatableComponent.getKey(), pTranslation);
     }
 

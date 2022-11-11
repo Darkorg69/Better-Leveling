@@ -1,6 +1,6 @@
 package darkorg.betterleveling.gui.screen;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.datafixers.util.Pair;
 import darkorg.betterleveling.api.IPlayerCapability;
 import darkorg.betterleveling.api.ISkill;
@@ -13,16 +13,16 @@ import darkorg.betterleveling.network.chat.ModComponents;
 import darkorg.betterleveling.network.packets.AddSpecC2SPacket;
 import darkorg.betterleveling.util.CapabilityUtil;
 import darkorg.betterleveling.util.RenderUtil;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.player.ClientPlayerEntity;
-import net.minecraft.client.gui.screen.ConfirmScreen;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.client.gui.screens.ConfirmScreen;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.fml.client.gui.widget.ExtendedButton;
+import net.minecraftforge.client.gui.widget.ExtendedButton;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,14 +34,14 @@ public class SpecsScreen extends Screen {
     private final int imageHeight = 166;
     private int levelCost;
     private int leftPos, topPos;
-    private ClientPlayerEntity localPlayer;
+    private LocalPlayer localPlayer;
     private IPlayerCapability playerCapability;
     private ISpecialization specialization;
     private boolean specUnlocked, canUnlockSpec;
     private List<ISkill> skillsFromSpec;
 
     public SpecsScreen() {
-        super(new TranslationTextComponent(""));
+        super(new TranslatableComponent(""));
         initGui();
     }
 
@@ -51,7 +51,7 @@ public class SpecsScreen extends Screen {
         this.topPos = (height - imageHeight) / 2;
 
         SpecButton specButton = new SpecButton(this.leftPos + 72, this.topPos + 16, this.specialization, this.specUnlocked, this::onValueChange, this::onSpecTooltip);
-        addButton(specButton);
+        addRenderableWidget(specButton);
 
         int skillRow = 0;
         int skillColumn = 0;
@@ -63,14 +63,14 @@ public class SpecsScreen extends Screen {
             }
             SkillButton skillButton = new SkillButton(this.leftPos + 22 + (skillColumn * 50), this.topPos + 65 + (skillRow * 51), this.skillsFromSpec.get(i), this::onSkillTooltip);
             skillButton.active = this.playerCapability.isUnlocked(this.localPlayer, this.skillsFromSpec.get(i));
-            addButton(skillButton);
+            addRenderableWidget(skillButton);
             skillColumn++;
         }
 
         if (!this.specUnlocked) {
             ExtendedButton unlockSpecButton = new ExtendedButton(this.leftPos + (imageWidth / 2) - 37, this.topPos + 98, 74, 17, ModComponents.UNLOCK_SPEC, pButton -> Minecraft.getInstance().setScreen(new ConfirmScreen(this::onCallback, this.specialization.getTranslation(), ModComponents.CONFIRM_UNLOCK)));
             unlockSpecButton.active = this.canUnlockSpec;
-            addButton(unlockSpecButton);
+            addRenderableWidget(unlockSpecButton);
         }
     }
 
@@ -80,14 +80,14 @@ public class SpecsScreen extends Screen {
     }
 
     @Override
-    public void render(MatrixStack pMatrixStack, int pMouseX, int pMouseY, float pPartialTick) {
-        this.renderBackground(pMatrixStack);
+    public void render(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
+        this.renderBackground(pPoseStack);
         RenderUtil.setShaderTexture();
-        this.blit(pMatrixStack, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight);
+        this.blit(pPoseStack, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight);
         if (!this.specUnlocked) {
-            drawCenteredString(pMatrixStack, this.font, ModComponents.SPEC_LOCKED, this.leftPos + (imageWidth / 2), this.topPos + 51, 16777215);
+            drawCenteredString(pPoseStack, this.font, ModComponents.SPEC_LOCKED, this.leftPos + (imageWidth / 2), this.topPos + 51, 16777215);
         }
-        super.render(pMatrixStack, pMouseX, pMouseY, pPartialTick);
+        super.render(pPoseStack, pMouseX, pMouseY, pPartialTick);
     }
 
     private void initGui() {
@@ -135,44 +135,44 @@ public class SpecsScreen extends Screen {
         rebuildGui();
     }
 
-    private void onSpecTooltip(MatrixStack pMatrixStack, int pMouseX, int pMouseY) {
+    private void onSpecTooltip(PoseStack pPoseStack, int pMouseX, int pMouseY) {
         if (this.specUnlocked) {
-            List<ITextComponent> unlocked = new ArrayList<>();
+            List<Component> unlocked = new ArrayList<>();
 
-            unlocked.add(new TranslationTextComponent("").append(this.specialization.getTranslation()).append(" ").append(ModComponents.SPEC));
+            unlocked.add(new TranslatableComponent("").append(this.specialization.getTranslation()).append(" ").append(ModComponents.SPEC));
 
-            this.renderWrappedToolTip(pMatrixStack, unlocked, pMouseX, pMouseY, this.font);
+            this.renderComponentTooltip(pPoseStack, unlocked, pMouseX, pMouseY, this.font);
         } else {
-            List<ITextComponent> locked = new ArrayList<>();
+            List<Component> locked = new ArrayList<>();
 
-            locked.add(ModComponents.LOCKED.withStyle(TextFormatting.DARK_RED));
-            locked.add(new TranslationTextComponent("").append(this.specialization.getTranslation()));
-            locked.add(new TranslationTextComponent("").append(ModComponents.UNLOCK_COST).append(" ").append(String.valueOf(this.specialization.getLevelCost())).append(" ").append(ModComponents.LEVELS));
+            locked.add(ModComponents.LOCKED.withStyle(ChatFormatting.DARK_RED));
+            locked.add(new TranslatableComponent("").append(this.specialization.getTranslation()));
+            locked.add(new TranslatableComponent("").append(ModComponents.UNLOCK_COST).append(" ").append(String.valueOf(this.specialization.getLevelCost())).append(" ").append(ModComponents.LEVELS));
 
-            this.renderWrappedToolTip(pMatrixStack, locked, pMouseX, pMouseY, this.font);
+            this.renderComponentTooltip(pPoseStack, locked, pMouseX, pMouseY, this.font);
         }
     }
 
-    private void onSkillTooltip(SkillButton pSkillButton, MatrixStack pMatrixStack, int pMouseX, int pMouseY) {
+    private void onSkillTooltip(SkillButton pSkillButton, PoseStack pPoseStack, int pMouseX, int pMouseY) {
         ISkill playerSkill = pSkillButton.getPlayerSkill();
 
         if (this.playerCapability.isUnlocked(this.localPlayer, playerSkill)) {
-            List<ITextComponent> unlocked = new ArrayList<>();
+            List<Component> unlocked = new ArrayList<>();
 
             unlocked.add(playerSkill.getTranslation());
 
             int skillLevel = this.playerCapability.getLevel(this.localPlayer, playerSkill);
 
             if (playerSkill.isMaxLevel(skillLevel)) {
-                unlocked.add(ModComponents.MAX_LEVEL.withStyle(TextFormatting.DARK_RED));
+                unlocked.add(ModComponents.MAX_LEVEL.withStyle(ChatFormatting.DARK_RED));
             } else {
-                unlocked.add(new TranslationTextComponent("").append(ModComponents.CURRENT_LEVEL).append(" ").append(String.valueOf(skillLevel)).append("/").append(String.valueOf(playerSkill.getMaxLevel())));
+                unlocked.add(new TranslatableComponent("").append(ModComponents.CURRENT_LEVEL).append(" ").append(String.valueOf(skillLevel)).append("/").append(String.valueOf(playerSkill.getMaxLevel())));
             }
-            this.renderWrappedToolTip(pMatrixStack, unlocked, pMouseX, pMouseY, this.font);
+            this.renderComponentTooltip(pPoseStack, unlocked, pMouseX, pMouseY, this.font);
         } else {
-            List<ITextComponent> locked = new ArrayList<>();
+            List<Component> locked = new ArrayList<>();
 
-            locked.add(ModComponents.LOCKED.withStyle(TextFormatting.DARK_RED));
+            locked.add(ModComponents.LOCKED.withStyle(ChatFormatting.DARK_RED));
             locked.add(playerSkill.getTranslation());
 
             Map<ISkill, Integer> prerequisitesMap = playerSkill.getPrerequisites();
@@ -181,16 +181,15 @@ public class SpecsScreen extends Screen {
                 locked.add(ModComponents.REQUIREMENTS);
 
                 prerequisitesMap.forEach((prerequisiteSkill, prerequisiteLevel) -> {
-                    locked.add(new TranslationTextComponent("*").append(prerequisiteSkill.getTranslation()).append(" ").append(String.valueOf(prerequisiteLevel)).withStyle(TextFormatting.GOLD));
+                    locked.add(new TranslatableComponent("*").append(prerequisiteSkill.getTranslation()).append(" ").append(String.valueOf(prerequisiteLevel)).withStyle(ChatFormatting.GOLD));
                 });
             }
-            this.renderWrappedToolTip(pMatrixStack, locked, pMouseX, pMouseY, this.font);
+            this.renderComponentTooltip(pPoseStack, locked, pMouseX, pMouseY, this.font);
         }
     }
 
     private void rebuildGui() {
-        this.buttons.clear();
-        this.children.clear();
+        this.clearWidgets();
         this.setFocused(null);
         this.init();
     }

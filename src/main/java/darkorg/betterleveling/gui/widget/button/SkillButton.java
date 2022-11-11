@@ -1,16 +1,17 @@
 package darkorg.betterleveling.gui.widget.button;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import darkorg.betterleveling.api.IPlayerCapability;
 import darkorg.betterleveling.api.ISkill;
 import darkorg.betterleveling.capability.PlayerCapabilityProvider;
 import darkorg.betterleveling.gui.screen.SkillScreen;
 import darkorg.betterleveling.util.RenderUtil;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.player.ClientPlayerEntity;
-import net.minecraft.client.gui.widget.button.AbstractButton;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.client.gui.components.AbstractButton;
+import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -22,11 +23,11 @@ public class SkillButton extends AbstractButton {
     private int level;
     private boolean isUnlocked;
     private boolean isMaxLevel;
-    private ClientPlayerEntity localPlayer;
+    private LocalPlayer localPlayer;
     private IPlayerCapability playerCapability;
 
     public SkillButton(int pX, int pY, ISkill pPlayerSkill, OnTooltip pOnTooltip) {
-        super(pX, pY, 32, 32, new TranslationTextComponent(""));
+        super(pX, pY, 32, 32, new TranslatableComponent(""));
         this.playerSkill = pPlayerSkill;
         this.onTooltip = pOnTooltip;
         this.representativeStack = pPlayerSkill.getRepresentativeItemStack();
@@ -53,42 +54,47 @@ public class SkillButton extends AbstractButton {
     }
 
     @Override
-    public void renderButton(MatrixStack pMatrixStack, int pMouseX, int pMouseY, float pPartialTick) {
+    public void renderButton(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
         Minecraft minecraft = Minecraft.getInstance();
 
         RenderUtil.setShaderTextureButton();
 
         if (!this.isUnlocked) {
-            this.blit(pMatrixStack, x, y, 64, 166, width, height);
-            this.blit(pMatrixStack, x + 6, y + 6, 0, 198, 20, 20);
+            this.blit(pPoseStack, x, y, 64, 166, width, height);
+            this.blit(pPoseStack, x + 6, y + 6, 0, 198, 20, 20);
         } else {
             if (!this.isMaxLevel) {
-                this.blit(pMatrixStack, x, y, 64, 166, width, height);
-                drawString(pMatrixStack, minecraft.font, String.valueOf(this.level), x + 4, y + 4, 16777215);
+                this.blit(pPoseStack, x, y, 64, 166, width, height);
+                drawString(pPoseStack, minecraft.font, String.valueOf(this.level), x + 4, y + 4, 16777215);
             } else {
-                this.blit(pMatrixStack, x, y, 96, 166, width, height);
+                this.blit(pPoseStack, x, y, 96, 166, width, height);
             }
         }
-        if (isHovered() || isFocused()) {
-            this.renderToolTip(pMatrixStack, pMouseX, pMouseY);
+        if (isHoveredOrFocused()) {
+            this.renderToolTip(pPoseStack, pMouseX, pMouseY);
         }
         if (this.isUnlocked) {
             minecraft.getItemRenderer().renderGuiItem(this.representativeStack, x + 8, y + 8);
         }
-        this.renderBg(pMatrixStack, minecraft, pMouseX, pMouseY);
+        this.renderBg(pPoseStack, minecraft, pMouseX, pMouseY);
     }
 
     @Override
-    public void renderToolTip(MatrixStack pMatrixStack, int pMouseX, int pMouseY) {
-        this.onTooltip.onTooltip(this, pMatrixStack, pMouseX, pMouseY);
+    public void renderToolTip(PoseStack pPoseStack, int pMouseX, int pMouseY) {
+        this.onTooltip.onTooltip(this, pPoseStack, pMouseX, pMouseY);
     }
 
     public ISkill getPlayerSkill() {
         return this.playerSkill;
     }
 
+    @Override
+    public void updateNarration(NarrationElementOutput pNarrationElementOutput) {
+
+    }
+
     @OnlyIn(Dist.CLIENT)
     public interface OnTooltip {
-        void onTooltip(SkillButton pSkillButton, MatrixStack pMatrixStack, int pMouseX, int pMouseY);
+        void onTooltip(SkillButton pSkillButton, PoseStack pPoseStack, int pMouseX, int pMouseY);
     }
 }

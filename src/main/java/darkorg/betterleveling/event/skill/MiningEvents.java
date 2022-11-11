@@ -6,19 +6,17 @@ import darkorg.betterleveling.registry.AttributeModifiers;
 import darkorg.betterleveling.registry.ModTags;
 import darkorg.betterleveling.registry.SkillRegistry;
 import darkorg.betterleveling.util.TreasureUtil;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.material.Material;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.ai.attributes.AttributeModifier;
-import net.minecraft.entity.ai.attributes.Attributes;
-import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.loot.RandomValueRange;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.Material;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.living.LivingFallEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
@@ -32,7 +30,7 @@ import java.util.List;
 public class MiningEvents {
     @SubscribeEvent
     public static void onStoneCutting(PlayerEvent.BreakSpeed event) {
-        PlayerEntity player = event.getPlayer();
+        Player player = event.getPlayer();
         if (player != null) {
             if (event.getState().getMaterial() == Material.STONE) {
                 player.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(capability -> {
@@ -50,21 +48,19 @@ public class MiningEvents {
 
     @SubscribeEvent
     public static void onProspecting(BlockEvent.BreakEvent event) {
-        PlayerEntity player = event.getPlayer();
-        if (player instanceof ServerPlayerEntity && !player.isCreative()) {
-            ServerPlayerEntity serverPlayer = (ServerPlayerEntity) player;
+        if (event.getPlayer() instanceof ServerPlayer serverPlayer && !serverPlayer.isCreative()) {
             serverPlayer.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(capability -> {
                 if (capability.isUnlocked(serverPlayer, SkillRegistry.PROSPECTING)) {
                     int level = capability.getLevel(serverPlayer, SkillRegistry.PROSPECTING);
                     if (level > 0) {
                         BlockState state = event.getState();
                         if (state.is(ModTags.Blocks.ORES)) {
-                            ServerWorld serverLevel = serverPlayer.getLevel();
+                            ServerLevel serverLevel = serverPlayer.getLevel();
                             BlockPos pos = event.getPos();
                             List<ItemStack> drops = Block.getDrops(state, serverLevel, pos, null);
                             drops.forEach(stack -> {
-                                if (stack.getItem().is(ModTags.Items.ORES)) {
-                                    stack.setCount(Math.round(stack.getCount() * RandomValueRange.between(0.0F, level * 0.5F).getFloat(serverLevel.random)));
+                                if (stack.is(ModTags.Items.ORES)) {
+                                    stack.setCount(Math.round(stack.getCount() * serverLevel.random.nextFloat(0, level * 0.5F)));
                                     Block.popResource(serverLevel, pos, stack);
                                 }
                             });
@@ -77,7 +73,7 @@ public class MiningEvents {
 
     @SubscribeEvent
     public static void onWoodcutting(PlayerEvent.BreakSpeed event) {
-        PlayerEntity player = event.getPlayer();
+        Player player = event.getPlayer();
         if (player != null) {
             Material material = event.getState().getMaterial();
             if (material == Material.WOOD || material == Material.NETHER_WOOD) {
@@ -96,16 +92,14 @@ public class MiningEvents {
 
     @SubscribeEvent
     public static void onTreasureHunting(BlockEvent.BreakEvent event) {
-        PlayerEntity player = event.getPlayer();
-        if (player instanceof ServerPlayerEntity && !player.isCreative()) {
-            ServerPlayerEntity serverPlayer = (ServerPlayerEntity) player;
+        if (event.getPlayer() instanceof ServerPlayer serverPlayer && !serverPlayer.isCreative()) {
             serverPlayer.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(capability -> {
                 if (capability.isUnlocked(serverPlayer, SkillRegistry.TREASURE_HUNTING)) {
                     int level = capability.getLevel(serverPlayer, SkillRegistry.TREASURE_HUNTING);
                     if (level > 0) {
                         if (event.getState().is(ModTags.Blocks.TREASURE_BLOCKS)) {
                             BlockPos pos = event.getPos();
-                            ServerWorld serverLevel = serverPlayer.getLevel();
+                            ServerLevel serverLevel = serverPlayer.getLevel();
                             float roll = serverLevel.random.nextFloat();
                             if (roll <= level * 0.001F) {
                                 TreasureUtil.spawnTreasure(serverLevel, pos, serverLevel.random, TreasureUtil.getRandom(ModTags.Items.TREASURE_RARE, serverLevel.random));
@@ -123,9 +117,7 @@ public class MiningEvents {
 
     @SubscribeEvent
     public static void onSoftLanding(LivingFallEvent event) {
-        Entity entity = event.getEntity();
-        if (entity instanceof PlayerEntity) {
-            PlayerEntity player = (PlayerEntity) entity;
+        if (event.getEntity() instanceof Player player) {
             player.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(capability -> {
                 if (capability.isUnlocked(player, SkillRegistry.SOFT_LANDING)) {
                     int level = capability.getLevel(player, SkillRegistry.SOFT_LANDING);
@@ -141,14 +133,14 @@ public class MiningEvents {
     @SubscribeEvent
     public static void onSprintSpeed(TickEvent.PlayerTickEvent event) {
         if (event.phase == TickEvent.Phase.START) {
-            PlayerEntity player = event.player;
+            Player player = event.player;
             if (player != null) {
                 player.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(capability -> {
                     if (capability.isUnlocked(player, SkillRegistry.SPRINT_SPEED)) {
                         int level = capability.getLevel(player, SkillRegistry.SPRINT_SPEED);
                         if (level > 0) {
                             float modifier = level * 0.05F;
-                            ModifiableAttributeInstance attribute = player.getAttribute(Attributes.MOVEMENT_SPEED);
+                            AttributeInstance attribute = player.getAttribute(Attributes.MOVEMENT_SPEED);
                             if (attribute != null) {
                                 AttributeModifier attributeModifier = new AttributeModifier(AttributeModifiers.SPRINT_SPEED_MODIFIER, SkillRegistry.SPRINT_SPEED.getName(), modifier, AttributeModifier.Operation.MULTIPLY_BASE);
                                 if (player.isSprinting()) {

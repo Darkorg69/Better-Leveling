@@ -1,22 +1,22 @@
 package darkorg.betterleveling.api;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.entity.player.Player;
 
 import java.util.UUID;
 
 public interface IMachineCapability {
     UUID getOwnerId();
 
-    void setOwner(PlayerEntity pPlayer);
+    void setOwner(Player pPlayer);
 
     void removeOwner();
 
     boolean hasOwner();
 
-    boolean isOwner(PlayerEntity pPlayer);
+    boolean isOwner(Player pPlayer);
 
-    CompoundNBT getNBTData();
+    CompoundTag getNBTData();
 
-    void setNBTData(CompoundNBT pData);
+    void setNBTData(CompoundTag pData);
 }
