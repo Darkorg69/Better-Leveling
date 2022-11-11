@@ -87,7 +87,7 @@ Unlock other specializations.
 
 ## FAQ
 
-Q: Port to any version higher than 1.16?  
+Q: Port to any version higher than 1.18?  
 A: Soon.
 
 Q: Experiencing bugs/issues while using the mod?  
