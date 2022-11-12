@@ -18,9 +18,6 @@ Each specialization has 6 skills which you can level up by spending your experie
 
 The default key for opening the GUI is `B`.
 
-This mod is not compatible with [FastFurnace](https://www.curseforge.com/minecraft/mc-mods/fastfurnace), instead
-use [FastFurnace minus Replacement](https://www.curseforge.com/minecraft/mc-mods/fastfurnace-minus-replacement).
-
 ## Specializations & Skills
 
 ### Combat
