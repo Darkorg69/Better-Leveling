@@ -14,6 +14,11 @@ You can choose one of 3 specializations for your first after you reach certain l
 
 Each specialization has 6 skills which you can level up by spending your experience levels.
 
+**As of version 0.3.0 and later:**
+
+You can now simply harvest crops just by right-clicking on them!  
+With native support for the Harvest Proficiency skill!
+
 ## Important!
 
 The default key for opening the GUI is `B`.
@@ -28,7 +33,7 @@ The default key for opening the GUI is `B`.
    `Increase chance of landing a critical hit!`
 3. Quick-Draw  
    `Decrease the time needed to charge a bow.`
-4. Arrow speed  
+4. Arrow Speed  
    `Increase the power at which you shoot arrows.`
 5. Iron Skin  
    `Harden your skin, receive less damage.`

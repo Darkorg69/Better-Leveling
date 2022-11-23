@@ -23,8 +23,8 @@ public class ModLanguageProvider extends LanguageProvider {
         add(ModComponents.CANNOT_INCREASE, "Cannot increase level");
         add(ModComponents.CHOOSE_CONFIRM, "Are you sure you want to select this specialization as your first?");
         add(ModComponents.CHOOSE_NO_XP, "Before choosing your first specialization you must first reach level:");
-        add(ModComponents.CONFIRM_DECREASE, "Are you sure you want to increase the level of this skill?");
-        add(ModComponents.CONFIRM_INCREASE, "Are you sure you want to decrease the level of this skill?");
+        add(ModComponents.CONFIRM_DECREASE, "Are you sure you want to decrease the level of this skill?");
+        add(ModComponents.CONFIRM_INCREASE, "Are you sure you want to increase the level of this skill?");
         add(ModComponents.CONFIRM_UNLOCK, "Are you sure you want to unlock this specialization?");
         add(ModComponents.CURRENT_LEVEL, "Current Level:");
         add(ModComponents.DECREASE_BUTTON, "Decrease");
