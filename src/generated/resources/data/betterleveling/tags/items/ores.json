@@ -4,6 +4,7 @@
     "minecraft:coal",
     "minecraft:redstone",
     "#forge:gems",
-    "#forge:nuggets"
+    "#forge:nuggets",
+    "#forge:raw_materials"
   ]
 }
