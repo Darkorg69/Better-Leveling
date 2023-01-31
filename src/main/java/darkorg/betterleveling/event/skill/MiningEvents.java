@@ -2,9 +2,10 @@ package darkorg.betterleveling.event.skill;
 
 import darkorg.betterleveling.BetterLeveling;
 import darkorg.betterleveling.capability.PlayerCapabilityProvider;
+import darkorg.betterleveling.config.ServerConfig;
 import darkorg.betterleveling.registry.AttributeModifiers;
 import darkorg.betterleveling.registry.ModTags;
-import darkorg.betterleveling.registry.SkillRegistry;
+import darkorg.betterleveling.util.SkillUtil;
 import darkorg.betterleveling.util.TreasureUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -26,23 +27,22 @@ import net.minecraftforge.fml.common.Mod;
 
 import java.util.List;
 
+import static darkorg.betterleveling.registry.SkillRegistry.*;
+
 @Mod.EventBusSubscriber(modid = BetterLeveling.MOD_ID)
 public class MiningEvents {
     @SubscribeEvent
     public static void onStoneCutting(PlayerEvent.BreakSpeed event) {
         Player player = event.getPlayer();
-        if (player != null) {
-            if (event.getState().getMaterial() == Material.STONE) {
-                player.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(capability -> {
-                    if (capability.isUnlocked(player, SkillRegistry.STONECUTTING)) {
-                        int level = capability.getLevel(player, SkillRegistry.STONECUTTING);
-                        if (level > 0) {
-                            float modifier = 1.0F + (level * 0.1F);
-                            event.setNewSpeed(event.getOriginalSpeed() * modifier);
-                        }
+        if (player != null && event.getState().getMaterial() == Material.STONE) {
+            player.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(capability -> {
+                if (capability.hasUnlocked(player, STONECUTTING)) {
+                    int currentLevel = capability.getLevel(player, STONECUTTING);
+                    if (currentLevel > 0) {
+                        event.setNewSpeed(event.getOriginalSpeed() * (float) SkillUtil.getIncreaseModifier(STONECUTTING, currentLevel));
                     }
-                });
-            }
+                }
+            });
         }
     }
 
@@ -50,18 +50,20 @@ public class MiningEvents {
     public static void onProspecting(BlockEvent.BreakEvent event) {
         if (event.getPlayer() instanceof ServerPlayer serverPlayer && !serverPlayer.isCreative()) {
             serverPlayer.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(capability -> {
-                if (capability.isUnlocked(serverPlayer, SkillRegistry.PROSPECTING)) {
-                    int level = capability.getLevel(serverPlayer, SkillRegistry.PROSPECTING);
-                    if (level > 0) {
-                        BlockState state = event.getState();
-                        if (state.is(ModTags.Blocks.ORES)) {
-                            ServerLevel serverLevel = serverPlayer.getLevel();
+                if (capability.hasUnlocked(serverPlayer, PROSPECTING)) {
+                    ServerLevel serverLevel = serverPlayer.getLevel();
+                    int currentLevel = capability.getLevel(serverPlayer, PROSPECTING);
+                    if (currentLevel > 0) {
+                        if (serverLevel.random.nextFloat() <= SkillUtil.getCurrentChance(PROSPECTING, currentLevel)) {
                             BlockPos pos = event.getPos();
-                            List<ItemStack> drops = Block.getDrops(state, serverLevel, pos, null);
+                            BlockState state = event.getState();
+                            List<ItemStack> drops = Block.getDrops(state, serverLevel, pos, null, serverPlayer, serverPlayer.getMainHandItem());
                             drops.forEach(stack -> {
-                                if (stack.is(ModTags.Items.ORES)) {
-                                    stack.setCount(Math.round(stack.getCount() * serverLevel.random.nextFloat(0, level * 0.5F)));
-                                    Block.popResource(serverLevel, pos, stack);
+                                if (!stack.is(state.getBlock().asItem())) {
+                                    if (stack.is(ModTags.Items.ORES)) {
+                                        stack.setCount(TreasureUtil.getPotentialLoot(stack.getCount(), ServerConfig.PROSPECTING_POTENTIAL_LOOT_BOUND.get(), serverLevel.random));
+                                        Block.popResource(serverLevel, pos, stack);
+                                    }
                                 }
                             });
                         }
@@ -78,11 +80,10 @@ public class MiningEvents {
             Material material = event.getState().getMaterial();
             if (material == Material.WOOD || material == Material.NETHER_WOOD) {
                 player.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(capability -> {
-                    if (capability.isUnlocked(player, SkillRegistry.WOODCUTTING)) {
-                        int level = capability.getLevel(player, SkillRegistry.WOODCUTTING);
-                        float modifier = 1.0F + (level * 0.1F);
-                        if (level > 0) {
-                            event.setNewSpeed(event.getOriginalSpeed() * modifier);
+                    if (capability.hasUnlocked(player, WOODCUTTING)) {
+                        int currentLevel = capability.getLevel(player, WOODCUTTING);
+                        if (currentLevel > 0) {
+                            event.setNewSpeed(event.getOriginalSpeed() * (float) SkillUtil.getIncreaseModifier(WOODCUTTING, currentLevel));
                         }
                     }
                 });
@@ -93,25 +94,33 @@ public class MiningEvents {
     @SubscribeEvent
     public static void onTreasureHunting(BlockEvent.BreakEvent event) {
         if (event.getPlayer() instanceof ServerPlayer serverPlayer && !serverPlayer.isCreative()) {
-            serverPlayer.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(capability -> {
-                if (capability.isUnlocked(serverPlayer, SkillRegistry.TREASURE_HUNTING)) {
-                    int level = capability.getLevel(serverPlayer, SkillRegistry.TREASURE_HUNTING);
-                    if (level > 0) {
-                        if (event.getState().is(ModTags.Blocks.TREASURE_BLOCKS)) {
-                            BlockPos pos = event.getPos();
+            BlockState state = event.getState();
+            if (state.is(ModTags.Blocks.TREASURE_BLOCKS)) {
+                serverPlayer.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(capability -> {
+                    if (capability.hasUnlocked(serverPlayer, TREASURE_HUNTING)) {
+                        int currentLevel = capability.getLevel(serverPlayer, TREASURE_HUNTING);
+                        if (currentLevel > 0) {
                             ServerLevel serverLevel = serverPlayer.getLevel();
-                            float roll = serverLevel.random.nextFloat();
-                            if (roll <= level * 0.001F) {
-                                TreasureUtil.spawnTreasure(serverLevel, pos, serverLevel.random, TreasureUtil.getRandom(ModTags.Items.TREASURE_RARE, serverLevel.random));
-                            } else if (roll <= level * 0.002F) {
-                                TreasureUtil.spawnTreasure(serverLevel, pos, serverLevel.random, TreasureUtil.getRandom(ModTags.Items.TREASURE_UNCOMMON, serverLevel.random));
-                            } else if (roll <= level * 0.004F) {
-                                TreasureUtil.spawnTreasure(serverLevel, pos, serverLevel.random, TreasureUtil.getRandom(ModTags.Items.TREASURE_COMMON, serverLevel.random));
+                            if (serverPlayer.getLevel().random.nextFloat() <= SkillUtil.getCurrentChance(TREASURE_HUNTING, currentLevel)) {
+                                BlockPos pos = event.getPos();
+                                int bound = ServerConfig.TREASURE_HUNTING_RARE_WEIGHT.get() + ServerConfig.TREASURE_HUNTING_UNCOMMON_WEIGHT.get() + ServerConfig.TREASURE_HUNTING_COMMON_WEIGHT.get();
+                                int roll = serverLevel.random.nextInt(1, bound);
+                                if (roll <= ServerConfig.TREASURE_HUNTING_RARE_WEIGHT.get()) {
+                                    TreasureUtil.spawnTreasure(serverLevel, pos, serverLevel.random, TreasureUtil.getRandomTreasure(ModTags.Items.RARE_TREASURES, serverLevel.random));
+                                } else {
+                                    if (roll <= ServerConfig.TREASURE_HUNTING_RARE_WEIGHT.get() + ServerConfig.TREASURE_HUNTING_UNCOMMON_WEIGHT.get()) {
+                                        TreasureUtil.spawnTreasure(serverLevel, pos, serverLevel.random, TreasureUtil.getRandomTreasure(ModTags.Items.UNCOMMON_TREASURES, serverLevel.random));
+                                    } else {
+                                        if (roll <= bound) {
+                                            TreasureUtil.spawnTreasure(serverLevel, pos, serverLevel.random, TreasureUtil.getRandomTreasure(ModTags.Items.COMMON_TREASURES, serverLevel.random));
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
-                }
-            });
+                });
+            }
         }
     }
 
@@ -119,11 +128,10 @@ public class MiningEvents {
     public static void onSoftLanding(LivingFallEvent event) {
         if (event.getEntity() instanceof Player player) {
             player.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(capability -> {
-                if (capability.isUnlocked(player, SkillRegistry.SOFT_LANDING)) {
-                    int level = capability.getLevel(player, SkillRegistry.SOFT_LANDING);
-                    if (level > 0) {
-                        float reduction = 1.0F - (level * 0.05F);
-                        event.setDamageMultiplier(event.getDamageMultiplier() * reduction);
+                if (capability.hasUnlocked(player, SOFT_LANDING)) {
+                    int currentLevel = capability.getLevel(player, SOFT_LANDING);
+                    if (currentLevel > 0) {
+                        event.setDamageMultiplier(event.getDamageMultiplier() * (float) SkillUtil.getDecreaseModifier(SOFT_LANDING, currentLevel));
                     }
                 }
             });
@@ -136,13 +144,12 @@ public class MiningEvents {
             Player player = event.player;
             if (player != null) {
                 player.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(capability -> {
-                    if (capability.isUnlocked(player, SkillRegistry.SPRINT_SPEED)) {
-                        int level = capability.getLevel(player, SkillRegistry.SPRINT_SPEED);
-                        if (level > 0) {
-                            float modifier = level * 0.05F;
+                    if (capability.hasUnlocked(player, SPRINT_SPEED)) {
+                        int currentLevel = capability.getLevel(player, SPRINT_SPEED);
+                        if (currentLevel > 0) {
                             AttributeInstance attribute = player.getAttribute(Attributes.MOVEMENT_SPEED);
                             if (attribute != null) {
-                                AttributeModifier attributeModifier = new AttributeModifier(AttributeModifiers.SPRINT_SPEED_MODIFIER, SkillRegistry.SPRINT_SPEED.getName(), modifier, AttributeModifier.Operation.MULTIPLY_BASE);
+                                AttributeModifier attributeModifier = new AttributeModifier(AttributeModifiers.SPRINT_SPEED_MODIFIER, SPRINT_SPEED.getName(), SkillUtil.getCurrentBonus(SPRINT_SPEED, currentLevel), AttributeModifier.Operation.MULTIPLY_BASE);
                                 if (player.isSprinting()) {
                                     if (attribute.getModifier(AttributeModifiers.SPRINT_SPEED_MODIFIER) == null) {
                                         attribute.addTransientModifier(attributeModifier);

@@ -3,7 +3,7 @@ package darkorg.betterleveling.network.packets;
 import com.mojang.datafixers.util.Pair;
 import darkorg.betterleveling.api.ISpecialization;
 import darkorg.betterleveling.capability.PlayerCapabilityProvider;
-import darkorg.betterleveling.util.CapabilityUtil;
+import darkorg.betterleveling.util.RegistryUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
@@ -35,7 +35,7 @@ public class AddSpecC2SPacket {
             ServerPlayer serverPlayer = context.getSender();
             if (serverPlayer != null) {
                 serverPlayer.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(capability -> {
-                    capability.addUnlocked(serverPlayer, CapabilityUtil.getSpecFromName(packet.data.getString("Spec")), packet.data.getBoolean("Value"));
+                    capability.addUnlocked(serverPlayer, RegistryUtil.getSpecFromName(packet.data.getString("Spec")), packet.data.getBoolean("Value"));
                 });
             }
         });

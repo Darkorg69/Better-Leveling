@@ -6,6 +6,7 @@ import darkorg.betterleveling.util.RenderUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.jetbrains.annotations.NotNull;
 
 @OnlyIn(Dist.CLIENT)
 public class ChooseSpecButton extends AbstractSpecButton {
@@ -15,7 +16,7 @@ public class ChooseSpecButton extends AbstractSpecButton {
     }
 
     @Override
-    public void renderButton(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTicks) {
+    public void renderButton(@NotNull PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTicks) {
         Minecraft minecraft = Minecraft.getInstance();
         RenderUtil.setShaderTextureButton();
         this.blit(pPoseStack, this.x, this.y, 176, 0, this.width, this.height);

@@ -6,17 +6,15 @@ import net.minecraft.world.item.ItemStack;
 import java.util.Map;
 
 public interface ISkill {
+    String getName();
+
     int getMinLevel();
 
     int getMaxLevel();
 
-    int getIncreaseCost(int pLevel);
+    double getBonusPerLevel();
 
-    boolean isMinLevel(int pLevel);
-
-    boolean isMaxLevel(int pLevel);
-
-    String getName();
+    int getCostPerLevel();
 
     ISpecialization getParentSpec();
 
@@ -24,10 +22,10 @@ public interface ISkill {
 
     TranslatableComponent getDescription();
 
-    TranslatableComponent getDescriptionIndexOf(int pIndex);
-
     ItemStack getRepresentativeItemStack();
 
     Map<ISkill, Integer> getPrerequisites();
+
+    TranslatableComponent getDescriptionIndexOf(int pIndex);
 }
 

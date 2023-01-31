@@ -6,6 +6,7 @@ import darkorg.betterleveling.util.RenderUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.jetbrains.annotations.NotNull;
 
 @OnlyIn(Dist.CLIENT)
 public class SpecButton extends AbstractSpecButton {
@@ -19,7 +20,7 @@ public class SpecButton extends AbstractSpecButton {
     }
 
     @Override
-    public void renderButton(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
+    public void renderButton(@NotNull PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
         Minecraft minecraft = Minecraft.getInstance();
         RenderUtil.setShaderTextureButton();
         if (!this.isUnlocked) {
@@ -36,7 +37,7 @@ public class SpecButton extends AbstractSpecButton {
     }
 
     @Override
-    public void renderToolTip(PoseStack pPoseStack, int pMouseX, int pMouseY) {
+    public void renderToolTip(@NotNull PoseStack pPoseStack, int pMouseX, int pMouseY) {
         this.onTooltip.onTooltip(pPoseStack, pMouseX, pMouseY);
     }
 

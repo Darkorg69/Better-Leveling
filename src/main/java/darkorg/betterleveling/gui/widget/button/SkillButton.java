@@ -6,6 +6,7 @@ import darkorg.betterleveling.api.ISkill;
 import darkorg.betterleveling.capability.PlayerCapabilityProvider;
 import darkorg.betterleveling.gui.screen.SkillScreen;
 import darkorg.betterleveling.util.RenderUtil;
+import darkorg.betterleveling.util.SkillUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
@@ -14,10 +15,11 @@ import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.jetbrains.annotations.NotNull;
 
 @OnlyIn(Dist.CLIENT)
 public class SkillButton extends AbstractButton {
-    private final ISkill playerSkill;
+    private final ISkill skill;
     private final ItemStack representativeStack;
     private final OnTooltip onTooltip;
     private int level;
@@ -26,11 +28,11 @@ public class SkillButton extends AbstractButton {
     private LocalPlayer localPlayer;
     private IPlayerCapability playerCapability;
 
-    public SkillButton(int pX, int pY, ISkill pPlayerSkill, OnTooltip pOnTooltip) {
+    public SkillButton(int pX, int pY, ISkill pSkill, OnTooltip pOnTooltip) {
         super(pX, pY, 32, 32, new TranslatableComponent(""));
-        this.playerSkill = pPlayerSkill;
+        this.skill = pSkill;
         this.onTooltip = pOnTooltip;
-        this.representativeStack = pPlayerSkill.getRepresentativeItemStack();
+        this.representativeStack = pSkill.getRepresentativeItemStack();
         init();
     }
 
@@ -40,9 +42,9 @@ public class SkillButton extends AbstractButton {
         if (this.localPlayer != null) {
             this.localPlayer.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(pCapability -> {
                 this.playerCapability = pCapability;
-                this.level = this.playerCapability.getLevel(this.localPlayer, this.playerSkill);
-                this.isUnlocked = this.playerCapability.isUnlocked(this.localPlayer, this.playerSkill);
-                this.isMaxLevel = this.playerSkill.isMaxLevel(this.level);
+                this.level = this.playerCapability.getLevel(this.localPlayer, this.skill);
+                this.isUnlocked = this.playerCapability.hasUnlocked(this.localPlayer, this.skill);
+                this.isMaxLevel = SkillUtil.isMaxLevel(this.skill, this.level);
             });
         }
         this.active = this.isUnlocked;
@@ -50,11 +52,11 @@ public class SkillButton extends AbstractButton {
 
     @Override
     public void onPress() {
-        Minecraft.getInstance().setScreen(new SkillScreen(this.playerSkill));
+        Minecraft.getInstance().setScreen(new SkillScreen(this.skill));
     }
 
     @Override
-    public void renderButton(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
+    public void renderButton(@NotNull PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
         Minecraft minecraft = Minecraft.getInstance();
 
         RenderUtil.setShaderTextureButton();
@@ -80,16 +82,16 @@ public class SkillButton extends AbstractButton {
     }
 
     @Override
-    public void renderToolTip(PoseStack pPoseStack, int pMouseX, int pMouseY) {
+    public void renderToolTip(@NotNull PoseStack pPoseStack, int pMouseX, int pMouseY) {
         this.onTooltip.onTooltip(this, pPoseStack, pMouseX, pMouseY);
     }
 
-    public ISkill getPlayerSkill() {
-        return this.playerSkill;
+    public ISkill getSkill() {
+        return this.skill;
     }
 
     @Override
-    public void updateNarration(NarrationElementOutput pNarrationElementOutput) {
+    public void updateNarration(@NotNull NarrationElementOutput pNarrationElementOutput) {
 
     }
 

@@ -6,7 +6,7 @@ import darkorg.betterleveling.BetterLeveling;
 import darkorg.betterleveling.api.ISpecialization;
 import darkorg.betterleveling.capability.PlayerCapabilityProvider;
 import darkorg.betterleveling.network.chat.ModComponents;
-import darkorg.betterleveling.util.CapabilityUtil;
+import darkorg.betterleveling.util.RegistryUtil;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.server.level.ServerPlayer;
 
@@ -19,30 +19,20 @@ import static net.minecraft.commands.Commands.literal;
 
 public class SetSpecializationCommand {
     public SetSpecializationCommand(CommandDispatcher<CommandSourceStack> pDispatcher) {
-        pDispatcher.register(
-                literal(BetterLeveling.MOD_ID)
-                        .requires(source -> source.hasPermission(2))
-                        .then(literal("set")
-                                .then(argument("spec", string())
-                                        .then(argument("unlocked", bool())
-                                                .executes(context -> setSpecialization(context.getSource(), getString(context, "spec"), getBool(context, "unlocked")))
-                                        )
-                                )
-                        )
-        );
+        pDispatcher.register(literal(BetterLeveling.MOD_ID).requires(source -> source.hasPermission(2)).then(literal("set").then(argument("spec", string()).then(argument("unlocked", bool()).executes(context -> setSpecialization(context.getSource(), getString(context, "spec"), getBool(context, "unlocked")))))));
     }
 
     private int setSpecialization(CommandSourceStack pSource, String pSpecialization, boolean pUnlocked) throws CommandSyntaxException {
         ServerPlayer serverPlayer = pSource.getPlayerOrException();
 
         if (!serverPlayer.getCapability(PlayerCapabilityProvider.PLAYER_CAP).isPresent()) {
-            pSource.sendFailure(ModComponents.FAILURE_CAPABILITY);
+            pSource.sendFailure(ModComponents.CAPABILITY_NOT_FOUND);
         }
 
-        ISpecialization specialization = CapabilityUtil.getSpecFromName(pSpecialization);
+        ISpecialization specialization = RegistryUtil.getSpecFromName(pSpecialization);
 
         if (specialization == null) {
-            pSource.sendFailure(ModComponents.FAILURE_SPECIALIZATION);
+            pSource.sendFailure(ModComponents.SPEC_NOT_FOUND);
         }
 
         serverPlayer.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(capability -> {

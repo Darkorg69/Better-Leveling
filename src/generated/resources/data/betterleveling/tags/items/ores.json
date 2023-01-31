@@ -1,8 +1,8 @@
 {
   "replace": false,
   "values": [
-    "minecraft:coal",
-    "minecraft:redstone",
+    "#minecraft:coals",
+    "#forge:dusts/redstone",
     "#forge:gems",
     "#forge:nuggets",
     "#forge:raw_materials"

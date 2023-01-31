@@ -1,39 +1,39 @@
 package darkorg.betterleveling.impl;
 
-import com.mojang.datafixers.util.Pair;
+import darkorg.betterleveling.BetterLeveling;
 import darkorg.betterleveling.api.ISkill;
 import darkorg.betterleveling.api.ISpecialization;
+import darkorg.betterleveling.util.RegistryUtil;
 import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.ItemLike;
+import net.minecraftforge.common.ForgeConfigSpec.ConfigValue;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class Skill implements ISkill {
     private final String name;
-    private final int minLevel;
-    private final int maxLevel;
+    private final ItemLike itemLike;
+    private final ISpecialization parentSpec;
+    private final ConfigValue<Integer> maxLevel;
+    private final ConfigValue<Integer> costPerLevel;
+    private final ConfigValue<Double> bonusPerLevel;
+    private final ConfigValue<String> prerequisites;
+
     private final TranslatableComponent translation;
     private final TranslatableComponent description;
-    private final ISpecialization parentSpec;
-    private final ItemStack representativeItemStack;
-    private final Map<ISkill, Integer> prerequisites;
 
-    @SafeVarargs
-    public Skill(String pMod, String pName, int pMinLevel, int pMaxLevel, ISpecialization pParentSpec, Item pRepresentativeItem, Pair<ISkill, Integer>... pPrerequisites) {
+    public Skill(String pMod, String pName, ItemLike pItemLike, ISpecialization pParentSpec, ConfigValue<Integer> pMaxLevel, ConfigValue<Integer> pCostPerLevel, ConfigValue<Double> pBonusPerLevel, ConfigValue<String> pPrerequisites) {
         this.name = pName;
-        this.minLevel = pMinLevel;
-        this.maxLevel = pMaxLevel;
-        this.translation = new TranslatableComponent(pMod + "." + pName);
-        this.description = new TranslatableComponent(pMod + "." + pName + ".desc");
+        this.itemLike = pItemLike;
         this.parentSpec = pParentSpec;
-        this.representativeItemStack = new ItemStack(pRepresentativeItem);
-        this.prerequisites = new HashMap<>();
-
-        for (Pair<ISkill, Integer> pPrerequisite : pPrerequisites) {
-            this.prerequisites.put(pPrerequisite.getFirst(), pPrerequisite.getSecond());
-        }
+        this.maxLevel = pMaxLevel;
+        this.costPerLevel = pCostPerLevel;
+        this.bonusPerLevel = pBonusPerLevel;
+        this.prerequisites = pPrerequisites;
+        this.translation = new TranslatableComponent(pMod + "." + pName + ".translation");
+        this.description = new TranslatableComponent(pMod + "." + pName + ".description");
     }
 
     @Override
@@ -43,27 +43,21 @@ public class Skill implements ISkill {
 
     @Override
     public int getMinLevel() {
-        return this.minLevel;
-    }
-
-    @Override
-    public boolean isMinLevel(int pLevel) {
-        return this.minLevel == pLevel;
+        return 0;
     }
 
     @Override
     public int getMaxLevel() {
-        return this.maxLevel;
+        return this.maxLevel.get();
     }
 
     @Override
-    public boolean isMaxLevel(int pLevel) {
-        return this.maxLevel == pLevel;
+    public int getCostPerLevel() {
+        return this.costPerLevel.get();
     }
 
-    @Override
-    public int getIncreaseCost(int pLevel) {
-        return Math.round((14 * pLevel) / 9.0F) + 1;
+    public double getBonusPerLevel() {
+        return this.bonusPerLevel.get();
     }
 
     @Override
@@ -82,17 +76,29 @@ public class Skill implements ISkill {
     }
 
     @Override
-    public TranslatableComponent getDescriptionIndexOf(int pIndex) {
-        return new TranslatableComponent(getDescription().getKey() + Math.max(1, pIndex));
+    public ItemStack getRepresentativeItemStack() {
+        return new ItemStack(this.itemLike);
     }
 
     @Override
-    public ItemStack getRepresentativeItemStack() {
-        return this.representativeItemStack;
+    public TranslatableComponent getDescriptionIndexOf(int pIndex) {
+        return new TranslatableComponent(this.description.getKey() + pIndex);
     }
 
     @Override
     public Map<ISkill, Integer> getPrerequisites() {
-        return this.prerequisites;
+        Map<ISkill, Integer> map = new HashMap<>();
+        String prerequisites = this.prerequisites.get();
+        if (!prerequisites.isEmpty()) {
+            if (prerequisites.matches("^(\\w+:\\d+,)*(\\w+:\\d+)$")) {
+                for (String s : prerequisites.split(",")) {
+                    String[] nameLevel = s.split(":");
+                    map.put(RegistryUtil.getSkillFromName(nameLevel[0]), Integer.parseInt(nameLevel[1]));
+                }
+            } else {
+                BetterLeveling.LOGGER.warn("Malformed skill prerequisite value, cannot parse string: " + prerequisites);
+            }
+        }
+        return map;
     }
 }

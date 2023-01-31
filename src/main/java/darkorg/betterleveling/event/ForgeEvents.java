@@ -9,7 +9,8 @@ import darkorg.betterleveling.command.SetSkillCommand;
 import darkorg.betterleveling.command.SetSpecializationCommand;
 import darkorg.betterleveling.config.ServerConfig;
 import darkorg.betterleveling.registry.ModTags;
-import darkorg.betterleveling.registry.SkillRegistry;
+import darkorg.betterleveling.util.SkillUtil;
+import darkorg.betterleveling.util.TreasureUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -32,6 +33,8 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.server.command.ConfigCommand;
 
 import java.util.List;
+
+import static darkorg.betterleveling.registry.SkillRegistry.HARVEST_PROFICIENCY;
 
 @Mod.EventBusSubscriber(modid = BetterLeveling.MOD_ID)
 public class ForgeEvents {
@@ -89,33 +92,36 @@ public class ForgeEvents {
 
     @SubscribeEvent
     public static void onSimpleHarvest(PlayerInteractEvent.RightClickBlock event) {
-        if (ServerConfig.SIMPLE_HARVEST.get()) {
-            if (event.getWorld() instanceof ServerLevel serverLevel) {
-                if (event.getPlayer() instanceof ServerPlayer serverPlayer) {
-                    BlockPos pos = event.getPos();
-                    BlockState state = serverLevel.getBlockState(pos);
-                    Block block = state.getBlock();
-                    if (state.is(ModTags.Blocks.CROPS) && block instanceof BonemealableBlock growable) {
-                        if (!growable.isValidBonemealTarget(serverLevel, pos, state, serverLevel.isClientSide)) {
-                            List<ItemStack> drops = Block.getDrops(state, serverLevel, pos, null);
-                            serverPlayer.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(capability -> {
-                                if (capability.isUnlocked(serverPlayer, SkillRegistry.HARVEST_PROFICIENCY)) {
-                                    int level = capability.getLevel(serverPlayer, SkillRegistry.HARVEST_PROFICIENCY);
-                                    drops.forEach(stack -> {
-                                        if (stack.is(ModTags.Items.CROPS)) {
-                                            stack.setCount(stack.getCount() + Math.round(stack.getCount() * serverLevel.random.nextFloat(0, level * 0.5F)));
-                                        }
-                                    });
+        if (ServerConfig.SIMPLE_HARVEST_ENABLED.get()) {
+            if (event.getWorld() instanceof ServerLevel serverLevel && event.getPlayer() instanceof ServerPlayer serverPlayer) {
+                BlockPos pos = event.getPos();
+                BlockState state = serverLevel.getBlockState(pos);
+                Block block = state.getBlock();
+                if (block instanceof BonemealableBlock bonemealableBlock) {
+                    if (!bonemealableBlock.isValidBonemealTarget(serverLevel, pos, state, serverLevel.isClientSide)) {
+                        List<ItemStack> drops = Block.getDrops(state, serverLevel, pos, null, serverPlayer, serverPlayer.getMainHandItem());
+                        serverPlayer.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(pCapability -> {
+                            if (pCapability.hasUnlocked(serverPlayer, HARVEST_PROFICIENCY)) {
+                                int currentLevel = pCapability.getLevel(serverPlayer, HARVEST_PROFICIENCY);
+                                if (currentLevel > 0) {
+                                    if (serverLevel.random.nextDouble() <= SkillUtil.getCurrentChance(HARVEST_PROFICIENCY, currentLevel)) {
+                                        drops.forEach(stack -> {
+                                            if (stack.is(ModTags.Items.CROPS)) {
+                                                int originalCount = stack.getCount();
+                                                stack.setCount(originalCount + TreasureUtil.getPotentialLoot(originalCount, ServerConfig.HARVEST_PROFICIENCY_POTENTIAL_LOOT_BOUND.get().floatValue(), serverLevel.random));
+                                            }
+                                        });
+                                    }
                                 }
-                            });
-                            drops.forEach(stack -> {
-                                if (!stack.is(ModTags.Items.CROPS)) {
-                                    stack.setCount(stack.getCount() - 1);
-                                }
-                                Block.popResource(serverLevel, pos, stack);
-                            });
-                            serverLevel.setBlockAndUpdate(pos, block.defaultBlockState());
-                        }
+                            }
+                        });
+                        drops.forEach(stack -> {
+                            if (!stack.is(ModTags.Items.CROPS)) {
+                                stack.setCount(stack.getCount() - 1);
+                            }
+                            Block.popResource(serverLevel, pos, stack);
+                        });
+                        serverLevel.setBlockAndUpdate(pos, block.defaultBlockState());
                     }
                 }
             }

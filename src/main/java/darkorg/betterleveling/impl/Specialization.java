@@ -1,32 +1,32 @@
 package darkorg.betterleveling.impl;
 
 import darkorg.betterleveling.api.ISpecialization;
-import darkorg.betterleveling.util.CapabilityUtil;
+import darkorg.betterleveling.config.ServerConfig;
 import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.ItemLike;
 
 public class Specialization implements ISpecialization {
     private final String name;
+    private final ItemLike itemLike;
     private final TranslatableComponent translation;
     private final TranslatableComponent description;
-    private final ItemStack representativeStack;
 
-    public Specialization(String pNamespace, String pName, Item pItem) {
+    public Specialization(String pMod, String pName, ItemLike pItemLike) {
         this.name = pName;
-        this.translation = new TranslatableComponent(pNamespace + ".spec." + pName);
-        this.description = new TranslatableComponent(pNamespace + ".spec." + pName + ".desc");
-        this.representativeStack = new ItemStack(pItem);
-    }
-
-    @Override
-    public int getLevelCost() {
-        return CapabilityUtil.getSkillsFromSpec(this).size() * 5;
+        this.itemLike = pItemLike;
+        this.translation = new TranslatableComponent(pMod + ".spec." + pName);
+        this.description = new TranslatableComponent(pMod + ".spec." + pName + ".desc");
     }
 
     @Override
     public String getName() {
         return this.name;
+    }
+
+    @Override
+    public int getLevelCost() {
+        return ServerConfig.SPEC_LEVEL_COST.get();
     }
 
     @Override
@@ -41,6 +41,6 @@ public class Specialization implements ISpecialization {
 
     @Override
     public ItemStack getRepresentativeItemStack() {
-        return this.representativeStack;
+        return new ItemStack(this.itemLike);
     }
 }

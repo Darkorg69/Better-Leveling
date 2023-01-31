@@ -1,8 +1,0 @@
-{
-  "replace": false,
-  "values": [
-    "minecraft:arrow",
-    "#forge:dusts",
-    "#forge:nuggets"
-  ]
-}

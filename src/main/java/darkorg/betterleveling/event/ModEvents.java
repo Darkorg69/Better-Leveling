@@ -24,11 +24,11 @@ public class ModEvents {
         DataGenerator dataGenerator = event.getGenerator();
         ExistingFileHelper existingFileHelper = event.getExistingFileHelper();
 
-        ModBlockTagsProvider blockTagProvider = new ModBlockTagsProvider(dataGenerator, BetterLeveling.MOD_ID, existingFileHelper);
-        ModItemTagsProvider itemTagsProvider = new ModItemTagsProvider(dataGenerator, blockTagProvider, BetterLeveling.MOD_ID, existingFileHelper);
+        ModBlockTagsProvider blockTagsProvider = new ModBlockTagsProvider(dataGenerator, BetterLeveling.MOD_ID, existingFileHelper);
+        ModItemTagsProvider itemTagsProvider = new ModItemTagsProvider(dataGenerator, blockTagsProvider, BetterLeveling.MOD_ID, existingFileHelper);
         ModLanguageProvider en_us = new ModLanguageProvider(dataGenerator, BetterLeveling.MOD_ID, "en_us");
 
-        dataGenerator.addProvider(blockTagProvider);
+        dataGenerator.addProvider(blockTagsProvider);
         dataGenerator.addProvider(itemTagsProvider);
         dataGenerator.addProvider(en_us);
     }

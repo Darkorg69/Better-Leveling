@@ -1,5 +1,6 @@
 package darkorg.betterleveling.impl;
 
+import darkorg.betterleveling.BetterLeveling;
 import darkorg.betterleveling.api.IPlayerCapability;
 import darkorg.betterleveling.api.ISkill;
 import darkorg.betterleveling.api.ISpecialization;
@@ -9,7 +10,8 @@ import darkorg.betterleveling.network.chat.ModComponents;
 import darkorg.betterleveling.network.packets.SyncDataS2CPacket;
 import darkorg.betterleveling.registry.SkillRegistry;
 import darkorg.betterleveling.registry.SpecRegistry;
-import darkorg.betterleveling.util.CapabilityUtil;
+import darkorg.betterleveling.util.RegistryUtil;
+import darkorg.betterleveling.util.SkillUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -33,16 +35,69 @@ public class PlayerCapability implements IPlayerCapability {
         ListTag skills = new ListTag();
         this.data.put("Specs", specs);
         this.data.put("Skills", skills);
-        SpecRegistry.getSpecRegistry().forEach(pSpecialization -> setUnlocked(pSpecialization, false));
-        SkillRegistry.getSkillRegistry().forEach(pSkill -> setLevel(pSkill, 0));
+        SpecRegistry.getSpecRegistry().forEach(pSpecialization -> putUnlocked(pSpecialization, false));
+        SkillRegistry.getSkillRegistry().forEach(pSkill -> putLevel(pSkill, 0));
         this.specMap = new HashMap<>();
         this.skillMap = new HashMap<>();
     }
 
+    private void putUnlocked(ISpecialization pSpecialization, boolean pUnlocked) {
+        CompoundTag spec = new CompoundTag();
+        spec.putString("Name", pSpecialization.getName());
+        spec.putBoolean("Unlocked", pUnlocked);
+
+        ListTag specs = this.data.getList("Specs", 10);
+
+        if (specs.isEmpty()) {
+            specs.add(spec);
+            return;
+        } else {
+            for (Tag tag : specs) {
+                CompoundTag nbt = (CompoundTag) tag;
+                if (nbt.getString("Name").equals(pSpecialization.getName())) {
+                    nbt.putBoolean("Unlocked", pUnlocked);
+                    return;
+                }
+            }
+        }
+        specs.add(spec);
+    }
+
+    private void putLevel(ISkill pSkill, int pLevel) {
+        CompoundTag skill = new CompoundTag();
+        skill.putString("Name", pSkill.getName());
+        skill.putInt("Level", pLevel);
+
+        ListTag skills = this.data.getList("Skills", 10);
+
+        if (skills.isEmpty()) {
+            skills.add(skill);
+            return;
+        } else {
+            for (Tag pTag : skills) {
+                CompoundTag tag = (CompoundTag) pTag;
+                if (tag.getString("Name").equals(pSkill.getName())) {
+                    tag.putInt("Level", pLevel);
+                    return;
+                }
+            }
+        }
+        skills.add(skill);
+    }
+
+    @Override
+    public boolean canUnlock(Player pPlayer) {
+        boolean canUnlock = pPlayer.experienceLevel >= ServerConfig.FIRST_SPEC_COST.get();
+        if (!canUnlock) {
+            pPlayer.displayClientMessage(new TranslatableComponent("").append(ModComponents.CHOOSE_NO_XP).append(" ").append(String.valueOf(ServerConfig.FIRST_SPEC_COST.get())), true);
+        }
+        return canUnlock;
+    }
+
     @Override
     public boolean hasUnlocked(Player pPlayer) {
-        for (ISpecialization playerSpecialization : SpecRegistry.getSpecRegistry()) {
-            boolean unlocked = getUnlocked(pPlayer, playerSpecialization);
+        for (ISpecialization specialization : SpecRegistry.getSpecRegistry()) {
+            boolean unlocked = getUnlocked(pPlayer, specialization);
             if (unlocked) {
                 return true;
             }
@@ -51,8 +106,26 @@ public class PlayerCapability implements IPlayerCapability {
     }
 
     @Override
+    public ISpecialization getFirstSpecialization(Player pPlayer) {
+        return this.getSpecializations(pPlayer).get(0);
+    }
+
+    @Override
+    public List<ISpecialization> getSpecializations(Player pPlayer) {
+        List<ISpecialization> unlockedList = new ArrayList<>();
+        SpecRegistry.getSpecRegistry().forEach(PlayerSpec -> {
+            if (getUnlocked(pPlayer, PlayerSpec)) {
+                unlockedList.add(PlayerSpec);
+            }
+        });
+        return unlockedList;
+    }
+
+    @Override
     public boolean getUnlocked(Player pPlayer, ISpecialization pSpecialization) {
-        if (pPlayer.level.isClientSide) return this.specMap.getOrDefault(pSpecialization, false);
+        if (pPlayer.level.isClientSide) {
+            return this.specMap.getOrDefault(pSpecialization, false);
+        }
         for (Tag tag : this.data.getList("Specs", 10)) {
             CompoundTag nbt = (CompoundTag) tag;
             if (nbt.getString("Name").equals(pSpecialization.getName())) {
@@ -60,6 +133,12 @@ public class PlayerCapability implements IPlayerCapability {
             }
         }
         return false;
+    }
+
+    @Override
+    public void setUnlocked(ServerPlayer pServerPlayer, ISpecialization pSpecialization, boolean pUnlocked) {
+        putUnlocked(pSpecialization, pUnlocked);
+        sendDataToPlayer(pServerPlayer);
     }
 
     @Override
@@ -79,39 +158,24 @@ public class PlayerCapability implements IPlayerCapability {
     }
 
     @Override
-    public void setUnlocked(ServerPlayer pServerPlayer, ISpecialization pSpecialization, boolean pUnlocked) {
-        setUnlocked(pSpecialization, pUnlocked);
-        sendDataToPlayer(pServerPlayer);
-    }
-
-    @Override
-    public boolean canUnlock(Player pPlayer) {
-        boolean canUnlock = pPlayer.experienceLevel >= ServerConfig.FIRST_SPEC_COST.get();
-        if (!canUnlock) {
-            pPlayer.displayClientMessage(new TranslatableComponent("").append(ModComponents.CHOOSE_NO_XP).append(" ").append(String.valueOf(ServerConfig.FIRST_SPEC_COST.get())), true);
+    public boolean hasUnlocked(Player pPlayer, ISkill pSkill) {
+        if (getUnlocked(pPlayer, pSkill.getParentSpec())) {
+            List<Boolean> logicalResult = new ArrayList<>();
+            pSkill.getPrerequisites().forEach((prerequisite, level) -> {
+                getLevel(pPlayer, prerequisite);
+                logicalResult.add(getLevel(pPlayer, prerequisite) >= level);
+            });
+            return !logicalResult.contains(false);
+        } else {
+            return false;
         }
-        return canUnlock;
-    }
-
-    @Override
-    public ISpecialization getFirstUnlocked(Player pPlayer) {
-        return this.getAllUnlocked(pPlayer).get(0);
-    }
-
-    @Override
-    public List<ISpecialization> getAllUnlocked(Player pPlayer) {
-        List<ISpecialization> unlockedList = new ArrayList<>();
-        SpecRegistry.getSpecRegistry().forEach(PlayerSpec -> {
-            if (getUnlocked(pPlayer, PlayerSpec)) {
-                unlockedList.add(PlayerSpec);
-            }
-        });
-        return unlockedList;
     }
 
     @Override
     public int getLevel(Player pPlayer, ISkill pSkill) {
-        if (pPlayer.level.isClientSide) return this.skillMap.getOrDefault(pSkill, 0);
+        if (pPlayer.level.isClientSide) {
+            return this.skillMap.getOrDefault(pSkill, 0);
+        }
         for (Tag tag : this.data.getList("Skills", 10)) {
             CompoundTag nbt = (CompoundTag) tag;
             if (nbt.getString("Name").equals(pSkill.getName())) {
@@ -123,46 +187,32 @@ public class PlayerCapability implements IPlayerCapability {
 
     @Override
     public void setLevel(ServerPlayer pServerPlayer, ISkill pSkill, int pLevel) {
-        setLevel(pSkill, pLevel);
+        putLevel(pSkill, pLevel);
         sendDataToPlayer(pServerPlayer);
     }
 
     @Override
-    public void addLevel(ServerPlayer pServerPlayer, ISkill pSkill, int pLevel) {
+    public void addLevel(ServerPlayer pServerPlayer, ISkill pSkill, int pAmount) {
         int currentLevel = getLevel(pServerPlayer, pSkill);
-        if (pLevel > 0) {
+        if (pAmount > 0) {
             if (currentLevel >= pSkill.getMaxLevel()) {
                 pServerPlayer.displayClientMessage(ModComponents.CANNOT_INCREASE, true);
             } else {
-                int levelCost = pSkill.getIncreaseCost(currentLevel);
-                if (levelCost <= pServerPlayer.experienceLevel) {
-                    pServerPlayer.giveExperienceLevels(-levelCost);
-                    setLevel(pServerPlayer, pSkill, currentLevel + pLevel);
+                int cost = SkillUtil.getCurrentCost(pSkill, currentLevel);
+                if (cost <= pServerPlayer.totalExperience) {
+                    pServerPlayer.giveExperiencePoints(-cost);
+                    setLevel(pServerPlayer, pSkill, currentLevel + pAmount);
                 } else {
                     pServerPlayer.displayClientMessage(ModComponents.NOT_ENOUGH_XP, true);
                 }
             }
         } else {
-            if (currentLevel <= pSkill.getMinLevel()) {
+            if (currentLevel == 0) {
                 pServerPlayer.displayClientMessage(ModComponents.CANNOT_DECREASE, true);
             } else {
-                pServerPlayer.giveExperienceLevels(Math.round(pSkill.getIncreaseCost(currentLevel - 1) / 2.0F));
-                setLevel((pServerPlayer), pSkill, currentLevel + pLevel);
+                pServerPlayer.giveExperiencePoints(Math.round(SkillUtil.getCurrentCost(pSkill, currentLevel - 1) * ServerConfig.XP_REFUND_FACTOR.get().floatValue()));
+                setLevel((pServerPlayer), pSkill, currentLevel + pAmount);
             }
-        }
-    }
-
-    @Override
-    public boolean isUnlocked(Player pPlayer, ISkill pSkill) {
-        if (getUnlocked(pPlayer, pSkill.getParentSpec())) {
-            List<Boolean> logicalResult = new ArrayList<>();
-            pSkill.getPrerequisites().forEach((prerequisite, level) -> {
-                getLevel(pPlayer, prerequisite);
-                logicalResult.add(getLevel(pPlayer, prerequisite) >= level);
-            });
-            return !logicalResult.contains(false);
-        } else {
-            return false;
         }
     }
 
@@ -179,21 +229,28 @@ public class PlayerCapability implements IPlayerCapability {
     @Override
     public void sendDataToPlayer(ServerPlayer pServerPlayer) {
         CompoundTag data = new CompoundTag();
+
         ListTag specs = new ListTag();
         ListTag skills = new ListTag();
 
-        SpecRegistry.getSpecRegistry().forEach(PlayerSpec -> {
+        SpecRegistry.getSpecRegistry().forEach(pSpecialization -> {
             CompoundTag tag = new CompoundTag();
-            tag.putString("Name", PlayerSpec.getName());
-            tag.putBoolean("Unlocked", getUnlocked(pServerPlayer, PlayerSpec));
+            tag.putString("Name", pSpecialization.getName());
+            tag.putBoolean("Unlocked", getUnlocked(pServerPlayer, pSpecialization));
             specs.add(tag);
         });
         data.put("Specs", specs);
 
-        SkillRegistry.getSkillRegistry().forEach(PlayerSkill -> {
+        SkillRegistry.getSkillRegistry().forEach(pSkill -> {
             CompoundTag tag = new CompoundTag();
-            tag.putString("Name", PlayerSkill.getName());
-            tag.putInt("Level", getLevel(pServerPlayer, PlayerSkill));
+            tag.putString("Name", pSkill.getName());
+            int maxLevel = pSkill.getMaxLevel();
+            int currentLevel = getLevel(pServerPlayer, pSkill);
+            if (currentLevel > maxLevel) {
+                BetterLeveling.LOGGER.warn("Skill: " + pSkill.getName() + ", current level (" + currentLevel + ") exceeds the maximum level (" + maxLevel + ") at player " + pServerPlayer.getScoreboardName());
+                putLevel(pSkill, maxLevel);
+            }
+            tag.putInt("Level", getLevel(pServerPlayer, pSkill));
             skills.add(tag);
         });
         data.put("Skills", skills);
@@ -202,71 +259,20 @@ public class PlayerCapability implements IPlayerCapability {
     }
 
     @Override
-    public void resetPlayer(ServerPlayer pServerPlayer) {
-
-    }
-
-    @Override
     public void receiveDataFromServer(CompoundTag pData) {
         if (pData != null) {
             if (pData.contains("Specs")) {
                 for (Tag tag : pData.getList("Specs", 10)) {
                     CompoundTag nbt = (CompoundTag) tag;
-                    this.specMap.put(CapabilityUtil.getSpecFromName(nbt.getString("Name")), nbt.getBoolean("Unlocked"));
+                    this.specMap.put(RegistryUtil.getSpecFromName(nbt.getString("Name")), nbt.getBoolean("Unlocked"));
                 }
             }
             if (pData.contains("Skills")) {
                 for (Tag tag : pData.getList("Skills", 10)) {
                     CompoundTag nbt = (CompoundTag) tag;
-                    this.skillMap.put(CapabilityUtil.getSkillFromName(nbt.getString("Name")), nbt.getInt("Level"));
+                    this.skillMap.put(RegistryUtil.getSkillFromName(nbt.getString("Name")), nbt.getInt("Level"));
                 }
             }
         }
-    }
-
-    private void putUnlocked(ISpecialization pSpecialization, boolean pUnlocked) {
-        CompoundTag tag = new CompoundTag();
-        tag.putString("Name", pSpecialization.getName());
-        tag.putBoolean("Unlocked", pUnlocked);
-        this.data.getList("Specs", 10).add(tag);
-    }
-
-    private void setUnlocked(ISpecialization pSpecialization, boolean pUnlocked) {
-        if (this.data.getList("Specs", 10).isEmpty()) {
-            putUnlocked(pSpecialization, pUnlocked);
-            return;
-        } else {
-            for (Tag tag : this.data.getList("Specs", 10)) {
-                CompoundTag nbt = (CompoundTag) tag;
-                if (nbt.getString("Name").equals(pSpecialization.getName())) {
-                    nbt.putBoolean("Unlocked", pUnlocked);
-                    return;
-                }
-            }
-        }
-        putUnlocked(pSpecialization, pUnlocked);
-    }
-
-    private void setLevel(ISkill pSkill, int pLevel) {
-        if (this.data.getList("Skills", 10).isEmpty()) {
-            putLevel(pSkill, pLevel);
-            return;
-        } else {
-            for (Tag tag : this.data.getList("Skills", 10)) {
-                CompoundTag nbt = (CompoundTag) tag;
-                if (nbt.getString("Name").equals(pSkill.getName())) {
-                    nbt.putInt("Level", pLevel);
-                    return;
-                }
-            }
-        }
-        putLevel(pSkill, pLevel);
-    }
-
-    private void putLevel(ISkill pSkill, int pLevel) {
-        CompoundTag skill = new CompoundTag();
-        skill.putString("Name", pSkill.getName());
-        skill.putInt("Level", pLevel);
-        this.data.getList("Skills", 10).add(skill);
     }
 }

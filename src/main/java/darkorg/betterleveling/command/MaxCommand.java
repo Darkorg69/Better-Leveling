@@ -13,14 +13,7 @@ import static net.minecraft.commands.Commands.literal;
 
 public class MaxCommand {
     public MaxCommand(CommandDispatcher<CommandSourceStack> pDispatcher) {
-        pDispatcher.register(
-                literal(BetterLeveling.MOD_ID)
-                        .requires(pSource -> pSource.hasPermission(2))
-                        .then(
-                                literal("max")
-                                        .executes(context -> maxPlayer(context.getSource()))
-                        )
-        );
+        pDispatcher.register(literal(BetterLeveling.MOD_ID).requires(pSource -> pSource.hasPermission(2)).then(literal("max").executes(context -> maxPlayer(context.getSource()))));
     }
 
     private int maxPlayer(CommandSourceStack pSource) throws CommandSyntaxException {

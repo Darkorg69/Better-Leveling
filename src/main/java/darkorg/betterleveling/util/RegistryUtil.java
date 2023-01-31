@@ -7,7 +7,7 @@ import darkorg.betterleveling.registry.SpecRegistry;
 
 import java.util.List;
 
-public class CapabilityUtil {
+public class RegistryUtil {
     public static ISpecialization getSpecFromName(String name) {
         return SpecRegistry.getSpecNameMap().get(name);
     }

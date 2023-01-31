@@ -10,6 +10,7 @@ import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
@@ -34,7 +35,7 @@ public abstract class AbstractSpecButton extends AbstractButton {
     }
 
     @Override
-    public void updateNarration(NarrationElementOutput pNarrationElementOutput) {
+    public void updateNarration(@NotNull NarrationElementOutput pNarrationElementOutput) {
 
     }
 
@@ -60,16 +61,8 @@ public abstract class AbstractSpecButton extends AbstractButton {
         this.onValueChange.onValueChange(this.value);
     }
 
-    private void setValue(ISpecialization pValue) {
-        this.value = pValue;
-        this.translation = pValue.getTranslation();
-        this.description = pValue.getDescription();
-        this.representativeItemStack = pValue.getRepresentativeItemStack();
-    }
-
-    private void firstValue() {
-        this.index = 0;
-        setValue(this.values.get(this.index));
+    private boolean onFirstValue() {
+        return this.index == 0;
     }
 
     private void lastValue() {
@@ -77,24 +70,32 @@ public abstract class AbstractSpecButton extends AbstractButton {
         setValue(this.values.get(this.index));
     }
 
-    private void nextValue() {
-        setValue(this.values.get(++this.index));
-    }
-
     private void previousValue() {
         setValue(this.values.get(--this.index));
-    }
-
-    private boolean onFirstValue() {
-        return this.index == 0;
     }
 
     private boolean onLastValue() {
         return this.index == this.values.size() - 1;
     }
 
+    private void firstValue() {
+        this.index = 0;
+        setValue(this.values.get(this.index));
+    }
+
+    private void nextValue() {
+        setValue(this.values.get(++this.index));
+    }
+
+    private void setValue(ISpecialization pValue) {
+        this.value = pValue;
+        this.translation = pValue.getTranslation();
+        this.description = pValue.getDescription();
+        this.representativeItemStack = pValue.getRepresentativeItemStack();
+    }
+
     @OnlyIn(Dist.CLIENT)
     public interface OnValueChange {
-        void onValueChange(ISpecialization pValue);
+        void onValueChange(ISpecialization pSpecialization);
     }
 }

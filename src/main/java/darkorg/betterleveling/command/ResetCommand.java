@@ -13,22 +13,15 @@ import static net.minecraft.commands.Commands.literal;
 
 public class ResetCommand {
     public ResetCommand(CommandDispatcher<CommandSourceStack> pDispatcher) {
-        pDispatcher.register(
-                literal(BetterLeveling.MOD_ID)
-                        .requires(pSource -> pSource.hasPermission(2))
-                        .then(
-                                literal("reset")
-                                        .executes(context -> resetPlayer(context.getSource()))
-                        )
-        );
+        pDispatcher.register(literal(BetterLeveling.MOD_ID).requires(pSource -> pSource.hasPermission(2)).then(literal("reset").executes(context -> resetPlayer(context.getSource()))));
     }
 
     private int resetPlayer(CommandSourceStack pSource) throws CommandSyntaxException {
         ServerPlayer serverPlayer = pSource.getPlayerOrException();
 
         serverPlayer.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(capability -> {
+            SkillRegistry.getSkillRegistry().forEach(skill -> capability.setLevel(serverPlayer, skill, 0));
             SpecRegistry.getSpecRegistry().forEach(specialization -> capability.setUnlocked(serverPlayer, specialization, false));
-            SkillRegistry.getSkillRegistry().forEach(skill -> capability.setLevel(serverPlayer, skill, skill.getMinLevel()));
         });
 
         return 1;

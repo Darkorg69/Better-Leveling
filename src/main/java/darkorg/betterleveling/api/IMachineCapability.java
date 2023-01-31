@@ -6,15 +6,17 @@ import net.minecraft.world.entity.player.Player;
 import java.util.UUID;
 
 public interface IMachineCapability {
-    UUID getOwnerId();
+    UUID getUUID();
+
+    void setUUID(UUID pUUID);
 
     void setOwner(Player pPlayer);
 
-    void removeOwner();
+    boolean isOwner(Player pPlayer);
 
     boolean hasOwner();
 
-    boolean isOwner(Player pPlayer);
+    void removeOwner();
 
     CompoundTag getNBTData();
 

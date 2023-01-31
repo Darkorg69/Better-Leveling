@@ -3,7 +3,7 @@ package darkorg.betterleveling.network.packets;
 import com.mojang.datafixers.util.Pair;
 import darkorg.betterleveling.api.ISkill;
 import darkorg.betterleveling.capability.PlayerCapabilityProvider;
-import darkorg.betterleveling.util.CapabilityUtil;
+import darkorg.betterleveling.util.RegistryUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
@@ -35,7 +35,7 @@ public class AddSkillC2SPacket {
             ServerPlayer serverPlayer = context.getSender();
             if (serverPlayer != null) {
                 serverPlayer.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(capability -> {
-                    capability.addLevel(serverPlayer, CapabilityUtil.getSkillFromName(packet.data.getString("Skill")), packet.data.getInt("Value"));
+                    capability.addLevel(serverPlayer, RegistryUtil.getSkillFromName(packet.data.getString("Skill")), packet.data.getInt("Value"));
                 });
             }
         });
