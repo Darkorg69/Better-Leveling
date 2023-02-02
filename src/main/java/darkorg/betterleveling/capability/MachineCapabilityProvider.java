@@ -12,7 +12,6 @@ import net.minecraftforge.common.util.LazyOptional;
 public class MachineCapabilityProvider implements ICapabilitySerializable<CompoundNBT> {
     @CapabilityInject(IMachineCapability.class)
     public static Capability<IMachineCapability> MACHINE_CAP = null;
-
     private IMachineCapability instance;
     private final LazyOptional<IMachineCapability> optional = LazyOptional.of(this::getCapability);
 
@@ -21,8 +20,8 @@ public class MachineCapabilityProvider implements ICapabilitySerializable<Compou
     }
 
     @Override
-    public <T> LazyOptional<T> getCapability(Capability<T> cap, Direction side) {
-        return MACHINE_CAP.orEmpty(cap, optional);
+    public <T> LazyOptional<T> getCapability(Capability<T> pCapability, Direction pSide) {
+        return MACHINE_CAP.orEmpty(pCapability, optional);
     }
 
     @Override
@@ -31,7 +30,7 @@ public class MachineCapabilityProvider implements ICapabilitySerializable<Compou
     }
 
     @Override
-    public void deserializeNBT(CompoundNBT nbt) {
-        getCapability().setNBTData(nbt);
+    public void deserializeNBT(CompoundNBT pData) {
+        getCapability().setNBTData(pData);
     }
 }

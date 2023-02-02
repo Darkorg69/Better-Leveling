@@ -1,12 +1,12 @@
 package darkorg.betterleveling.gui.widget.button;
 
 import darkorg.betterleveling.api.ISpecialization;
+import darkorg.betterleveling.network.chat.ModComponents;
 import darkorg.betterleveling.registry.SpecRegistry;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.button.AbstractButton;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -23,7 +23,7 @@ public abstract class AbstractSpecButton extends AbstractButton {
     private int index;
 
     public AbstractSpecButton(int pX, int pY, int pWidth, int pHeight, ISpecialization pValue, OnValueChange pOnValueChange) {
-        super(pX, pY, pWidth, pHeight, new TranslationTextComponent(""));
+        super(pX, pY, pWidth, pHeight, ModComponents.EMPTY);
         this.index = values.indexOf(pValue);
         this.value = pValue;
         this.translation = pValue.getTranslation();
@@ -54,16 +54,8 @@ public abstract class AbstractSpecButton extends AbstractButton {
         this.onValueChange.onValueChange(this.value);
     }
 
-    private void setValue(ISpecialization pValue) {
-        this.value = pValue;
-        this.translation = pValue.getTranslation();
-        this.description = pValue.getDescription();
-        this.representativeItemStack = pValue.getRepresentativeItemStack();
-    }
-
-    private void firstValue() {
-        this.index = 0;
-        setValue(this.values.get(this.index));
+    private boolean onFirstValue() {
+        return this.index == 0;
     }
 
     private void lastValue() {
@@ -71,24 +63,33 @@ public abstract class AbstractSpecButton extends AbstractButton {
         setValue(this.values.get(this.index));
     }
 
-    private void nextValue() {
-        setValue(this.values.get(++this.index));
-    }
-
     private void previousValue() {
         setValue(this.values.get(--this.index));
-    }
-
-    private boolean onFirstValue() {
-        return this.index == 0;
     }
 
     private boolean onLastValue() {
         return this.index == this.values.size() - 1;
     }
 
+    private void firstValue() {
+        this.index = 0;
+        setValue(this.values.get(this.index));
+    }
+
+    private void nextValue() {
+        setValue(this.values.get(++this.index));
+    }
+
+    private void setValue(ISpecialization pValue) {
+        this.value = pValue;
+        this.translation = pValue.getTranslation();
+        this.description = pValue.getDescription();
+        this.representativeItemStack = pValue.getRepresentativeItemStack();
+    }
+
     @OnlyIn(Dist.CLIENT)
     public interface OnValueChange {
-        void onValueChange(ISpecialization pValue);
+        void onValueChange(ISpecialization pSpecialization);
+
     }
 }

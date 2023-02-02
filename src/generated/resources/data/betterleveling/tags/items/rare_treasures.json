@@ -1,8 +1,8 @@
 {
   "replace": false,
   "values": [
-    "minecraft:golden_shovel",
     "#forge:gems",
+    "#forge:nuggets",
     "#forge:rods"
   ]
 }

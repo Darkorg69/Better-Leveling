@@ -7,38 +7,43 @@ import net.minecraft.nbt.CompoundNBT;
 import java.util.UUID;
 
 public class MachineCapability implements IMachineCapability {
-    private UUID ownerId;
+    private UUID uuid;
 
     @Override
-    public UUID getOwnerId() {
-        return this.ownerId;
+    public UUID getUUID() {
+        return this.uuid;
+    }
+
+    @Override
+    public void setUUID(UUID pUUID) {
+        this.uuid = pUUID;
     }
 
     @Override
     public void setOwner(PlayerEntity pPlayer) {
-        this.ownerId = pPlayer.getUUID();
-    }
-
-    @Override
-    public void removeOwner() {
-        this.ownerId = null;
-    }
-
-    @Override
-    public boolean hasOwner() {
-        return this.ownerId != null;
+        this.setUUID(pPlayer.getUUID());
     }
 
     @Override
     public boolean isOwner(PlayerEntity pPlayer) {
-        return this.ownerId == pPlayer.getUUID();
+        return this.uuid == pPlayer.getUUID();
+    }
+
+    @Override
+    public boolean hasOwner() {
+        return this.uuid != null;
+    }
+
+    @Override
+    public void removeOwner() {
+        this.setUUID(null);
     }
 
     @Override
     public CompoundNBT getNBTData() {
         CompoundNBT data = new CompoundNBT();
         if (this.hasOwner()) {
-            data.putUUID("Owner", ownerId);
+            data.putUUID("Owner", this.uuid);
         }
         return data;
     }
@@ -46,7 +51,7 @@ public class MachineCapability implements IMachineCapability {
     @Override
     public void setNBTData(CompoundNBT pData) {
         if (pData.contains("Owner")) {
-            this.ownerId = pData.getUUID("Owner");
+            this.uuid = pData.getUUID("Owner");
         }
     }
 }

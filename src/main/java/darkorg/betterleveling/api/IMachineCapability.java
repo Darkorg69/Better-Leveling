@@ -6,15 +6,17 @@ import net.minecraft.nbt.CompoundNBT;
 import java.util.UUID;
 
 public interface IMachineCapability {
-    UUID getOwnerId();
+    UUID getUUID();
 
-    void setOwner(PlayerEntity pPlayer);
+    void setUUID(UUID pUUID);
 
-    void removeOwner();
+    void setOwner(PlayerEntity pPlayerEntity);
+
+    boolean isOwner(PlayerEntity pPlayerEntity);
 
     boolean hasOwner();
 
-    boolean isOwner(PlayerEntity pPlayer);
+    void removeOwner();
 
     CompoundNBT getNBTData();
 

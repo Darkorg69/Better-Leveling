@@ -8,12 +8,12 @@ import net.minecraftforge.common.capabilities.Capability;
 
 public class MachineCapabilityStorage implements Capability.IStorage<IMachineCapability> {
     @Override
-    public INBT writeNBT(Capability<IMachineCapability> capability, IMachineCapability instance, Direction side) {
-        return instance.getNBTData();
+    public INBT writeNBT(Capability<IMachineCapability> pCapability, IMachineCapability pInstance, Direction pSide) {
+        return pInstance.getNBTData();
     }
 
     @Override
-    public void readNBT(Capability<IMachineCapability> capability, IMachineCapability instance, Direction side, INBT nbt) {
-        instance.setNBTData((CompoundNBT) nbt);
+    public void readNBT(Capability<IMachineCapability> pCapability, IMachineCapability pInstance, Direction pSide, INBT pData) {
+        pInstance.setNBTData((CompoundNBT) pData);
     }
 }

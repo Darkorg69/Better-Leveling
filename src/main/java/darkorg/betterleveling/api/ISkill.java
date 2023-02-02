@@ -6,17 +6,15 @@ import net.minecraft.util.text.TranslationTextComponent;
 import java.util.Map;
 
 public interface ISkill {
+    String getName();
+
     int getMinLevel();
 
     int getMaxLevel();
 
-    int getIncreaseCost(int pLevel);
+    double getBonusPerLevel();
 
-    boolean isMinLevel(int pLevel);
-
-    boolean isMaxLevel(int pLevel);
-
-    String getName();
+    int getCostPerLevel();
 
     ISpecialization getParentSpec();
 
@@ -24,10 +22,10 @@ public interface ISkill {
 
     TranslationTextComponent getDescription();
 
-    TranslationTextComponent getDescriptionIndexOf(int pIndex);
-
     ItemStack getRepresentativeItemStack();
 
     Map<ISkill, Integer> getPrerequisites();
+
+    TranslationTextComponent getDescriptionIndexOf(int pIndex);
 }
 

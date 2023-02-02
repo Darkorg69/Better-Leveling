@@ -3,6 +3,7 @@ package darkorg.betterleveling.mixin;
 import darkorg.betterleveling.capability.MachineCapabilityProvider;
 import darkorg.betterleveling.capability.PlayerCapabilityProvider;
 import darkorg.betterleveling.registry.SkillRegistry;
+import darkorg.betterleveling.util.SkillUtil;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.inventory.IRecipeHelperPopulator;
@@ -23,7 +24,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(AbstractFurnaceTileEntity.class)
-public abstract class MixinAbstractFurnaceTileEntity extends LockableTileEntity implements ISidedInventory, IRecipeHolder, IRecipeHelperPopulator, ITickableTileEntity {
+abstract class MixinAbstractFurnaceTileEntity extends LockableTileEntity implements ISidedInventory, IRecipeHolder, IRecipeHelperPopulator, ITickableTileEntity {
     @Shadow
     @Final
     protected IRecipeType<? extends AbstractCookingRecipe> recipeType;
@@ -33,22 +34,19 @@ public abstract class MixinAbstractFurnaceTileEntity extends LockableTileEntity 
     }
 
     @Inject(at = @At("HEAD"), method = "getTotalCookTime", cancellable = true)
-    protected void getModifiedCookTime(CallbackInfoReturnable<Integer> cir) {
+    protected void getModifiedCookTime(CallbackInfoReturnable<Integer> pCallbackInfoReturnable) {
         if (this.level instanceof ServerWorld) {
             ServerWorld serverLevel = (ServerWorld) this.level;
             this.getCapability(MachineCapabilityProvider.MACHINE_CAP).ifPresent(capability -> {
                 if (capability.hasOwner()) {
-                    PlayerEntity player = serverLevel.getPlayerByUUID(capability.getOwnerId());
+                    PlayerEntity player = serverLevel.getPlayerByUUID(capability.getUUID());
                     if (player instanceof ServerPlayerEntity) {
                         ServerPlayerEntity serverPlayer = (ServerPlayerEntity) player;
                         serverPlayer.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(playerCapability -> {
-                            if (playerCapability.isUnlocked(serverPlayer, SkillRegistry.COOKING_SPEED)) {
-                                int skillLevel = playerCapability.getLevel(serverPlayer, SkillRegistry.COOKING_SPEED);
-                                if (skillLevel > 0) {
-                                    int originalCookTime = serverLevel.getRecipeManager().getRecipeFor(this.recipeType, (AbstractFurnaceTileEntity) (Object) this, serverLevel).map(AbstractCookingRecipe::getCookingTime).orElse(200);
-                                    float cookTimeModifier = 1.0F - (skillLevel * 0.09F);
-                                    float newCookTime = originalCookTime * cookTimeModifier;
-                                    cir.setReturnValue(Math.round(newCookTime));
+                            if (playerCapability.hasUnlocked(serverPlayer, SkillRegistry.COOKING_SPEED)) {
+                                int currentLevel = playerCapability.getLevel(serverPlayer, SkillRegistry.COOKING_SPEED);
+                                if (currentLevel > 0) {
+                                    pCallbackInfoReturnable.setReturnValue(Math.toIntExact(Math.round(serverLevel.getRecipeManager().getRecipeFor(this.recipeType, (AbstractFurnaceTileEntity) (Object) this, serverLevel).map(AbstractCookingRecipe::getCookingTime).orElse(200) * SkillUtil.getDecreaseModifier(SkillRegistry.COOKING_SPEED, currentLevel))));
                                 }
                             }
                         });

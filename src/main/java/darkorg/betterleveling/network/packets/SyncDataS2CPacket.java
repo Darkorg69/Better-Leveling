@@ -31,9 +31,7 @@ public class SyncDataS2CPacket {
                 // HERE WE ARE ON THE CLIENT!
                 ClientPlayerEntity localPlayer = Minecraft.getInstance().player;
                 if (localPlayer != null) {
-                    localPlayer.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(playerCapability -> {
-                        playerCapability.receiveDataFromServer(packet.data);
-                    });
+                    localPlayer.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(playerCapability -> playerCapability.receiveDataFromServer(packet.data));
                 }
             });
         }

@@ -11,12 +11,12 @@ import javax.annotation.Nullable;
 public class PlayerCapabilityStorage implements Capability.IStorage<IPlayerCapability> {
     @Nullable
     @Override
-    public INBT writeNBT(Capability<IPlayerCapability> capability, IPlayerCapability instance, Direction side) {
-        return instance.getNBTData();
+    public INBT writeNBT(Capability<IPlayerCapability> pCapability, IPlayerCapability pInstance, Direction pSide) {
+        return pInstance.getNBTData();
     }
 
     @Override
-    public void readNBT(Capability<IPlayerCapability> capability, IPlayerCapability instance, Direction side, INBT nbt) {
-        instance.setNBTData((CompoundNBT) nbt);
+    public void readNBT(Capability<IPlayerCapability> pCapability, IPlayerCapability pInstance, Direction pSide, INBT pData) {
+        pInstance.setNBTData((CompoundNBT) pData);
     }
 }

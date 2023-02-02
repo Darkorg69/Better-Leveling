@@ -11,31 +11,29 @@ public interface IPlayerCapability {
 
     boolean hasUnlocked(PlayerEntity pPlayer);
 
-    ISpecialization getFirstUnlocked(PlayerEntity pPlayer);
+    ISpecialization getFirstSpecialization(PlayerEntity pPlayer);
 
-    List<ISpecialization> getAllUnlocked(PlayerEntity pPlayer);
+    List<ISpecialization> getSpecializations(PlayerEntity pPlayer);
 
     boolean getUnlocked(PlayerEntity pPlayer, ISpecialization pSpecialization);
 
-    void addUnlocked(ServerPlayerEntity pServerPlayer, ISpecialization pSpecialization, boolean pUnlocked);
-
     void setUnlocked(ServerPlayerEntity pServerPlayer, ISpecialization pSpecialization, boolean pUnlocked);
 
-    boolean isUnlocked(PlayerEntity pPlayer, ISkill pSkill);
+    void addUnlocked(ServerPlayerEntity pServerPlayer, ISpecialization pSpecialization, boolean pUnlocked);
+
+    boolean hasUnlocked(PlayerEntity pPlayer, ISkill pSkill);
 
     int getLevel(PlayerEntity pPlayer, ISkill pSkill);
 
-    void addLevel(ServerPlayerEntity pServerPlayer, ISkill pSkill, int pLevel);
-
     void setLevel(ServerPlayerEntity pServerPlayer, ISkill pSkill, int pLevel);
+
+    void addLevel(ServerPlayerEntity pServerPlayer, ISkill pSkill, int pAmount);
 
     CompoundNBT getNBTData();
 
     void setNBTData(CompoundNBT pData);
 
-    void resetPlayer(ServerPlayerEntity pServerPlayer);
+    void sendDataToPlayer(ServerPlayerEntity pServerPlayer);
 
     void receiveDataFromServer(CompoundNBT pData);
-
-    void sendDataToPlayer(ServerPlayerEntity pServerPlayer);
 }

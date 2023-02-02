@@ -12,7 +12,6 @@ import net.minecraftforge.common.util.LazyOptional;
 public class PlayerCapabilityProvider implements ICapabilitySerializable<CompoundNBT> {
     @CapabilityInject(IPlayerCapability.class)
     public static Capability<IPlayerCapability> PLAYER_CAP = null;
-
     private IPlayerCapability instance;
     private final LazyOptional<IPlayerCapability> optional = LazyOptional.of(this::getCapability);
 
@@ -21,8 +20,8 @@ public class PlayerCapabilityProvider implements ICapabilitySerializable<Compoun
     }
 
     @Override
-    public <T> LazyOptional<T> getCapability(Capability<T> cap, Direction side) {
-        return PLAYER_CAP.orEmpty(cap, optional);
+    public <T> LazyOptional<T> getCapability(Capability<T> pCapability, Direction pSide) {
+        return PLAYER_CAP.orEmpty(pCapability, optional);
     }
 
     @Override
@@ -31,7 +30,7 @@ public class PlayerCapabilityProvider implements ICapabilitySerializable<Compoun
     }
 
     @Override
-    public void deserializeNBT(CompoundNBT nbt) {
-        getCapability().setNBTData(nbt);
+    public void deserializeNBT(CompoundNBT pData) {
+        getCapability().setNBTData(pData);
     }
 }

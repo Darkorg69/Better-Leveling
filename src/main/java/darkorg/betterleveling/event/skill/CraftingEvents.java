@@ -7,7 +7,8 @@ import darkorg.betterleveling.config.ServerConfig;
 import darkorg.betterleveling.network.chat.ModComponents;
 import darkorg.betterleveling.registry.AttributeModifiers;
 import darkorg.betterleveling.registry.ModTags;
-import darkorg.betterleveling.registry.SkillRegistry;
+import darkorg.betterleveling.util.SkillUtil;
+import darkorg.betterleveling.util.TreasureUtil;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.IGrowable;
@@ -18,7 +19,6 @@ import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.loot.RandomValueRange;
 import net.minecraft.tileentity.AbstractFurnaceTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
@@ -38,39 +38,42 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Random;
 
+import static darkorg.betterleveling.registry.SkillRegistry.*;
+
 @Mod.EventBusSubscriber(modid = BetterLeveling.MOD_ID)
 public class CraftingEvents {
-    private static int tick;
+    private static int tickCount;
 
     @SubscribeEvent
     public static void onGreenThumb(TickEvent.PlayerTickEvent event) {
-        if (event.side == LogicalSide.SERVER && event.player instanceof ServerPlayerEntity) {
-            if (tick < 100) tick++;
-            else {
-                tick = 0;
-                ServerPlayerEntity serverPlayer = (ServerPlayerEntity) event.player;
-                serverPlayer.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(capability -> {
-                    if (capability.isUnlocked(serverPlayer, SkillRegistry.GREEN_THUMB)) {
-                        int level = capability.getLevel(serverPlayer, SkillRegistry.GREEN_THUMB);
-                        if (level > 0) {
-                            float chance = level * 0.025F;
-                            ServerWorld serverLevel = serverPlayer.getLevel();
-                            if (serverLevel.random.nextFloat() <= chance) {
-                                BlockPos.betweenClosedStream(serverPlayer.getBoundingBox().inflate(8, 8, 8)).forEach(pos -> {
-                                    BlockState state = serverLevel.getBlockState(pos);
-                                    Block block = state.getBlock();
-                                    if (block instanceof IPlantable) {
-                                        IPlantable plant = (IPlantable) block;
-                                        PlantType type = plant.getPlantType(serverLevel, pos);
-                                        if (type == PlantType.CROP || type == PlantType.NETHER) {
-                                            state.randomTick(serverLevel, pos, serverLevel.random);
+        if (event.side == LogicalSide.SERVER && event.phase == TickEvent.Phase.END) {
+            tickCount++;
+            if (tickCount > ServerConfig.GREEN_THUMB_TICK_RATE.get()) {
+                tickCount = 0;
+                if (event.player instanceof ServerPlayerEntity) {
+                    ServerPlayerEntity serverPlayer = (ServerPlayerEntity) event.player;
+                    serverPlayer.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(capability -> {
+                        if (capability.hasUnlocked(serverPlayer, GREEN_THUMB)) {
+                            int currentLevel = capability.getLevel(serverPlayer, GREEN_THUMB);
+                            if (currentLevel > 0) {
+                                ServerWorld serverLevel = serverPlayer.getLevel();
+                                if (serverLevel.random.nextDouble() <= SkillUtil.getCurrentChance(GREEN_THUMB, currentLevel)) {
+                                    BlockPos.betweenClosedStream(serverPlayer.getBoundingBox().inflate(16, 16, 16)).forEach(pos -> {
+                                        BlockState state = serverLevel.getBlockState(pos);
+                                        Block block = state.getBlock();
+                                        if (block instanceof IPlantable) {
+                                            IPlantable plant = (IPlantable) block;
+                                            PlantType type = plant.getPlantType(serverLevel, pos);
+                                            if (type == PlantType.CROP || type == PlantType.NETHER) {
+                                                state.randomTick(serverLevel, pos, serverLevel.random);
+                                            }
                                         }
-                                    }
-                                });
+                                    });
+                                }
                             }
                         }
-                    }
-                });
+                    });
+                }
             }
         }
     }
@@ -78,29 +81,33 @@ public class CraftingEvents {
     @SubscribeEvent
     public static void onHarvestProficiency(BlockEvent.BreakEvent event) {
         PlayerEntity player = event.getPlayer();
-        if (player instanceof ServerPlayerEntity && !player.isCreative()) {
+        if (player instanceof ServerPlayerEntity) {
             ServerPlayerEntity serverPlayer = (ServerPlayerEntity) player;
-            BlockState state = event.getState();
-            Block block = state.getBlock();
-            if (state.is(ModTags.Blocks.CROPS) && block instanceof IGrowable) {
-                IGrowable growable = (IGrowable) block;
-                BlockPos pos = event.getPos();
-                ServerWorld serverLevel = serverPlayer.getLevel();
-                if (!growable.isValidBonemealTarget(serverLevel, pos, state, serverLevel.isClientSide)) {
-                    serverPlayer.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(capability -> {
-                        if (capability.isUnlocked(serverPlayer, SkillRegistry.HARVEST_PROFICIENCY)) {
-                            int level = capability.getLevel(serverPlayer, SkillRegistry.HARVEST_PROFICIENCY);
-                            if (level > 0) {
-                                List<ItemStack> drops = Block.getDrops(state, serverLevel, pos, null);
-                                drops.forEach(stack -> {
-                                    if (stack.getItem().is(ModTags.Items.CROPS)) {
-                                        stack.setCount(Math.round(stack.getCount() * RandomValueRange.between(0, level * 0.5F).getFloat(serverLevel.random)));
-                                        Block.popResource(serverLevel, pos, stack);
+            if (!serverPlayer.isCreative()) {
+                BlockState state = event.getState();
+                Block block = state.getBlock();
+                if (block instanceof IGrowable) {
+                    IGrowable bonemealableBlock = (IGrowable) block;
+                    BlockPos pos = event.getPos();
+                    ServerWorld serverLevel = serverPlayer.getLevel();
+                    if (!bonemealableBlock.isValidBonemealTarget(serverLevel, pos, state, serverLevel.isClientSide)) {
+                        serverPlayer.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(capability -> {
+                            if (capability.hasUnlocked(serverPlayer, HARVEST_PROFICIENCY)) {
+                                int currentLevel = capability.getLevel(serverPlayer, HARVEST_PROFICIENCY);
+                                if (currentLevel > 0) {
+                                    if (serverLevel.random.nextDouble() <= SkillUtil.getCurrentChance(HARVEST_PROFICIENCY, currentLevel)) {
+                                        List<ItemStack> drops = Block.getDrops(state, serverLevel, pos, null, serverPlayer, serverPlayer.getMainHandItem());
+                                        drops.forEach(stack -> {
+                                            if (stack.getItem().is(ModTags.Items.CROPS)) {
+                                                stack.setCount(TreasureUtil.getPotentialLoot(stack.getCount(), ServerConfig.HARVEST_PROFICIENCY_POTENTIAL_LOOT_BOUND.get(), serverLevel.random));
+                                                Block.popResource(serverLevel, pos, stack);
+                                            }
+                                        });
                                     }
-                                });
+                                }
                             }
-                        }
-                    });
+                        });
+                    }
                 }
             }
         }
@@ -112,18 +119,20 @@ public class CraftingEvents {
         if (directEntity instanceof ServerPlayerEntity) {
             ServerPlayerEntity serverPlayer = (ServerPlayerEntity) directEntity;
             serverPlayer.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(capability -> {
-                if (capability.isUnlocked(serverPlayer, SkillRegistry.SKINNING)) {
-                    int level = capability.getLevel(serverPlayer, SkillRegistry.SKINNING);
-                    if (level > 0) {
+                if (capability.hasUnlocked(serverPlayer, SKINNING)) {
+                    int currentLevel = capability.getLevel(serverPlayer, SKINNING);
+                    if (currentLevel > 0) {
                         Random random = new Random();
-                        Collection<ItemEntity> drops = event.getDrops();
-                        drops.forEach(entity -> {
-                            ItemStack stack = entity.getItem();
-                            if (stack.getItem().is(ModTags.Items.ANIMAL_SKIN)) {
-                                int count = stack.getCount();
-                                stack.setCount(count + Math.round(count * RandomValueRange.between(0.0F, level * 0.5F).getFloat(random)));
-                            }
-                        });
+                        if (random.nextDouble() <= SkillUtil.getCurrentChance(SKINNING, currentLevel)) {
+                            Collection<ItemEntity> drops = event.getDrops();
+                            drops.forEach(itemEntity -> {
+                                ItemStack stack = itemEntity.getItem();
+                                if (stack.getItem().is(ModTags.Items.SKINS)) {
+                                    int originalCount = stack.getCount();
+                                    stack.setCount(originalCount + TreasureUtil.getPotentialLoot(originalCount, ServerConfig.SKINNING_POTENTIAL_LOOT_BOUND.get(), random));
+                                }
+                            });
+                        }
                     }
                 }
             });
@@ -136,18 +145,20 @@ public class CraftingEvents {
         if (directEntity instanceof ServerPlayerEntity) {
             ServerPlayerEntity serverPlayer = (ServerPlayerEntity) directEntity;
             serverPlayer.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(capability -> {
-                if (capability.isUnlocked(serverPlayer, SkillRegistry.MEAT_GATHERING)) {
-                    int level = capability.getLevel(serverPlayer, SkillRegistry.MEAT_GATHERING);
-                    if (level > 0) {
+                if (capability.hasUnlocked(serverPlayer, MEAT_GATHERING)) {
+                    int currentLevel = capability.getLevel(serverPlayer, MEAT_GATHERING);
+                    if (currentLevel > 0) {
                         Random random = new Random();
-                        Collection<ItemEntity> drops = event.getDrops();
-                        drops.forEach(entity -> {
-                            ItemStack stack = entity.getItem();
-                            if (stack.getItem().is(ModTags.Items.ANIMAL_MEAT)) {
-                                int count = stack.getCount();
-                                stack.setCount(count + Math.round(count * RandomValueRange.between(0.0F, level * 0.5F).getFloat(random)));
-                            }
-                        });
+                        if (random.nextDouble() <= SkillUtil.getCurrentChance(MEAT_GATHERING, currentLevel)) {
+                            Collection<ItemEntity> drops = event.getDrops();
+                            drops.forEach(entity -> {
+                                ItemStack stack = entity.getItem();
+                                if (stack.getItem().is(ModTags.Items.MEATS)) {
+                                    int originalCount = stack.getCount();
+                                    stack.setCount(originalCount + TreasureUtil.getPotentialLoot(originalCount, ServerConfig.MEAT_GATHERING_POTENTIAL_LOOT_BOUND.get(), random));
+                                }
+                            });
+                        }
                     }
                 }
             });
@@ -160,12 +171,12 @@ public class CraftingEvents {
             PlayerEntity player = event.player;
             if (player != null) {
                 player.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(capability -> {
-                    if (capability.isUnlocked(player, SkillRegistry.SWIM_SPEED)) {
-                        int level = capability.getLevel(player, SkillRegistry.SWIM_SPEED);
-                        if (level > 0) {
+                    if (capability.hasUnlocked(player, SWIM_SPEED)) {
+                        int currentLevel = capability.getLevel(player, SWIM_SPEED);
+                        if (currentLevel > 0) {
                             ModifiableAttributeInstance attribute = player.getAttribute(ForgeMod.SWIM_SPEED.get());
                             if (attribute != null) {
-                                AttributeModifier attributeModifier = new AttributeModifier(AttributeModifiers.SWIM_SPEED_MODIFIER, SkillRegistry.SWIM_SPEED.getName(), level * 0.1F, AttributeModifier.Operation.MULTIPLY_BASE);
+                                AttributeModifier attributeModifier = new AttributeModifier(AttributeModifiers.SWIM_SPEED_MODIFIER, SWIM_SPEED.getName(), SkillUtil.getCurrentBonus(SWIM_SPEED, currentLevel), AttributeModifier.Operation.MULTIPLY_BASE);
                                 if (player.isSwimming()) {
                                     if (attribute.getModifier(AttributeModifiers.SWIM_SPEED_MODIFIER) == null) {
                                         attribute.addTransientModifier(attributeModifier);
@@ -188,10 +199,10 @@ public class CraftingEvents {
         PlayerEntity player = event.getPlayer();
         if (event.getSide() == LogicalSide.SERVER && player instanceof ServerPlayerEntity) {
             ServerPlayerEntity serverPlayer = (ServerPlayerEntity) player;
-            TileEntity blockEntity = event.getWorld().getBlockEntity(event.getPos());
-            if (blockEntity instanceof AbstractFurnaceTileEntity) {
-                AbstractFurnaceTileEntity tileEntity = (AbstractFurnaceTileEntity) blockEntity;
-                tileEntity.getCapability(MachineCapabilityProvider.MACHINE_CAP).ifPresent(capability -> {
+            TileEntity tileEntity = event.getWorld().getBlockEntity(event.getPos());
+            if (tileEntity instanceof AbstractFurnaceTileEntity) {
+                AbstractFurnaceTileEntity blockEntity = (AbstractFurnaceTileEntity) tileEntity;
+                blockEntity.getCapability(MachineCapabilityProvider.MACHINE_CAP).ifPresent(capability -> {
                     if (capability.hasOwner()) {
                         if (capability.isOwner(serverPlayer)) {
                             if (serverPlayer.isCrouching() && event.getItemStack().isEmpty()) {
@@ -221,4 +232,5 @@ public class CraftingEvents {
             }
         }
     }
+
 }

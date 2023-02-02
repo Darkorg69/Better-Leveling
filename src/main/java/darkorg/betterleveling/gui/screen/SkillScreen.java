@@ -9,102 +9,102 @@ import darkorg.betterleveling.network.NetworkHandler;
 import darkorg.betterleveling.network.chat.ModComponents;
 import darkorg.betterleveling.network.packets.AddSkillC2SPacket;
 import darkorg.betterleveling.util.RenderUtil;
+import darkorg.betterleveling.util.SkillUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.client.gui.screen.ConfirmScreen;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.client.gui.widget.button.Button;
+import net.minecraft.util.text.IFormattableTextComponent;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.client.gui.widget.ExtendedButton;
 
 @OnlyIn(Dist.CLIENT)
 public class SkillScreen extends Screen {
+    private final ISkill skill;
     private final int imageWidth = 176;
     private final int imageHeight = 166;
-    private final ISkill playerSkill;
-    private int leftPos, topPos;
-    private int level, maxLevel, levelCost;
-    private boolean isMinLevel, isMaxLevel;
-    private ClientPlayerEntity localPlayer;
+    private final ClientPlayerEntity localPlayer;
+    private int leftPos;
+    private int topPos;
+    private int currentLevel;
+    private boolean isMinLevel;
+    private boolean isMaxLevel;
     private IPlayerCapability playerCapability;
 
-    public SkillScreen(ISkill pPlayerSkill) {
-        super(new TranslationTextComponent(""));
-        this.playerSkill = pPlayerSkill;
-        buildGui();
+    public SkillScreen(ISkill pSkill) {
+        super(ModComponents.EMPTY);
+
+        this.skill = pSkill;
+
+        this.localPlayer = Minecraft.getInstance().player;
+        if (localPlayer != null) {
+            this.localPlayer.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(playerCapability -> {
+                this.playerCapability = playerCapability;
+                this.currentLevel = this.playerCapability.getLevel(this.localPlayer, this.skill);
+                this.isMinLevel = SkillUtil.isMinLevel(this.skill, this.currentLevel);
+                this.isMaxLevel = SkillUtil.isMaxLevel(this.skill, this.currentLevel);
+            });
+        }
     }
 
     @Override
     protected void init() {
         this.leftPos = (width - imageWidth) / 2;
         this.topPos = (height - imageHeight) / 2;
-        ExtendedButton increaseButton = new ExtendedButton((this.width / 2) - 44, this.topPos + 92, 88, 24, ModComponents.INCREASE_BUTTON, pButton -> Minecraft.getInstance().setScreen(new ConfirmScreen(this::onIncrease, this.playerSkill.getTranslation(), ModComponents.CONFIRM_INCREASE)));
+
+        ExtendedButton increaseButton = new ExtendedButton((this.width / 2) - 44, this.topPos + 92, 88, 24, ModComponents.INCREASE, this::onIncrease);
         increaseButton.active = !this.isMaxLevel;
         addButton(increaseButton);
-        ExtendedButton decreaseButton = new ExtendedButton((this.width / 2) - 44, this.topPos + 126, 88, 24, ModComponents.DECREASE_BUTTON, pButton -> Minecraft.getInstance().setScreen(new ConfirmScreen(this::onDecrease, this.playerSkill.getTranslation(), ModComponents.CONFIRM_DECREASE)));
+
+        ExtendedButton decreaseButton = new ExtendedButton((this.width / 2) - 44, this.topPos + 126, 88, 24, ModComponents.DECREASE, this::onDecrease);
         decreaseButton.active = !this.isMinLevel;
         addButton(decreaseButton);
     }
 
+    private void onIncrease(Button pButton) {
+        confirm(ModComponents.CONFIRM_INCREASE, 1);
+    }
+
+    private void onDecrease(Button pButton) {
+        confirm(ModComponents.CONFIRM_DECREASE, -1);
+    }
+
+    private void confirm(ITextComponent pComponent, int i) {
+        Minecraft.getInstance().setScreen(new ConfirmScreen(pCallback -> {
+            if (pCallback) {
+                NetworkHandler.sendToServer(new AddSkillC2SPacket(Pair.of(this.skill, i)));
+                Minecraft.getInstance().popGuiLayer();
+            } else {
+                Minecraft.getInstance().setScreen(this);
+            }
+        }, this.skill.getTranslation(), pComponent));
+    }
+
     @Override
-    public void render(MatrixStack pMatrixStack, int pMouseX, int pMouseY, float pPartialTick) {
-        this.renderBackground(pMatrixStack);
+    public void render(MatrixStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
+        this.renderBackground(pPoseStack);
+
         RenderUtil.setShaderTexture();
-        blit(pMatrixStack, this.leftPos, this.topPos, 0, 0, imageWidth, imageHeight);
-        drawCenteredString(pMatrixStack, this.font, this.playerSkill.getTranslation(), (width / 2), this.topPos + 12, 16777215);
-        drawCenteredString(pMatrixStack, this.font, this.playerSkill.getDescription(), (width / 2), this.topPos + 24, 16777215);
-        drawCenteredString(pMatrixStack, this.font, this.playerSkill.getDescriptionIndexOf(1), (width / 2), this.topPos + 36, 16777215);
+        this.blit(pPoseStack, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight);
+
+        int pX = this.width / 2;
+        drawCenteredString(pPoseStack, this.font, this.skill.getTranslation(), pX, this.topPos + 12, 16777215);
+        drawCenteredString(pPoseStack, this.font, this.skill.getDescription(), pX, this.topPos + 24, 16777045);
+        drawCenteredString(pPoseStack, this.font, RenderUtil.getBonusPerLevel(this.skill), pX, this.topPos + 36, 170);
+
+        IFormattableTextComponent CURRENT_LEVEL = RenderUtil.getCurrentLevel(this.skill, this.currentLevel);
 
         if (this.isMaxLevel) {
-            drawCenteredString(pMatrixStack, this.font, new TranslationTextComponent("").append(ModComponents.MAX_LEVEL).withStyle(TextFormatting.DARK_RED), (this.width / 2), this.topPos + 48, 16733525);
+            drawCenteredString(pPoseStack, this.font, ModComponents.MAX_LEVEL, pX, this.topPos + 48, 16733525);
+            drawCenteredString(pPoseStack, this.font, CURRENT_LEVEL, pX, this.topPos + 70, 11141120);
         } else {
-            if (this.levelCost <= 1) {
-                drawCenteredString(pMatrixStack, this.font, new TranslationTextComponent("").append(ModComponents.LEVEL_COST).append(" ").append(String.valueOf(this.levelCost)).append(" ").append(ModComponents.LEVEL), (this.width / 2), this.topPos + 48, 16777215);
-            } else {
-                drawCenteredString(pMatrixStack, this.font, new TranslationTextComponent("").append(ModComponents.LEVEL_COST).append(" ").append(String.valueOf(this.levelCost)).append(" ").append(ModComponents.LEVELS), (this.width / 2), this.topPos + 48, 16777215);
-            }
+            drawCenteredString(pPoseStack, this.font, RenderUtil.getSkillCost(this.skill, this.currentLevel), pX, this.topPos + 48, 5635925);
+            drawCenteredString(pPoseStack, this.font, CURRENT_LEVEL, pX, this.topPos + 70, 16777215);
         }
-        drawCenteredString(pMatrixStack, this.font, new TranslationTextComponent("").append(ModComponents.CURRENT_LEVEL).append(" ").append(String.valueOf(this.level)).append("/").append(String.valueOf(this.maxLevel)), (this.width / 2), this.topPos + 70, 16777215);
-        super.render(pMatrixStack, pMouseX, pMouseY, pPartialTick);
-    }
 
-    @Override
-    public boolean isPauseScreen() {
-        return false;
-    }
-
-    private void buildGui() {
-        this.localPlayer = Minecraft.getInstance().player;
-
-        if (localPlayer != null) {
-            this.localPlayer.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(pPlayerCapability -> {
-                this.playerCapability = pPlayerCapability;
-                this.level = this.playerCapability.getLevel(this.localPlayer, this.playerSkill);
-                this.maxLevel = this.playerSkill.getMaxLevel();
-                this.levelCost = this.playerSkill.getIncreaseCost(this.level);
-                this.isMinLevel = this.playerSkill.isMinLevel(this.level);
-                this.isMaxLevel = this.playerSkill.isMaxLevel(this.level);
-            });
-        }
-    }
-
-    private void onIncrease(boolean pCallback) {
-        if (pCallback) {
-            NetworkHandler.sendToServer(new AddSkillC2SPacket(new Pair<>(this.playerSkill, 1)));
-            Minecraft.getInstance().popGuiLayer();
-        } else {
-            Minecraft.getInstance().setScreen(this);
-        }
-    }
-
-    private void onDecrease(boolean pCallback) {
-        if (pCallback) {
-            NetworkHandler.sendToServer(new AddSkillC2SPacket(new Pair<>(this.playerSkill, -1)));
-            Minecraft.getInstance().popGuiLayer();
-        } else {
-            Minecraft.getInstance().setScreen(this);
-        }
+        super.render(pPoseStack, pMouseX, pMouseY, pPartialTick);
     }
 }
