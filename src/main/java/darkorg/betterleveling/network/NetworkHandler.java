@@ -13,17 +13,14 @@ import net.minecraftforge.network.simple.SimpleChannel;
 
 public class NetworkHandler {
     private static SimpleChannel INSTANCE;
-
     private static int id = 0;
 
     public static void init() {
         SimpleChannel instance = NetworkRegistry.ChannelBuilder.named(new ResourceLocation(BetterLeveling.MOD_ID, "messages")).networkProtocolVersion(() -> "1.0").clientAcceptedVersions(s -> true).serverAcceptedVersions(s -> true).simpleChannel();
-
         INSTANCE = instance;
-
-        instance.messageBuilder(AddSpecC2SPacket.class, id(), NetworkDirection.PLAY_TO_SERVER).decoder(AddSpecC2SPacket::new).encoder(AddSpecC2SPacket::encode).consumer(AddSpecC2SPacket::handle).add();
-        instance.messageBuilder(AddSkillC2SPacket.class, id(), NetworkDirection.PLAY_TO_SERVER).decoder(AddSkillC2SPacket::new).encoder(AddSkillC2SPacket::encode).consumer(AddSkillC2SPacket::handle).add();
-        instance.messageBuilder(SyncDataS2CPacket.class, id(), NetworkDirection.PLAY_TO_CLIENT).decoder(SyncDataS2CPacket::new).encoder(SyncDataS2CPacket::encode).consumer(SyncDataS2CPacket::handle).add();
+        instance.messageBuilder(AddSpecC2SPacket.class, id(), NetworkDirection.PLAY_TO_SERVER).decoder(AddSpecC2SPacket::new).encoder(AddSpecC2SPacket::encode).consumerMainThread(AddSpecC2SPacket::handle).add();
+        instance.messageBuilder(AddSkillC2SPacket.class, id(), NetworkDirection.PLAY_TO_SERVER).decoder(AddSkillC2SPacket::new).encoder(AddSkillC2SPacket::encode).consumerMainThread(AddSkillC2SPacket::handle).add();
+        instance.messageBuilder(SyncDataS2CPacket.class, id(), NetworkDirection.PLAY_TO_CLIENT).decoder(SyncDataS2CPacket::new).encoder(SyncDataS2CPacket::encode).consumerMainThread(SyncDataS2CPacket::handle).add();
     }
 
     private static int id() {

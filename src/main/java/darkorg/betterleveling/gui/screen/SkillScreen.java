@@ -6,7 +6,7 @@ import darkorg.betterleveling.api.IPlayerCapability;
 import darkorg.betterleveling.api.ISkill;
 import darkorg.betterleveling.capability.PlayerCapabilityProvider;
 import darkorg.betterleveling.network.NetworkHandler;
-import darkorg.betterleveling.network.chat.ModComponents;
+import darkorg.betterleveling.network.chat.ModTranslatableContents;
 import darkorg.betterleveling.network.packets.AddSkillC2SPacket;
 import darkorg.betterleveling.util.RenderUtil;
 import darkorg.betterleveling.util.SkillUtil;
@@ -36,7 +36,7 @@ public class SkillScreen extends Screen {
     private IPlayerCapability playerCapability;
 
     public SkillScreen(ISkill pSkill) {
-        super(ModComponents.EMPTY);
+        super(Component.empty());
 
         this.skill = pSkill;
 
@@ -56,21 +56,21 @@ public class SkillScreen extends Screen {
         this.leftPos = (width - imageWidth) / 2;
         this.topPos = (height - imageHeight) / 2;
 
-        ExtendedButton increaseButton = new ExtendedButton((this.width / 2) - 44, this.topPos + 92, 88, 24, ModComponents.INCREASE, this::onIncrease);
+        ExtendedButton increaseButton = new ExtendedButton((this.width / 2) - 44, this.topPos + 92, 88, 24, MutableComponent.create(ModTranslatableContents.INCREASE), this::onIncrease);
         increaseButton.active = !this.isMaxLevel;
         addRenderableWidget(increaseButton);
 
-        ExtendedButton decreaseButton = new ExtendedButton((this.width / 2) - 44, this.topPos + 126, 88, 24, ModComponents.DECREASE, this::onDecrease);
+        ExtendedButton decreaseButton = new ExtendedButton((this.width / 2) - 44, this.topPos + 126, 88, 24, MutableComponent.create(ModTranslatableContents.DECREASE), this::onDecrease);
         decreaseButton.active = !this.isMinLevel;
         addRenderableWidget(decreaseButton);
     }
 
     private void onIncrease(Button pButton) {
-        confirm(ModComponents.CONFIRM_INCREASE, 1);
+        confirm(MutableComponent.create(ModTranslatableContents.CONFIRM_INCREASE), 1);
     }
 
     private void onDecrease(Button pButton) {
-        confirm(ModComponents.CONFIRM_DECREASE, -1);
+        confirm(MutableComponent.create(ModTranslatableContents.CONFIRM_DECREASE), -1);
     }
 
     private void confirm(Component pComponent, int i) {
@@ -99,7 +99,7 @@ public class SkillScreen extends Screen {
         MutableComponent CURRENT_LEVEL = RenderUtil.getCurrentLevel(this.skill, this.currentLevel);
 
         if (this.isMaxLevel) {
-            drawCenteredString(pPoseStack, this.font, ModComponents.MAX_LEVEL, pX, this.topPos + 48, 16733525);
+            drawCenteredString(pPoseStack, this.font, MutableComponent.create(ModTranslatableContents.MAX_LEVEL), pX, this.topPos + 48, 16733525);
             drawCenteredString(pPoseStack, this.font, CURRENT_LEVEL, pX, this.topPos + 70, 11141120);
         } else {
             drawCenteredString(pPoseStack, this.font, RenderUtil.getSkillCost(this.skill, this.currentLevel), pX, this.topPos + 48, 5635925);

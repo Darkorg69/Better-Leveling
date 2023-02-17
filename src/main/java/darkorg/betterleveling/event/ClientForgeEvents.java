@@ -15,7 +15,7 @@ import net.minecraftforge.fml.common.Mod;
 @Mod.EventBusSubscriber(modid = BetterLeveling.MOD_ID, value = Dist.CLIENT)
 public class ClientForgeEvents {
     @SubscribeEvent
-    public static void onKeyInput(InputEvent.KeyInputEvent event) {
+    public static void onKeyInput(InputEvent.Key event) {
         if (KeyMappings.OPEN_GUI.consumeClick()) {
             Minecraft minecraft = Minecraft.getInstance();
             LocalPlayer localPlayer = minecraft.player;

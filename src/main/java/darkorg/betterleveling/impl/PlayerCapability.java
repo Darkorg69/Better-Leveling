@@ -6,7 +6,7 @@ import darkorg.betterleveling.api.ISkill;
 import darkorg.betterleveling.api.ISpecialization;
 import darkorg.betterleveling.config.ServerConfig;
 import darkorg.betterleveling.network.NetworkHandler;
-import darkorg.betterleveling.network.chat.ModComponents;
+import darkorg.betterleveling.network.chat.ModTranslatableContents;
 import darkorg.betterleveling.network.packets.SyncDataS2CPacket;
 import darkorg.betterleveling.registry.SkillRegistry;
 import darkorg.betterleveling.registry.SpecRegistry;
@@ -15,7 +15,7 @@ import darkorg.betterleveling.util.SkillUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 
@@ -89,7 +89,7 @@ public class PlayerCapability implements IPlayerCapability {
     public boolean canUnlock(Player pPlayer) {
         boolean canUnlock = pPlayer.experienceLevel >= ServerConfig.FIRST_SPEC_COST.get();
         if (!canUnlock) {
-            pPlayer.displayClientMessage(new TranslatableComponent("").append(ModComponents.CHOOSE_NO_XP).append(" ").append(String.valueOf(ServerConfig.FIRST_SPEC_COST.get())), true);
+            pPlayer.displayClientMessage(MutableComponent.create(ModTranslatableContents.CHOOSE_NO_XP).append(" ").append(String.valueOf(ServerConfig.FIRST_SPEC_COST.get())), true);
         }
         return canUnlock;
     }
@@ -149,7 +149,7 @@ public class PlayerCapability implements IPlayerCapability {
                 pServerPlayer.giveExperienceLevels(-unlockCost);
                 setUnlocked(pServerPlayer, pSpecialization, pUnlocked);
             } else {
-                pServerPlayer.displayClientMessage(ModComponents.NOT_ENOUGH_XP, true);
+                pServerPlayer.displayClientMessage(MutableComponent.create(ModTranslatableContents.NOT_ENOUGH_XP), true);
             }
         } else {
             pServerPlayer.giveExperienceLevels(-ServerConfig.FIRST_SPEC_COST.get());
@@ -196,19 +196,19 @@ public class PlayerCapability implements IPlayerCapability {
         int currentLevel = getLevel(pServerPlayer, pSkill);
         if (pAmount > 0) {
             if (currentLevel >= pSkill.getMaxLevel()) {
-                pServerPlayer.displayClientMessage(ModComponents.CANNOT_INCREASE, true);
+                pServerPlayer.displayClientMessage(MutableComponent.create(ModTranslatableContents.CANNOT_INCREASE), true);
             } else {
                 int cost = SkillUtil.getCurrentCost(pSkill, currentLevel);
                 if (cost <= pServerPlayer.totalExperience) {
                     pServerPlayer.giveExperiencePoints(-cost);
                     setLevel(pServerPlayer, pSkill, currentLevel + pAmount);
                 } else {
-                    pServerPlayer.displayClientMessage(ModComponents.NOT_ENOUGH_XP, true);
+                    pServerPlayer.displayClientMessage(MutableComponent.create(ModTranslatableContents.NOT_ENOUGH_XP), true);
                 }
             }
         } else {
             if (currentLevel == 0) {
-                pServerPlayer.displayClientMessage(ModComponents.CANNOT_DECREASE, true);
+                pServerPlayer.displayClientMessage(MutableComponent.create(ModTranslatableContents.CANNOT_DECREASE), true);
             } else {
                 pServerPlayer.giveExperiencePoints(Math.round(SkillUtil.getCurrentCost(pSkill, currentLevel - 1) * ServerConfig.XP_REFUND_FACTOR.get().floatValue()));
                 setLevel((pServerPlayer), pSkill, currentLevel + pAmount);

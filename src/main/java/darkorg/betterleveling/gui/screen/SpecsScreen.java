@@ -9,7 +9,7 @@ import darkorg.betterleveling.capability.PlayerCapabilityProvider;
 import darkorg.betterleveling.gui.widget.button.SkillButton;
 import darkorg.betterleveling.gui.widget.button.SpecButton;
 import darkorg.betterleveling.network.NetworkHandler;
-import darkorg.betterleveling.network.chat.ModComponents;
+import darkorg.betterleveling.network.chat.ModTranslatableContents;
 import darkorg.betterleveling.network.packets.AddSpecC2SPacket;
 import darkorg.betterleveling.util.RegistryUtil;
 import darkorg.betterleveling.util.RenderUtil;
@@ -22,7 +22,6 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.gui.widget.ExtendedButton;
@@ -47,7 +46,7 @@ public class SpecsScreen extends Screen {
     private IPlayerCapability playerCapability;
 
     public SpecsScreen() {
-        super(ModComponents.EMPTY);
+        super(Component.empty());
 
         this.localPlayer = Minecraft.getInstance().player;
         if (this.localPlayer != null) {
@@ -85,7 +84,7 @@ public class SpecsScreen extends Screen {
         }
 
         if (!this.specUnlocked) {
-            ExtendedButton unlockSpecButton = new ExtendedButton(this.leftPos + this.imageWidth / 2 - 37, this.topPos + 98, 74, 17, ModComponents.UNLOCK_SPEC, this::onPress);
+            ExtendedButton unlockSpecButton = new ExtendedButton(this.leftPos + this.imageWidth / 2 - 37, this.topPos + 98, 74, 17, MutableComponent.create(ModTranslatableContents.UNLOCK_SPEC), this::onPress);
             unlockSpecButton.active = this.canUnlockSpec;
             addRenderableWidget(unlockSpecButton);
         }
@@ -99,9 +98,9 @@ public class SpecsScreen extends Screen {
         this.blit(pPoseStack, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight);
 
         if (!this.specUnlocked) {
-            drawCenteredString(pPoseStack, this.font, ModComponents.SPEC_LOCKED, this.leftPos + (imageWidth / 2), this.topPos + 51, 16733525);
+            drawCenteredString(pPoseStack, this.font, MutableComponent.create(ModTranslatableContents.SPEC_LOCKED), this.leftPos + imageWidth / 2, this.topPos + 51, 16733525);
         } else {
-            drawCenteredString(pPoseStack, this.font, RenderUtil.getAvailableXP(this.localPlayer), this.leftPos + (imageWidth / 2), this.topPos + 51, 16777215);
+            drawCenteredString(pPoseStack, this.font, RenderUtil.getAvailableXP(this.localPlayer), this.leftPos + imageWidth / 2, this.topPos + 51, 16777215);
         }
         super.render(pPoseStack, pMouseX, pMouseY, pPartialTick);
     }
@@ -129,69 +128,63 @@ public class SpecsScreen extends Screen {
     }
 
     private void onSpecTooltip(PoseStack pPoseStack, int pMouseX, int pMouseY) {
-        if (this.specUnlocked) {
-            List<Component> unlocked = new ArrayList<>();
-            unlocked.add(new TranslatableComponent("").append(this.specialization.getTranslation()).append(" ").append(ModComponents.SPEC));
-            this.renderComponentTooltip(pPoseStack, unlocked, pMouseX, pMouseY, this.font);
-        } else {
-            List<Component> locked = new ArrayList<>();
-            locked.add(ModComponents.LOCKED.withStyle(ChatFormatting.RED));
-            locked.add(this.specialization.getTranslation());
-            locked.add(new TranslatableComponent("").append(ModComponents.UNLOCK_COST).append(String.valueOf(this.specialization.getLevelCost())).append(" ").append(ModComponents.LEVELS));
-            this.renderComponentTooltip(pPoseStack, locked, pMouseX, pMouseY, this.font);
+        List<Component> tooltip = new ArrayList<>();
+
+        tooltip.add(this.specialization.getTranslation().append(MutableComponent.create(ModTranslatableContents.SPEC)));
+
+        if (!this.specUnlocked) {
+            tooltip.add(MutableComponent.create(ModTranslatableContents.LOCKED).withStyle(ChatFormatting.RED));
+            tooltip.add(MutableComponent.create(ModTranslatableContents.UNLOCK_COST).append(String.valueOf(this.specialization.getLevelCost())).append(MutableComponent.create(ModTranslatableContents.LEVELS)).withStyle(ChatFormatting.GREEN));
         }
+
+        this.renderComponentTooltip(pPoseStack, tooltip, pMouseX, pMouseY, this.font);
     }
 
     private void onSkillTooltip(SkillButton pSkillButton, PoseStack pPoseStack, int pMouseX, int pMouseY) {
         ISkill skill = pSkillButton.getSkill();
+
         List<Component> tooltip = new ArrayList<>();
 
-        TranslatableComponent TRANSLATION = skill.getTranslation();
-        TranslatableComponent DESCRIPTION = skill.getDescription();
-        MutableComponent COST_PER_LEVEL = RenderUtil.getCostPerLevel(skill);
-        MutableComponent BONUS_PER_LEVEL = RenderUtil.getBonusPerLevel(skill);
-
-        tooltip.add(TRANSLATION);
+        tooltip.add(skill.getTranslation());
 
         if (this.playerCapability.hasUnlocked(this.localPlayer, skill)) {
             int currentLevel = this.playerCapability.getLevel(this.localPlayer, skill);
 
-            MutableComponent CURRENT_LEVEL = RenderUtil.getCurrentLevel(skill, currentLevel);
             MutableComponent CURRENT_BONUS = RenderUtil.getCurrentBonus(skill, currentLevel);
-            MutableComponent CURRENT_COST = RenderUtil.getCurrentCost(skill, currentLevel);
 
             if (SkillUtil.isMaxLevel(skill, currentLevel)) {
-                tooltip.add(ModComponents.MAX_LEVEL.withStyle(ChatFormatting.RED));
+                tooltip.add(MutableComponent.create(ModTranslatableContents.MAX_LEVEL).withStyle(ChatFormatting.RED));
                 tooltip.add(CURRENT_BONUS.withStyle(ChatFormatting.DARK_RED));
             } else {
-                tooltip.add(CURRENT_LEVEL.withStyle(ChatFormatting.GRAY));
-                tooltip.add(CURRENT_COST.withStyle(ChatFormatting.GREEN));
+                tooltip.add(RenderUtil.getCurrentLevel(skill, currentLevel).withStyle(ChatFormatting.GRAY));
+                tooltip.add(RenderUtil.getCurrentCost(skill, currentLevel).withStyle(ChatFormatting.GREEN));
                 tooltip.add(CURRENT_BONUS.withStyle(ChatFormatting.BLUE));
             }
         } else {
-            tooltip.add(ModComponents.LOCKED.withStyle(ChatFormatting.RED));
+            tooltip.add(MutableComponent.create(ModTranslatableContents.LOCKED).withStyle(ChatFormatting.RED));
+
             Map<ISkill, Integer> prerequisitesMap = skill.getPrerequisites();
             if (!prerequisitesMap.isEmpty()) {
-                tooltip.add(ModComponents.PREREQUISITES.withStyle(ChatFormatting.DARK_RED));
+                tooltip.add(MutableComponent.create(ModTranslatableContents.PREREQUISITES).withStyle(ChatFormatting.DARK_RED));
                 prerequisitesMap.forEach((prerequisiteSkill, prerequisiteLevel) -> tooltip.add(RenderUtil.getPrerequisite(prerequisiteSkill, prerequisiteLevel).withStyle(ChatFormatting.GRAY)));
             }
         }
 
         if (hasShiftDown()) {
-            tooltip.add(ModComponents.EMPTY);
-            tooltip.add(ModComponents.ADDITIONAL_INFORMATION.withStyle(ChatFormatting.AQUA));
-            tooltip.add(DESCRIPTION.withStyle(ChatFormatting.YELLOW));
-            tooltip.add(COST_PER_LEVEL.withStyle(ChatFormatting.DARK_GREEN));
-            tooltip.add(BONUS_PER_LEVEL.withStyle(ChatFormatting.DARK_BLUE));
+            tooltip.add(Component.empty());
+            tooltip.add(MutableComponent.create(ModTranslatableContents.ADDITIONAL_INFORMATION).withStyle(ChatFormatting.AQUA));
+            tooltip.add(skill.getDescription().withStyle(ChatFormatting.YELLOW));
+            tooltip.add(RenderUtil.getCostPerLevel(skill).withStyle(ChatFormatting.DARK_GREEN));
+            tooltip.add(RenderUtil.getBonusPerLevel(skill).withStyle(ChatFormatting.DARK_BLUE));
         } else {
-            tooltip.add(ModComponents.HOLD_SHIFT.withStyle(ChatFormatting.AQUA));
+            tooltip.add(MutableComponent.create(ModTranslatableContents.HOLD_SHIFT).withStyle(ChatFormatting.AQUA));
         }
 
         this.renderComponentTooltip(pPoseStack, tooltip, pMouseX, pMouseY, this.font);
     }
 
     private void onPress(Button pUnlockSpecButton) {
-        Minecraft.getInstance().setScreen(new ConfirmScreen(this::accept, this.specialization.getTranslation(), ModComponents.CONFIRM_UNLOCK));
+        Minecraft.getInstance().setScreen(new ConfirmScreen(this::accept, this.specialization.getTranslation(), MutableComponent.create(ModTranslatableContents.CONFIRM_UNLOCK)));
     }
 
     private void accept(boolean pCallback) {

@@ -11,7 +11,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -29,7 +29,7 @@ public class SkillButton extends AbstractButton {
     private IPlayerCapability playerCapability;
 
     public SkillButton(int pX, int pY, ISkill pSkill, OnTooltip pOnTooltip) {
-        super(pX, pY, 32, 32, new TranslatableComponent(""));
+        super(pX, pY, 32, 32, Component.empty());
         this.skill = pSkill;
         this.onTooltip = pOnTooltip;
         this.representativeStack = pSkill.getRepresentativeItemStack();
@@ -62,37 +62,37 @@ public class SkillButton extends AbstractButton {
         RenderUtil.setShaderTextureButton();
 
         if (!this.isUnlocked) {
-            this.blit(pPoseStack, x, y, 64, 166, width, height);
-            this.blit(pPoseStack, x + 6, y + 6, 0, 198, 20, 20);
+            this.blit(pPoseStack, this.getX(), this.getY(), 64, 166, width, height);
+            this.blit(pPoseStack, this.getX() + 6, this.getY() + 6, 0, 198, 20, 20);
         } else {
             if (!this.isMaxLevel) {
-                this.blit(pPoseStack, x, y, 64, 166, width, height);
-                drawString(pPoseStack, minecraft.font, String.valueOf(this.level), x + 4, y + 4, 16777215);
+                this.blit(pPoseStack, this.getX(), this.getY(), 64, 166, width, height);
+                drawString(pPoseStack, minecraft.font, String.valueOf(this.level), this.getX() + 4, this.getY() + 4, 16777215);
             } else {
-                this.blit(pPoseStack, x, y, 96, 166, width, height);
+                this.blit(pPoseStack, this.getX(), this.getY(), 96, 166, width, height);
             }
         }
         if (isHoveredOrFocused()) {
             this.renderToolTip(pPoseStack, pMouseX, pMouseY);
         }
         if (this.isUnlocked) {
-            minecraft.getItemRenderer().renderGuiItem(this.representativeStack, x + 8, y + 8);
+            minecraft.getItemRenderer().renderGuiItem(this.representativeStack, this.getX() + 8, this.getY() + 8);
         }
+
         this.renderBg(pPoseStack, minecraft, pMouseX, pMouseY);
     }
 
     @Override
+    protected void updateWidgetNarration(@NotNull NarrationElementOutput pNarrationElementOutput) {
+
+    }
+
     public void renderToolTip(@NotNull PoseStack pPoseStack, int pMouseX, int pMouseY) {
         this.onTooltip.onTooltip(this, pPoseStack, pMouseX, pMouseY);
     }
 
     public ISkill getSkill() {
         return this.skill;
-    }
-
-    @Override
-    public void updateNarration(@NotNull NarrationElementOutput pNarrationElementOutput) {
-
     }
 
     @OnlyIn(Dist.CLIENT)

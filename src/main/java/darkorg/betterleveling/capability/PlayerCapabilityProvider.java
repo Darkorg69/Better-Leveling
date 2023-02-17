@@ -13,9 +13,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class PlayerCapabilityProvider implements ICapabilitySerializable<CompoundTag> {
     public static Capability<IPlayerCapability> PLAYER_CAP = CapabilityManager.get(new CapabilityToken<>() {});
-
     private IPlayerCapability instance;
-
     private final LazyOptional<IPlayerCapability> optional = LazyOptional.of(this::getCapability);
 
     private IPlayerCapability getCapability() {

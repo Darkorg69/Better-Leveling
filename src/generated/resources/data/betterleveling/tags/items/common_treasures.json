@@ -1,8 +1,0 @@
-{
-  "replace": false,
-  "values": [
-    "minecraft:clay_ball",
-    "#forge:bones",
-    "#forge:string"
-  ]
-}

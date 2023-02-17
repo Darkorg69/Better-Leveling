@@ -24,19 +24,18 @@ public class SpecButton extends AbstractSpecButton {
         Minecraft minecraft = Minecraft.getInstance();
         RenderUtil.setShaderTextureButton();
         if (!this.isUnlocked) {
-            this.blit(pPoseStack, this.x, this.y, 0, 166, this.width, this.height);
+            this.blit(pPoseStack, this.getX(), this.getY(), 0, 166, this.width, this.height);
         } else {
-            this.blit(pPoseStack, this.x, this.y, 32, 166, this.width, this.height);
+            this.blit(pPoseStack, this.getX(), this.getY(), 32, 166, this.width, this.height);
         }
-        drawCenteredString(pPoseStack, minecraft.font, this.value.getTranslation(), this.x + 16, this.y - 10, 16777215);
+        drawCenteredString(pPoseStack, minecraft.font, this.value.getTranslation(), this.getX() + 16, this.getY() - 10, 16777215);
         if (isHoveredOrFocused()) {
             this.renderToolTip(pPoseStack, pMouseX, pMouseY);
         }
         this.renderBg(pPoseStack, minecraft, pMouseX, pMouseY);
-        minecraft.getItemRenderer().renderGuiItem(this.representativeItemStack, x + 8, y + 8);
+        minecraft.getItemRenderer().renderGuiItem(this.representativeItemStack, this.getX() + 8, this.getY() + 8);
     }
 
-    @Override
     public void renderToolTip(@NotNull PoseStack pPoseStack, int pMouseX, int pMouseY) {
         this.onTooltip.onTooltip(pPoseStack, pMouseX, pMouseY);
     }

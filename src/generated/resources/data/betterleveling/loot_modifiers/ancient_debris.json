@@ -1,0 +1,9 @@
+{
+  "type": "betterleveling:raw_debris_loot",
+  "conditions": [
+    {
+      "block": "minecraft:ancient_debris",
+      "condition": "minecraft:block_state_property"
+    }
+  ]
+}

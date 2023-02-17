@@ -10,7 +10,6 @@ import org.jetbrains.annotations.NotNull;
 
 @OnlyIn(Dist.CLIENT)
 public class ChooseSpecButton extends AbstractSpecButton {
-
     public ChooseSpecButton(int pX, int pY, ISpecialization pValue, OnValueChange pOnValueChange) {
         super(pX, pY, 64, 64, pValue, pOnValueChange);
     }
@@ -19,10 +18,10 @@ public class ChooseSpecButton extends AbstractSpecButton {
     public void renderButton(@NotNull PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTicks) {
         Minecraft minecraft = Minecraft.getInstance();
         RenderUtil.setShaderTextureButton();
-        this.blit(pPoseStack, this.x, this.y, 176, 0, this.width, this.height);
+        this.blit(pPoseStack, this.getX(), this.getY(), 176, 0, this.width, this.height);
         this.renderBg(pPoseStack, minecraft, pMouseX, pMouseY);
-        minecraft.getItemRenderer().renderGuiItem(this.representativeItemStack, x + 24, y + 16);
-        drawCenteredString(pPoseStack, minecraft.font, this.translation, x + 32, y - 10, 16777215);
-        drawCenteredString(pPoseStack, minecraft.font, this.description, x + 32, y + width + 10, 16777215);
+        minecraft.getItemRenderer().renderGuiItem(this.representativeItemStack, this.getX() + 24, this.getY() + 16);
+        drawCenteredString(pPoseStack, minecraft.font, this.translation, this.getX() + 32, this.getY() - 10, 16777215);
+        drawCenteredString(pPoseStack, minecraft.font, this.description, this.getX() + 32, this.getY() + width + 10, 16777215);
     }
 }

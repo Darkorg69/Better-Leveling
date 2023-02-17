@@ -4,7 +4,8 @@ import darkorg.betterleveling.BetterLeveling;
 import darkorg.betterleveling.api.ISkill;
 import darkorg.betterleveling.api.ISpecialization;
 import darkorg.betterleveling.util.RegistryUtil;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
 import net.minecraftforge.common.ForgeConfigSpec.ConfigValue;
@@ -20,9 +21,8 @@ public class Skill implements ISkill {
     private final ConfigValue<Integer> costPerLevel;
     private final ConfigValue<Double> bonusPerLevel;
     private final ConfigValue<String> prerequisites;
-
-    private final TranslatableComponent translation;
-    private final TranslatableComponent description;
+    private final TranslatableContents translation;
+    private final TranslatableContents description;
 
     public Skill(String pMod, String pName, ItemLike pItemLike, ISpecialization pParentSpec, ConfigValue<Integer> pMaxLevel, ConfigValue<Integer> pCostPerLevel, ConfigValue<Double> pBonusPerLevel, ConfigValue<String> pPrerequisites) {
         this.name = pName;
@@ -32,8 +32,8 @@ public class Skill implements ISkill {
         this.costPerLevel = pCostPerLevel;
         this.bonusPerLevel = pBonusPerLevel;
         this.prerequisites = pPrerequisites;
-        this.translation = new TranslatableComponent(pMod + "." + pName + ".translation");
-        this.description = new TranslatableComponent(pMod + "." + pName + ".description");
+        this.translation = new TranslatableContents(pMod + "." + pName + ".translation");
+        this.description = new TranslatableContents(pMod + "." + pName + ".description");
     }
 
     @Override
@@ -66,23 +66,38 @@ public class Skill implements ISkill {
     }
 
     @Override
-    public TranslatableComponent getTranslation() {
-        return this.translation;
+    public String getTranslationKey() {
+        return this.translation.getKey();
     }
 
     @Override
-    public TranslatableComponent getDescription() {
-        return this.description;
+    public String getDescriptionKey() {
+        return this.description.getKey();
+    }
+
+    @Override
+    public String getDescriptionIndexOfKey(int pIndex) {
+        return getDescriptionKey() + pIndex;
+    }
+
+    @Override
+    public MutableComponent getTranslation() {
+        return MutableComponent.create(this.translation);
+    }
+
+    @Override
+    public MutableComponent getDescription() {
+        return MutableComponent.create(this.description);
+    }
+
+    @Override
+    public MutableComponent getDescriptionIndexOf(int pIndex) {
+        return MutableComponent.create(new TranslatableContents(getDescriptionIndexOfKey(pIndex)));
     }
 
     @Override
     public ItemStack getRepresentativeItemStack() {
         return new ItemStack(this.itemLike);
-    }
-
-    @Override
-    public TranslatableComponent getDescriptionIndexOf(int pIndex) {
-        return new TranslatableComponent(this.description.getKey() + pIndex);
     }
 
     @Override

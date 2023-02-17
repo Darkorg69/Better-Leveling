@@ -15,11 +15,8 @@ import java.util.Map;
 
 public class SpecRegistry {
     public static final ISpecialization COMBAT = createSpecialization("combat", Items.STONE_SWORD);
-
-
     public static final ISpecialization CRAFTING = createSpecialization("crafting", Items.CRAFTING_TABLE);
     public static final ISpecialization MINING = createSpecialization("mining", Items.STONE_PICKAXE);
-
     private static final List<ISpecialization> SPEC_REGISTRY = new ArrayList<>();
     private static final Map<String, ISpecialization> SPEC_NAME_MAP = new HashMap<>();
 

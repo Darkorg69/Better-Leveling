@@ -20,22 +20,22 @@ public class AddSpecC2SPacket {
         this.data.putBoolean("Value", pPair.getSecond());
     }
 
-    public AddSpecC2SPacket(FriendlyByteBuf buf) {
-        this.data = buf.readNbt();
+    public AddSpecC2SPacket(FriendlyByteBuf pBuf) {
+        this.data = pBuf.readNbt();
     }
 
-    public static void encode(AddSpecC2SPacket packet, FriendlyByteBuf buf) {
-        buf.writeNbt(packet.data);
+    public static void encode(AddSpecC2SPacket pPacket, FriendlyByteBuf pBuf) {
+        pBuf.writeNbt(pPacket.data);
     }
 
-    public static void handle(AddSpecC2SPacket packet, Supplier<NetworkEvent.Context> supplier) {
-        NetworkEvent.Context context = supplier.get();
+    public static void handle(AddSpecC2SPacket pPacket, Supplier<NetworkEvent.Context> pSupplier) {
+        NetworkEvent.Context context = pSupplier.get();
         context.enqueueWork(() -> {
             // HERE WE ARE ON THE SERVER!
             ServerPlayer serverPlayer = context.getSender();
             if (serverPlayer != null) {
                 serverPlayer.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(capability -> {
-                    capability.addUnlocked(serverPlayer, RegistryUtil.getSpecFromName(packet.data.getString("Spec")), packet.data.getBoolean("Value"));
+                    capability.addUnlocked(serverPlayer, RegistryUtil.getSpecFromName(pPacket.data.getString("Spec")), pPacket.data.getBoolean("Value"));
                 });
             }
         });
