@@ -5,6 +5,7 @@ import com.mojang.datafixers.util.Pair;
 import darkorg.betterleveling.api.ISpecialization;
 import darkorg.betterleveling.gui.widget.button.ChooseSpecButton;
 import darkorg.betterleveling.network.NetworkHandler;
+import darkorg.betterleveling.network.chat.ModComponents;
 import darkorg.betterleveling.network.packets.AddSpecC2SPacket;
 import darkorg.betterleveling.registry.SpecRegistry;
 import darkorg.betterleveling.util.RenderUtil;
@@ -17,8 +18,6 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.gui.widget.ExtendedButton;
 import org.jetbrains.annotations.NotNull;
 
-import static darkorg.betterleveling.network.chat.ModComponents.*;
-
 @OnlyIn(Dist.CLIENT)
 public class ChooseSpecScreen extends Screen {
     private final int imageWidth = 176;
@@ -27,7 +26,7 @@ public class ChooseSpecScreen extends Screen {
     private ISpecialization playerSpecialization;
 
     public ChooseSpecScreen() {
-        super(CHOOSE_SPEC_TITLE);
+        super(ModComponents.CHOOSE_SPEC_TITLE);
         this.playerSpecialization = SpecRegistry.getSpecRegistry().get(0);
     }
 
@@ -36,10 +35,10 @@ public class ChooseSpecScreen extends Screen {
         this.leftPos = (width - imageWidth) / 2;
         this.topPos = (height - imageHeight) / 2;
 
-        ChooseSpecButton chooseSpecButton = new ChooseSpecButton((this.width - 64) / 2, (this.height - 64) / 2 - 32, this.playerSpecialization, pPlayerSpecialization -> this.playerSpecialization = pPlayerSpecialization);
+        ChooseSpecButton chooseSpecButton = new ChooseSpecButton((this.width - 64) / 2, (this.height - 64) / 2 - 32, this.playerSpecialization, playerSpecialization -> this.playerSpecialization = playerSpecialization);
         addRenderableWidget(chooseSpecButton);
 
-        ExtendedButton selectButton = new ExtendedButton((this.width - 75) / 2, this.topPos + 116, 75, 25, SELECT_BUTTON, this::onPress);
+        ExtendedButton selectButton = new ExtendedButton((this.width - 75) / 2, this.topPos + 116, 75, 25, ModComponents.SELECT_BUTTON, this::onPress);
         addRenderableWidget(selectButton);
     }
 
@@ -55,11 +54,12 @@ public class ChooseSpecScreen extends Screen {
     private void onPress(Button pButton) {
         Minecraft.getInstance().setScreen(new ConfirmScreen((boolean pCallback) -> {
             if (pCallback) {
-                NetworkHandler.sendToServer(new AddSpecC2SPacket(new Pair<>(this.playerSpecialization, true)));
+                NetworkHandler.sendToServer(new AddSpecC2SPacket(Pair.of(this.playerSpecialization, true)));
                 Minecraft.getInstance().popGuiLayer();
             } else {
                 Minecraft.getInstance().setScreen(this);
             }
-        }, this.playerSpecialization.getTranslation(), CHOOSE_CONFIRM));
+        }, this.playerSpecialization.getTranslation(), ModComponents.CHOOSE_CONFIRM));
     }
+
 }

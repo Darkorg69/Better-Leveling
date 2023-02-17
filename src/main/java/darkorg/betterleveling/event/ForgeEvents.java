@@ -3,13 +3,15 @@ package darkorg.betterleveling.event;
 import darkorg.betterleveling.BetterLeveling;
 import darkorg.betterleveling.capability.MachineCapabilityProvider;
 import darkorg.betterleveling.capability.PlayerCapabilityProvider;
-import darkorg.betterleveling.command.MaxCommand;
-import darkorg.betterleveling.command.ResetCommand;
+import darkorg.betterleveling.command.MaxPlayerCommand;
+import darkorg.betterleveling.command.ResetPlayerCommand;
 import darkorg.betterleveling.command.SetSkillCommand;
 import darkorg.betterleveling.command.SetSpecializationCommand;
 import darkorg.betterleveling.config.ServerConfig;
-import darkorg.betterleveling.registry.ModTags;
+import darkorg.betterleveling.registry.SkillRegistry;
 import darkorg.betterleveling.util.SkillUtil;
+import darkorg.betterleveling.util.StackUtil;
+import darkorg.betterleveling.util.StateUtil;
 import darkorg.betterleveling.util.TreasureUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
@@ -33,8 +35,7 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.server.command.ConfigCommand;
 
 import java.util.List;
-
-import static darkorg.betterleveling.registry.SkillRegistry.HARVEST_PROFICIENCY;
+import java.util.Random;
 
 @Mod.EventBusSubscriber(modid = BetterLeveling.MOD_ID)
 public class ForgeEvents {
@@ -83,8 +84,8 @@ public class ForgeEvents {
 
     @SubscribeEvent
     public static void onRegisterCommands(RegisterCommandsEvent event) {
-        new MaxCommand(event.getDispatcher());
-        new ResetCommand(event.getDispatcher());
+        new MaxPlayerCommand(event.getDispatcher());
+        new ResetPlayerCommand(event.getDispatcher());
         new SetSkillCommand(event.getDispatcher());
         new SetSpecializationCommand(event.getDispatcher());
         ConfigCommand.register(event.getDispatcher());
@@ -92,39 +93,34 @@ public class ForgeEvents {
 
     @SubscribeEvent
     public static void onSimpleHarvest(PlayerInteractEvent.RightClickBlock event) {
-        if (ServerConfig.SIMPLE_HARVEST_ENABLED.get()) {
-            if (event.getWorld() instanceof ServerLevel serverLevel && event.getPlayer() instanceof ServerPlayer serverPlayer) {
-                BlockPos pos = event.getPos();
-                BlockState state = serverLevel.getBlockState(pos);
+        if (ServerConfig.SIMPLE_HARVEST_ENABLED.get() && event.getWorld() instanceof ServerLevel serverLevel && event.getEntity() instanceof ServerPlayer serverPlayer) {
+            BlockPos pos = event.getPos();
+            BlockState state = serverLevel.getBlockState(pos);
+            if (StateUtil.isCropBlock(state)) {
                 Block block = state.getBlock();
-                if (block instanceof BonemealableBlock bonemealableBlock) {
-                    if (!bonemealableBlock.isValidBonemealTarget(serverLevel, pos, state, serverLevel.isClientSide)) {
-                        List<ItemStack> drops = Block.getDrops(state, serverLevel, pos, null, serverPlayer, serverPlayer.getMainHandItem());
-                        serverPlayer.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(pCapability -> {
-                            if (pCapability.hasUnlocked(serverPlayer, HARVEST_PROFICIENCY)) {
-                                int currentLevel = pCapability.getLevel(serverPlayer, HARVEST_PROFICIENCY);
-                                if (currentLevel > 0) {
-                                    if (serverLevel.random.nextDouble() <= SkillUtil.getCurrentChance(HARVEST_PROFICIENCY, currentLevel)) {
-                                        drops.forEach(stack -> {
-                                            if (stack.is(ModTags.Items.CROPS)) {
-                                                int originalCount = stack.getCount();
-                                                stack.setCount(originalCount + TreasureUtil.getPotentialLoot(originalCount, ServerConfig.HARVEST_PROFICIENCY_POTENTIAL_LOOT_BOUND.get().floatValue(), serverLevel.random));
-                                            }
-                                        });
-                                    }
+                if (block instanceof BonemealableBlock bonemealableBlock && !bonemealableBlock.isValidBonemealTarget(serverLevel, pos, state, serverLevel.isClientSide)) {
+                    List<ItemStack> drops = Block.getDrops(state, serverLevel, pos, null, serverPlayer, serverPlayer.getMainHandItem());
+                    serverPlayer.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(capability -> {
+                        if (capability.hasUnlocked(serverPlayer, SkillRegistry.HARVEST_PROFICIENCY)) {
+                            int currentLevel = capability.getLevel(serverPlayer, SkillRegistry.HARVEST_PROFICIENCY);
+                            if (currentLevel > 0) {
+                                Random random = new Random();
+                                if (random.nextDouble() <= SkillUtil.getCurrentChance(SkillRegistry.HARVEST_PROFICIENCY, currentLevel)) {
+                                    drops.stream().filter(StackUtil::isCropOrSeed).forEach(stack -> stack.grow(TreasureUtil.getPotentialLoot(stack.getCount(), ServerConfig.HARVEST_PROFICIENCY_POTENTIAL_LOOT_BOUND.get().floatValue(), random)));
                                 }
                             }
-                        });
-                        drops.forEach(stack -> {
-                            if (!stack.is(ModTags.Items.CROPS)) {
-                                stack.setCount(stack.getCount() - 1);
-                            }
-                            Block.popResource(serverLevel, pos, stack);
-                        });
-                        serverLevel.setBlockAndUpdate(pos, block.defaultBlockState());
-                    }
+                        }
+                    });
+                    drops.forEach(stack -> {
+                        if (StackUtil.isSeed(stack)) {
+                            stack.shrink(1);
+                        }
+                        Block.popResource(serverLevel, pos, stack);
+                    });
+                    serverLevel.setBlockAndUpdate(pos, block.defaultBlockState());
                 }
             }
         }
     }
+
 }

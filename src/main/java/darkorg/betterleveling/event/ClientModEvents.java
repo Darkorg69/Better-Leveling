@@ -3,6 +3,7 @@ package darkorg.betterleveling.event;
 import darkorg.betterleveling.BetterLeveling;
 import darkorg.betterleveling.key.KeyMappings;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.client.ClientRegistry;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
@@ -11,6 +12,6 @@ import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 public class ClientModEvents {
     @SubscribeEvent
     public static void onClientSetup(FMLClientSetupEvent event) {
-        KeyMappings.init();
+        ClientRegistry.registerKeyBinding(KeyMappings.OPEN_GUI);
     }
 }

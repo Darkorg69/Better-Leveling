@@ -1,9 +1,12 @@
 package darkorg.betterleveling.event;
 
 import darkorg.betterleveling.BetterLeveling;
-import darkorg.betterleveling.data.ModBlockTagsProvider;
-import darkorg.betterleveling.data.ModItemTagsProvider;
-import darkorg.betterleveling.data.ModLanguageProvider;
+import darkorg.betterleveling.data.client.ModItemModelProvider;
+import darkorg.betterleveling.data.client.ModLanguageProvider;
+import darkorg.betterleveling.data.server.ModBlockTagsProvider;
+import darkorg.betterleveling.data.server.ModGlobalLootModifierProvider;
+import darkorg.betterleveling.data.server.ModItemTagsProvider;
+import darkorg.betterleveling.data.server.ModRecipeProvider;
 import darkorg.betterleveling.network.NetworkHandler;
 import net.minecraft.data.DataGenerator;
 import net.minecraftforge.common.data.ExistingFileHelper;
@@ -20,16 +23,20 @@ public class ModEvents {
     }
 
     @SubscribeEvent
-    public static void onGatherData(GatherDataEvent event) {
-        DataGenerator dataGenerator = event.getGenerator();
+    public static void gatherData(GatherDataEvent event) {
+        DataGenerator generator = event.getGenerator();
         ExistingFileHelper existingFileHelper = event.getExistingFileHelper();
-
-        ModBlockTagsProvider blockTagsProvider = new ModBlockTagsProvider(dataGenerator, BetterLeveling.MOD_ID, existingFileHelper);
-        ModItemTagsProvider itemTagsProvider = new ModItemTagsProvider(dataGenerator, blockTagsProvider, BetterLeveling.MOD_ID, existingFileHelper);
-        ModLanguageProvider en_us = new ModLanguageProvider(dataGenerator, BetterLeveling.MOD_ID, "en_us");
-
-        dataGenerator.addProvider(blockTagsProvider);
-        dataGenerator.addProvider(itemTagsProvider);
-        dataGenerator.addProvider(en_us);
+        ModLanguageProvider en_us = new ModLanguageProvider(generator, "en_us");
+        ModItemModelProvider itemModelProvider = new ModItemModelProvider(generator, existingFileHelper);
+        generator.addProvider(en_us);
+        generator.addProvider(itemModelProvider);
+        ModRecipeProvider recipeProvider = new ModRecipeProvider(generator);
+        ModGlobalLootModifierProvider lootModifierProvider = new ModGlobalLootModifierProvider(generator);
+        ModBlockTagsProvider blockTagsProvider = new ModBlockTagsProvider(generator, existingFileHelper);
+        ModItemTagsProvider itemTagsProvider = new ModItemTagsProvider(generator, blockTagsProvider, existingFileHelper);
+        generator.addProvider(recipeProvider);
+        generator.addProvider(lootModifierProvider);
+        generator.addProvider(blockTagsProvider);
+        generator.addProvider(itemTagsProvider);
     }
 }

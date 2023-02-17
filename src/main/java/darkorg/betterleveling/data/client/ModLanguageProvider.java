@@ -1,9 +1,11 @@
-package darkorg.betterleveling.data;
+package darkorg.betterleveling.data.client;
 
+import darkorg.betterleveling.BetterLeveling;
 import darkorg.betterleveling.api.ISkill;
 import darkorg.betterleveling.api.ISpecialization;
 import darkorg.betterleveling.key.KeyMappings;
 import darkorg.betterleveling.network.chat.ModComponents;
+import darkorg.betterleveling.registry.ModItems;
 import darkorg.betterleveling.registry.SkillRegistry;
 import darkorg.betterleveling.registry.SpecRegistry;
 import net.minecraft.data.DataGenerator;
@@ -11,14 +13,16 @@ import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraftforge.common.data.LanguageProvider;
 
 public class ModLanguageProvider extends LanguageProvider {
-    public ModLanguageProvider(DataGenerator pDataGenerator, String pModId, String pLocale) {
-        super(pDataGenerator, pModId, pLocale);
+    public ModLanguageProvider(DataGenerator pGenerator, String pLocale) {
+        super(pGenerator, BetterLeveling.MOD_ID, pLocale);
     }
 
     @Override
     protected void addTranslations() {
         add(KeyMappings.KEY_CATEGORY_BETTERLEVELING, "Better Leveling");
         add(KeyMappings.KEY_OPEN_GUI, "Open GUI");
+
+        add(ModItems.RAW_DEBRIS.get(), "Raw Debris");
 
         add(ModComponents.ADDITIONAL_INFORMATION, "Additional information:");
         add(ModComponents.AVAILABLE, "Available: ");
@@ -39,7 +43,7 @@ public class ModLanguageProvider extends LanguageProvider {
         add(ModComponents.HOLD_SHIFT, "Hold SHIFT for additional information");
         add(ModComponents.INCREASE, "Increase");
         add(ModComponents.LEVEL, "Level: ");
-        add(ModComponents.LEVELS, "Levels");
+        add(ModComponents.LEVELS, " Levels");
         add(ModComponents.LOCKED, "Locked");
         add(ModComponents.MAX_LEVEL, "Max Level");
         add(ModComponents.NOT_ENOUGH_XP, "You don't have enough XP!");
@@ -50,7 +54,7 @@ public class ModLanguageProvider extends LanguageProvider {
         add(ModComponents.REGISTER, "Machine bound successfully");
         add(ModComponents.SELECT_BUTTON, "Select");
         add(ModComponents.SKILL_NOT_FOUND, "Command exception: Skill not found");
-        add(ModComponents.SPEC, "Specialization");
+        add(ModComponents.SPEC, " Specialization");
         add(ModComponents.SPEC_LOCKED, "This spec is locked");
         add(ModComponents.SPEC_NOT_FOUND, "Command exception: Specialization not found");
         add(ModComponents.UNLOCK_COST, "Unlock cost: ");
@@ -176,27 +180,27 @@ public class ModLanguageProvider extends LanguageProvider {
         addDescriptionIndexOf(SkillRegistry.SPRINT_SPEED, "speed", 3);
     }
 
-    private void add(TranslatableComponent pTranslatableComponent, String pTranslation) {
-        add(pTranslatableComponent.getKey(), pTranslation);
-    }
-
     private void addTranslation(ISkill pSkill, String pTranslation) {
-        add(pSkill.getTranslation().getKey(), pTranslation);
+        add(pSkill.getTranslationKey(), pTranslation);
     }
 
     private void addDescription(ISkill pSkill, String pTranslation) {
-        add(pSkill.getDescription(), pTranslation);
-    }
-
-    private void addTranslation(ISpecialization pSpecialization, String pTranslation) {
-        add(pSpecialization.getTranslation().getKey(), pTranslation);
-    }
-
-    private void addDescription(ISpecialization pSpecialization, String pTranslation) {
-        add(pSpecialization.getDescription().getKey(), pTranslation);
+        add(pSkill.getDescriptionKey(), pTranslation);
     }
 
     private void addDescriptionIndexOf(ISkill pSkill, String pTranslation, int pIndex) {
-        add(pSkill.getDescriptionIndexOf(pIndex), pTranslation);
+        add(pSkill.getDescriptionIndexOfKey(pIndex), pTranslation);
+    }
+
+    private void addTranslation(ISpecialization pSpecialization, String pTranslation) {
+        add(pSpecialization.getTranslationKey(), pTranslation);
+    }
+
+    private void addDescription(ISpecialization pSpecialization, String pTranslation) {
+        add(pSpecialization.getDescriptionKey(), pTranslation);
+    }
+
+    private void add(TranslatableComponent pTranslatableContents, String pTranslation) {
+        add(pTranslatableContents.getKey(), pTranslation);
     }
 }

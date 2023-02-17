@@ -4,6 +4,7 @@ import darkorg.betterleveling.BetterLeveling;
 import darkorg.betterleveling.api.ISkill;
 import darkorg.betterleveling.api.ISpecialization;
 import darkorg.betterleveling.util.RegistryUtil;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
@@ -20,7 +21,6 @@ public class Skill implements ISkill {
     private final ConfigValue<Integer> costPerLevel;
     private final ConfigValue<Double> bonusPerLevel;
     private final ConfigValue<String> prerequisites;
-
     private final TranslatableComponent translation;
     private final TranslatableComponent description;
 
@@ -66,23 +66,38 @@ public class Skill implements ISkill {
     }
 
     @Override
-    public TranslatableComponent getTranslation() {
-        return this.translation;
+    public String getTranslationKey() {
+        return this.translation.getKey();
     }
 
     @Override
-    public TranslatableComponent getDescription() {
-        return this.description;
+    public String getDescriptionKey() {
+        return this.description.getKey();
+    }
+
+    @Override
+    public String getDescriptionIndexOfKey(int pIndex) {
+        return getDescriptionKey() + pIndex;
+    }
+
+    @Override
+    public MutableComponent getTranslation() {
+        return new TranslatableComponent(this.getTranslationKey());
+    }
+
+    @Override
+    public MutableComponent getDescription() {
+        return new TranslatableComponent(this.getDescriptionKey());
+    }
+
+    @Override
+    public MutableComponent getDescriptionIndexOf(int pIndex) {
+        return new TranslatableComponent(getDescriptionIndexOfKey(pIndex));
     }
 
     @Override
     public ItemStack getRepresentativeItemStack() {
         return new ItemStack(this.itemLike);
-    }
-
-    @Override
-    public TranslatableComponent getDescriptionIndexOf(int pIndex) {
-        return new TranslatableComponent(this.description.getKey() + pIndex);
     }
 
     @Override

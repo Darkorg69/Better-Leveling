@@ -1,6 +1,6 @@
 package darkorg.betterleveling.api;
 
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.item.ItemStack;
 
 public interface ISpecialization {
@@ -8,9 +8,13 @@ public interface ISpecialization {
 
     String getName();
 
-    TranslatableComponent getTranslation();
+    String getTranslationKey();
 
-    TranslatableComponent getDescription();
+    String getDescriptionKey();
+
+    MutableComponent getTranslation();
+
+    MutableComponent getDescription();
 
     ItemStack getRepresentativeItemStack();
 }

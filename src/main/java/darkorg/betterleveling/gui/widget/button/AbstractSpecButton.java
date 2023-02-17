@@ -1,12 +1,12 @@
 package darkorg.betterleveling.gui.widget.button;
 
 import darkorg.betterleveling.api.ISpecialization;
+import darkorg.betterleveling.network.chat.ModComponents;
 import darkorg.betterleveling.registry.SpecRegistry;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -25,18 +25,13 @@ public abstract class AbstractSpecButton extends AbstractButton {
     private int index;
 
     public AbstractSpecButton(int pX, int pY, int pWidth, int pHeight, ISpecialization pValue, OnValueChange pOnValueChange) {
-        super(pX, pY, pWidth, pHeight, new TranslatableComponent(""));
+        super(pX, pY, pWidth, pHeight, ModComponents.EMPTY);
         this.index = values.indexOf(pValue);
         this.value = pValue;
         this.translation = pValue.getTranslation();
         this.description = pValue.getDescription();
         this.representativeItemStack = pValue.getRepresentativeItemStack();
         this.onValueChange = pOnValueChange;
-    }
-
-    @Override
-    public void updateNarration(@NotNull NarrationElementOutput pNarrationElementOutput) {
-
     }
 
     @Override
@@ -92,6 +87,11 @@ public abstract class AbstractSpecButton extends AbstractButton {
         this.translation = pValue.getTranslation();
         this.description = pValue.getDescription();
         this.representativeItemStack = pValue.getRepresentativeItemStack();
+    }
+
+    @Override
+    public void updateNarration(@NotNull NarrationElementOutput pNarrationElementOutput) {
+
     }
 
     @OnlyIn(Dist.CLIENT)

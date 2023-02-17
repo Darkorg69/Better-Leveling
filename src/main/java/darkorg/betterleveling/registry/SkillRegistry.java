@@ -5,7 +5,9 @@ import com.google.common.collect.ImmutableMap;
 import darkorg.betterleveling.BetterLeveling;
 import darkorg.betterleveling.api.ISkill;
 import darkorg.betterleveling.api.ISpecialization;
+import darkorg.betterleveling.config.ServerConfig;
 import darkorg.betterleveling.impl.Skill;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ItemLike;
 import net.minecraftforge.common.ForgeConfigSpec.ConfigValue;
 
@@ -14,30 +16,25 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static darkorg.betterleveling.config.ServerConfig.*;
-import static darkorg.betterleveling.registry.SpecRegistry.*;
-import static net.minecraft.world.item.Items.*;
-
 public class SkillRegistry {
-    public static final ISkill STRENGTH = createSkill("strength", IRON_SWORD, COMBAT, STRENGTH_MAX_LEVEL, STRENGTH_COST_PER_LEVEL, STRENGTH_BONUS_PER_LEVEL, STRENGTH_PREREQUISITES);
-    public static final ISkill CRITICAL_STRIKE = createSkill("crit_strike", GOLDEN_SWORD, COMBAT, CRITICAL_STRIKE_MAX_LEVEL, CRITICAL_STRIKE_COST_PER_LEVEL, CRITICAL_STRIKE_BONUS_PER_LEVEL, CRITICAL_STRIKE_PREREQUISITES);
-    public static final ISkill ARROW_SPEED = createSkill("arrow_speed", TIPPED_ARROW, COMBAT, ARROW_SPEED_MAX_LEVEL, ARROW_SPEED_COST_PER_LEVEL, ARROW_SPEED_BONUS_PER_LEVEL, ARROW_SPEED_PREREQUISITES);
-    public static final ISkill QUICK_DRAW = createSkill("quick_draw", BOW, COMBAT, QUICK_DRAW_MAX_LEVEL, QUICK_DRAW_COST_PER_LEVEL, QUICK_DRAW_BONUS_PER_LEVEL, QUICK_DRAW_PREREQUISITES);
-    public static final ISkill IRON_SKIN = createSkill("iron_skin", IRON_CHESTPLATE, COMBAT, IRON_SKIN_MAX_LEVEL, IRON_SKIN_COST_PER_LEVEL, IRON_SKIN_BONUS_PER_LEVEL, IRON_SKIN_PREREQUISITES);
-    public static final ISkill SNEAK_SPEED = createSkill("sneak_speed", RABBIT_FOOT, COMBAT, SNEAK_SPEED_MAX_LEVEL, SNEAK_SPEED_COST_PER_LEVEL, SNEAK_SPEED_BONUS_PER_LEVEL, SNEAK_SPEED_PREREQUISITES);
-    public static final ISkill GREEN_THUMB = createSkill("green_thumb", WHEAT_SEEDS, CRAFTING, GREEN_THUMB_MAX_LEVEL, GREEN_THUMB_COST_PER_LEVEL, GREEN_THUMB_BONUS_PER_LEVEL, GREEN_THUMB_PREREQUISITES);
-    public static final ISkill HARVEST_PROFICIENCY = createSkill("harvest_proficiency", WHEAT, CRAFTING, HARVEST_PROFICIENCY_MAX_LEVEL, HARVEST_PROFICIENCY_COST_PER_LEVEL, HARVEST_PROFICIENCY_BONUS_PER_LEVEL, HARVEST_PROFICIENCY_PREREQUISITES);
-    public static final ISkill SKINNING = createSkill("skinning", LEATHER, CRAFTING, SKINNING_MAX_LEVEL, SKINNING_COST_PER_LEVEL, SKINNING_BONUS_PER_LEVEL, SKINNING_PREREQUISITES);
-    public static final ISkill MEAT_GATHERING = createSkill("meat_gathering", PORKCHOP, CRAFTING, MEAT_GATHERING_MAX_LEVEL, MEAT_GATHERING_COST_PER_LEVEL, MEAT_GATHERING_BONUS_PER_LEVEL, MEAT_GATHERING_PREREQUISITES);
-    public static final ISkill SWIM_SPEED = createSkill("swim_speed", HEART_OF_THE_SEA, CRAFTING, SWIM_SPEED_MAX_LEVEL, SWIM_SPEED_COST_PER_LEVEL, SWIM_SPEED_BONUS_PER_LEVEL, SWIM_SPEED_PREREQUISITES);
-    public static final ISkill COOKING_SPEED = createSkill("cooking_speed", FURNACE, CRAFTING, COOKING_SPEED_MAX_LEVEL, COOKING_SPEED_COST_PER_LEVEL, COOKING_SPEED_BONUS_PER_LEVEL, COOKING_SPEED_PREREQUISITES);
-    public static final ISkill STONECUTTING = createSkill("stonecutting", IRON_PICKAXE, MINING, STONECUTTING_MAX_LEVEL, STONECUTTING_COST_PER_LEVEL, STONECUTTING_BONUS_PER_LEVEL, STONECUTTING_PREREQUISITES);
-    public static final ISkill PROSPECTING = createSkill("prospecting", GOLDEN_PICKAXE, MINING, PROSPECTING_MAX_LEVEL, PROSPECTING_COST_PER_LEVEL, PROSPECTING_BONUS_PER_LEVEL, PROSPECTING_PREREQUISITES);
-    public static final ISkill WOODCUTTING = createSkill("woodcutting", IRON_AXE, MINING, WOODCUTTING_MAX_LEVEL, WOODCUTTING_COST_PER_LEVEL, WOODCUTTING_BONUS_PER_LEVEL, WOODCUTTING_PREREQUISITES);
-    public static final ISkill TREASURE_HUNTING = createSkill("treasure_hunting", GOLDEN_SHOVEL, MINING, TREASURE_HUNTING_MAX_LEVEL, TREASURE_HUNTING_COST_PER_LEVEL, TREASURE_HUNTING_BONUS_PER_LEVEL, TREASURE_HUNTING_PREREQUISITES);
-    public static final ISkill SOFT_LANDING = createSkill("soft_landing", FEATHER, MINING, SOFT_LANDING_MAX_LEVEL, SOFT_LANDING_COST_PER_LEVEL, SOFT_LANDING_BONUS_PER_LEVEL, SOFT_LANDING_PREREQUISITES);
-    public static final ISkill SPRINT_SPEED = createSkill("sprint_speed", LEATHER_BOOTS, MINING, SPRINT_SPEED_MAX_LEVEL, SPRINT_SPEED_COST_PER_LEVEL, SPRINT_SPEED_BONUS_PER_LEVEL, SPRINT_SPEED_PREREQUISITES);
-
+    public static final ISkill STRENGTH = createSkill("strength", Items.IRON_SWORD, SpecRegistry.COMBAT, ServerConfig.STRENGTH_MAX_LEVEL, ServerConfig.STRENGTH_COST_PER_LEVEL, ServerConfig.STRENGTH_BONUS_PER_LEVEL, ServerConfig.STRENGTH_PREREQUISITES);
+    public static final ISkill CRITICAL_STRIKE = createSkill("crit_strike", Items.GOLDEN_SWORD, SpecRegistry.COMBAT, ServerConfig.CRITICAL_STRIKE_MAX_LEVEL, ServerConfig.CRITICAL_STRIKE_COST_PER_LEVEL, ServerConfig.CRITICAL_STRIKE_BONUS_PER_LEVEL, ServerConfig.CRITICAL_STRIKE_PREREQUISITES);
+    public static final ISkill ARROW_SPEED = createSkill("arrow_speed", Items.TIPPED_ARROW, SpecRegistry.COMBAT, ServerConfig.ARROW_SPEED_MAX_LEVEL, ServerConfig.ARROW_SPEED_COST_PER_LEVEL, ServerConfig.ARROW_SPEED_BONUS_PER_LEVEL, ServerConfig.ARROW_SPEED_PREREQUISITES);
+    public static final ISkill QUICK_DRAW = createSkill("quick_draw", Items.BOW, SpecRegistry.COMBAT, ServerConfig.QUICK_DRAW_MAX_LEVEL, ServerConfig.QUICK_DRAW_COST_PER_LEVEL, ServerConfig.QUICK_DRAW_BONUS_PER_LEVEL, ServerConfig.QUICK_DRAW_PREREQUISITES);
+    public static final ISkill IRON_SKIN = createSkill("iron_skin", Items.IRON_CHESTPLATE, SpecRegistry.COMBAT, ServerConfig.IRON_SKIN_MAX_LEVEL, ServerConfig.IRON_SKIN_COST_PER_LEVEL, ServerConfig.IRON_SKIN_BONUS_PER_LEVEL, ServerConfig.IRON_SKIN_PREREQUISITES);
+    public static final ISkill SNEAK_SPEED = createSkill("sneak_speed", Items.RABBIT_FOOT, SpecRegistry.COMBAT, ServerConfig.SNEAK_SPEED_MAX_LEVEL, ServerConfig.SNEAK_SPEED_COST_PER_LEVEL, ServerConfig.SNEAK_SPEED_BONUS_PER_LEVEL, ServerConfig.SNEAK_SPEED_PREREQUISITES);
+    public static final ISkill GREEN_THUMB = createSkill("green_thumb", Items.WHEAT_SEEDS, SpecRegistry.CRAFTING, ServerConfig.GREEN_THUMB_MAX_LEVEL, ServerConfig.GREEN_THUMB_COST_PER_LEVEL, ServerConfig.GREEN_THUMB_BONUS_PER_LEVEL, ServerConfig.GREEN_THUMB_PREREQUISITES);
+    public static final ISkill HARVEST_PROFICIENCY = createSkill("harvest_proficiency", Items.WHEAT, SpecRegistry.CRAFTING, ServerConfig.HARVEST_PROFICIENCY_MAX_LEVEL, ServerConfig.HARVEST_PROFICIENCY_COST_PER_LEVEL, ServerConfig.HARVEST_PROFICIENCY_BONUS_PER_LEVEL, ServerConfig.HARVEST_PROFICIENCY_PREREQUISITES);
+    public static final ISkill SKINNING = createSkill("skinning", Items.LEATHER, SpecRegistry.CRAFTING, ServerConfig.SKINNING_MAX_LEVEL, ServerConfig.SKINNING_COST_PER_LEVEL, ServerConfig.SKINNING_BONUS_PER_LEVEL, ServerConfig.SKINNING_PREREQUISITES);
+    public static final ISkill MEAT_GATHERING = createSkill("meat_gathering", Items.PORKCHOP, SpecRegistry.CRAFTING, ServerConfig.MEAT_GATHERING_MAX_LEVEL, ServerConfig.MEAT_GATHERING_COST_PER_LEVEL, ServerConfig.MEAT_GATHERING_BONUS_PER_LEVEL, ServerConfig.MEAT_GATHERING_PREREQUISITES);
+    public static final ISkill SWIM_SPEED = createSkill("swim_speed", Items.HEART_OF_THE_SEA, SpecRegistry.CRAFTING, ServerConfig.SWIM_SPEED_MAX_LEVEL, ServerConfig.SWIM_SPEED_COST_PER_LEVEL, ServerConfig.SWIM_SPEED_BONUS_PER_LEVEL, ServerConfig.SWIM_SPEED_PREREQUISITES);
+    public static final ISkill COOKING_SPEED = createSkill("cooking_speed", Items.FURNACE, SpecRegistry.CRAFTING, ServerConfig.COOKING_SPEED_MAX_LEVEL, ServerConfig.COOKING_SPEED_COST_PER_LEVEL, ServerConfig.COOKING_SPEED_BONUS_PER_LEVEL, ServerConfig.COOKING_SPEED_PREREQUISITES);
+    public static final ISkill STONECUTTING = createSkill("stonecutting", Items.IRON_PICKAXE, SpecRegistry.MINING, ServerConfig.STONECUTTING_MAX_LEVEL, ServerConfig.STONECUTTING_COST_PER_LEVEL, ServerConfig.STONECUTTING_BONUS_PER_LEVEL, ServerConfig.STONECUTTING_PREREQUISITES);
+    public static final ISkill PROSPECTING = createSkill("prospecting", Items.GOLDEN_PICKAXE, SpecRegistry.MINING, ServerConfig.PROSPECTING_MAX_LEVEL, ServerConfig.PROSPECTING_COST_PER_LEVEL, ServerConfig.PROSPECTING_BONUS_PER_LEVEL, ServerConfig.PROSPECTING_PREREQUISITES);
+    public static final ISkill WOODCUTTING = createSkill("woodcutting", Items.IRON_AXE, SpecRegistry.MINING, ServerConfig.WOODCUTTING_MAX_LEVEL, ServerConfig.WOODCUTTING_COST_PER_LEVEL, ServerConfig.WOODCUTTING_BONUS_PER_LEVEL, ServerConfig.WOODCUTTING_PREREQUISITES);
+    public static final ISkill TREASURE_HUNTING = createSkill("treasure_hunting", Items.GOLDEN_SHOVEL, SpecRegistry.MINING, ServerConfig.TREASURE_HUNTING_MAX_LEVEL, ServerConfig.TREASURE_HUNTING_COST_PER_LEVEL, ServerConfig.TREASURE_HUNTING_BONUS_PER_LEVEL, ServerConfig.TREASURE_HUNTING_PREREQUISITES);
+    public static final ISkill SOFT_LANDING = createSkill("soft_landing", Items.FEATHER, SpecRegistry.MINING, ServerConfig.SOFT_LANDING_MAX_LEVEL, ServerConfig.SOFT_LANDING_COST_PER_LEVEL, ServerConfig.SOFT_LANDING_BONUS_PER_LEVEL, ServerConfig.SOFT_LANDING_PREREQUISITES);
+    public static final ISkill SPRINT_SPEED = createSkill("sprint_speed", Items.LEATHER_BOOTS, SpecRegistry.MINING, ServerConfig.SPRINT_SPEED_MAX_LEVEL, ServerConfig.SPRINT_SPEED_COST_PER_LEVEL, ServerConfig.SPRINT_SPEED_BONUS_PER_LEVEL, ServerConfig.SPRINT_SPEED_PREREQUISITES);
     private static final List<ISkill> SKILL_REGISTRY = new ArrayList<>();
     private static final Map<String, ISkill> SKILL_NAME_MAP = new HashMap<>();
     private static final Map<ISpecialization, List<ISkill>> SKILL_SPEC_MAP = new HashMap<>();
@@ -68,7 +65,7 @@ public class SkillRegistry {
 
         SKILL_NAME_MAP.put(pSkill.getName(), pSkill);
 
-        getSpecRegistry().forEach(specialization -> {
+        SpecRegistry.getSpecRegistry().forEach(specialization -> {
             List<ISkill> skills = new ArrayList<>();
 
             SKILL_REGISTRY.forEach(skill -> {

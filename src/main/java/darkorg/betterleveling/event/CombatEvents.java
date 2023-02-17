@@ -1,11 +1,13 @@
-package darkorg.betterleveling.event.skill;
+package darkorg.betterleveling.event;
 
 import darkorg.betterleveling.BetterLeveling;
 import darkorg.betterleveling.capability.PlayerCapabilityProvider;
 import darkorg.betterleveling.config.ServerConfig;
 import darkorg.betterleveling.registry.AttributeModifiers;
 import darkorg.betterleveling.registry.SkillRegistry;
+import darkorg.betterleveling.registry.SpecRegistry;
 import darkorg.betterleveling.util.SkillUtil;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
@@ -16,20 +18,34 @@ import net.minecraft.world.item.BowItem;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.living.LivingEntityUseItemEvent;
+import net.minecraftforge.event.entity.living.LivingExperienceDropEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.event.entity.player.CriticalHitEvent;
 import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
+import java.util.Random;
+
 @Mod.EventBusSubscriber(modid = BetterLeveling.MOD_ID)
 public class CombatEvents {
     @SubscribeEvent
+    public static void onCombat(LivingExperienceDropEvent event) {
+        if (event.getAttackingPlayer() instanceof ServerPlayer serverPlayer) {
+            serverPlayer.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(capability -> {
+                if (capability.getUnlocked(serverPlayer, SpecRegistry.COMBAT)) {
+                    serverPlayer.giveExperiencePoints(Math.toIntExact(Math.round(event.getOriginalExperience() * new Random().nextDouble(ServerConfig.COMBAT_XP_BONUS.get()))));
+                }
+            });
+        }
+    }
+
+    @SubscribeEvent
     public static void onStrength(LivingHurtEvent event) {
-        if (event.getSource().getDirectEntity() instanceof Player player) {
-            player.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(capability -> {
-                if (capability.hasUnlocked(player, SkillRegistry.STRENGTH)) {
-                    int currentLevel = capability.getLevel(player, SkillRegistry.STRENGTH);
+        if (event.getSource().getDirectEntity() instanceof ServerPlayer serverPlayer) {
+            serverPlayer.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(capability -> {
+                if (capability.hasUnlocked(serverPlayer, SkillRegistry.STRENGTH)) {
+                    int currentLevel = capability.getLevel(serverPlayer, SkillRegistry.STRENGTH);
                     if (currentLevel > 0) {
                         event.setAmount(event.getAmount() * (float) SkillUtil.getIncreaseModifier(SkillRegistry.STRENGTH, currentLevel));
                     }
@@ -86,7 +102,7 @@ public class CombatEvents {
 
     @SubscribeEvent
     public static void onIronSkin(LivingHurtEvent event) {
-        if (event.getEntityLiving() instanceof Player player && event.getSource() != DamageSource.FALL) {
+        if (event.getEntity() instanceof Player player && event.getSource() != DamageSource.FALL) {
             player.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(capability -> {
                 if (capability.hasUnlocked(player, SkillRegistry.IRON_SKIN)) {
                     int currentLevel = capability.getLevel(player, SkillRegistry.IRON_SKIN);

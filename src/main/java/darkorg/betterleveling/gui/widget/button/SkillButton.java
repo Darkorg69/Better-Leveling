@@ -5,13 +5,14 @@ import darkorg.betterleveling.api.IPlayerCapability;
 import darkorg.betterleveling.api.ISkill;
 import darkorg.betterleveling.capability.PlayerCapabilityProvider;
 import darkorg.betterleveling.gui.screen.SkillScreen;
+import darkorg.betterleveling.network.chat.ModComponents;
 import darkorg.betterleveling.util.RenderUtil;
 import darkorg.betterleveling.util.SkillUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -29,7 +30,7 @@ public class SkillButton extends AbstractButton {
     private IPlayerCapability playerCapability;
 
     public SkillButton(int pX, int pY, ISkill pSkill, OnTooltip pOnTooltip) {
-        super(pX, pY, 32, 32, new TranslatableComponent(""));
+        super(pX, pY, 32, 32, ModComponents.EMPTY);
         this.skill = pSkill;
         this.onTooltip = pOnTooltip;
         this.representativeStack = pSkill.getRepresentativeItemStack();
@@ -62,26 +63,26 @@ public class SkillButton extends AbstractButton {
         RenderUtil.setShaderTextureButton();
 
         if (!this.isUnlocked) {
-            this.blit(pPoseStack, x, y, 64, 166, width, height);
-            this.blit(pPoseStack, x + 6, y + 6, 0, 198, 20, 20);
+            this.blit(pPoseStack, this.x, this.y, 64, 166, width, height);
+            this.blit(pPoseStack, this.x + 6, this.y + 6, 0, 198, 20, 20);
         } else {
             if (!this.isMaxLevel) {
-                this.blit(pPoseStack, x, y, 64, 166, width, height);
-                drawString(pPoseStack, minecraft.font, String.valueOf(this.level), x + 4, y + 4, 16777215);
+                this.blit(pPoseStack, this.x, this.y, 64, 166, width, height);
+                drawString(pPoseStack, minecraft.font, String.valueOf(this.level), this.x + 4, this.y + 4, 16777215);
             } else {
-                this.blit(pPoseStack, x, y, 96, 166, width, height);
+                this.blit(pPoseStack, this.x, this.y, 96, 166, width, height);
             }
         }
         if (isHoveredOrFocused()) {
             this.renderToolTip(pPoseStack, pMouseX, pMouseY);
         }
         if (this.isUnlocked) {
-            minecraft.getItemRenderer().renderGuiItem(this.representativeStack, x + 8, y + 8);
+            minecraft.getItemRenderer().renderGuiItem(this.representativeStack, this.x + 8, this.y + 8);
         }
+
         this.renderBg(pPoseStack, minecraft, pMouseX, pMouseY);
     }
 
-    @Override
     public void renderToolTip(@NotNull PoseStack pPoseStack, int pMouseX, int pMouseY) {
         this.onTooltip.onTooltip(this, pPoseStack, pMouseX, pMouseY);
     }
@@ -91,8 +92,8 @@ public class SkillButton extends AbstractButton {
     }
 
     @Override
-    public void updateNarration(@NotNull NarrationElementOutput pNarrationElementOutput) {
-
+    public void updateNarration(NarrationElementOutput pNarrationElementOutput) {
+        
     }
 
     @OnlyIn(Dist.CLIENT)

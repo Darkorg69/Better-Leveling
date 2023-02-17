@@ -15,7 +15,6 @@ import darkorg.betterleveling.util.SkillUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 
@@ -89,7 +88,7 @@ public class PlayerCapability implements IPlayerCapability {
     public boolean canUnlock(Player pPlayer) {
         boolean canUnlock = pPlayer.experienceLevel >= ServerConfig.FIRST_SPEC_COST.get();
         if (!canUnlock) {
-            pPlayer.displayClientMessage(new TranslatableComponent("").append(ModComponents.CHOOSE_NO_XP).append(" ").append(String.valueOf(ServerConfig.FIRST_SPEC_COST.get())), true);
+            pPlayer.displayClientMessage(ModComponents.CHOOSE_NO_XP.append(" ").append(String.valueOf(ServerConfig.FIRST_SPEC_COST.get())), true);
         }
         return canUnlock;
     }

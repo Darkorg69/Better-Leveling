@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "values": [
+    "#betterleveling:crops/beetroot",
+    "#betterleveling:crops/carrot",
+    "#betterleveling:crops/potato",
+    "#betterleveling:crops/wheat",
+    "#betterleveling:crops/nether_wart"
+  ]
+}

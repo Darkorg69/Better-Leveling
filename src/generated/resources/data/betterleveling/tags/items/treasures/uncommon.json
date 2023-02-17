@@ -2,7 +2,7 @@
   "replace": false,
   "values": [
     "#minecraft:arrows",
-    "#minecraft:coals",
-    "#forge:dusts"
+    "#forge:dusts",
+    "#forge:rods"
   ]
 }

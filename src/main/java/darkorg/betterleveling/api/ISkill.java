@@ -1,6 +1,6 @@
 package darkorg.betterleveling.api;
 
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.Map;
@@ -18,14 +18,20 @@ public interface ISkill {
 
     ISpecialization getParentSpec();
 
-    TranslatableComponent getTranslation();
+    String getTranslationKey();
 
-    TranslatableComponent getDescription();
+    String getDescriptionKey();
+
+    String getDescriptionIndexOfKey(int pIndex);
+
+    MutableComponent getTranslation();
+
+    MutableComponent getDescription();
+
+    MutableComponent getDescriptionIndexOf(int pIndex);
 
     ItemStack getRepresentativeItemStack();
 
     Map<ISkill, Integer> getPrerequisites();
-
-    TranslatableComponent getDescriptionIndexOf(int pIndex);
 }
 

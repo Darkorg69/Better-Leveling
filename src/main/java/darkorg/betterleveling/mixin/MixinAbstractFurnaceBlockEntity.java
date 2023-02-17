@@ -27,7 +27,7 @@ abstract class MixinAbstractFurnaceBlockEntity {
                         if (playerCapability.hasUnlocked(serverPlayer, SkillRegistry.COOKING_SPEED)) {
                             int currentLevel = playerCapability.getLevel(serverPlayer, SkillRegistry.COOKING_SPEED);
                             if (currentLevel > 0) {
-                                pCallbackInfoReturnable.setReturnValue(Math.toIntExact(Math.round(pLevel.getRecipeManager().getRecipeFor(pRecipeType, pContainer, pLevel).map(AbstractCookingRecipe::getCookingTime).orElse(200) * SkillUtil.getDecreaseModifier(SkillRegistry.COOKING_SPEED, currentLevel))));
+                                pCallbackInfoReturnable.setReturnValue(Math.max(1, Math.toIntExact(Math.round(pLevel.getRecipeManager().getRecipeFor(pRecipeType, pContainer, pLevel).map(AbstractCookingRecipe::getCookingTime).orElse(200) * SkillUtil.getDecreaseModifier(SkillRegistry.COOKING_SPEED, currentLevel)))));
                             }
                         }
                     });

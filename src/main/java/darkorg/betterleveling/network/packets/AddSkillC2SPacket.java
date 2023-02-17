@@ -20,22 +20,22 @@ public class AddSkillC2SPacket {
         this.data.putInt("Value", pPair.getSecond());
     }
 
-    public AddSkillC2SPacket(FriendlyByteBuf buf) {
-        this.data = buf.readNbt();
+    public AddSkillC2SPacket(FriendlyByteBuf pBuf) {
+        this.data = pBuf.readNbt();
     }
 
-    public static void encode(AddSkillC2SPacket packet, FriendlyByteBuf buf) {
-        buf.writeNbt(packet.data);
+    public static void encode(AddSkillC2SPacket pPacket, FriendlyByteBuf pBuf) {
+        pBuf.writeNbt(pPacket.data);
     }
 
-    public static void handle(AddSkillC2SPacket packet, Supplier<NetworkEvent.Context> supplier) {
-        NetworkEvent.Context context = supplier.get();
+    public static void handle(AddSkillC2SPacket pPacket, Supplier<NetworkEvent.Context> pSupplier) {
+        NetworkEvent.Context context = pSupplier.get();
         context.enqueueWork(() -> {
             // HERE WE ARE ON THE SERVER!
             ServerPlayer serverPlayer = context.getSender();
             if (serverPlayer != null) {
                 serverPlayer.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(capability -> {
-                    capability.addLevel(serverPlayer, RegistryUtil.getSkillFromName(packet.data.getString("Skill")), packet.data.getInt("Value"));
+                    capability.addLevel(serverPlayer, RegistryUtil.getSkillFromName(pPacket.data.getString("Skill")), pPacket.data.getInt("Value"));
                 });
             }
         });

@@ -13,9 +13,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class MachineCapabilityProvider implements ICapabilitySerializable<CompoundTag> {
     public static Capability<IMachineCapability> MACHINE_CAP = CapabilityManager.get(new CapabilityToken<>() {});
-
     private IMachineCapability instance;
-
     private final LazyOptional<IMachineCapability> optional = LazyOptional.of(this::getCapability);
 
     private IMachineCapability getCapability() {

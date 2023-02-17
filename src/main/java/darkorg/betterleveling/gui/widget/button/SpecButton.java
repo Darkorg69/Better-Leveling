@@ -33,10 +33,9 @@ public class SpecButton extends AbstractSpecButton {
             this.renderToolTip(pPoseStack, pMouseX, pMouseY);
         }
         this.renderBg(pPoseStack, minecraft, pMouseX, pMouseY);
-        minecraft.getItemRenderer().renderGuiItem(this.representativeItemStack, x + 8, y + 8);
+        minecraft.getItemRenderer().renderGuiItem(this.representativeItemStack, this.x + 8, this.y + 8);
     }
 
-    @Override
     public void renderToolTip(@NotNull PoseStack pPoseStack, int pMouseX, int pMouseY) {
         this.onTooltip.onTooltip(pPoseStack, pMouseX, pMouseY);
     }

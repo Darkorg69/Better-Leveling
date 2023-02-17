@@ -10,8 +10,6 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 
-import static darkorg.betterleveling.network.chat.ModComponents.*;
-
 public class RenderUtil {
     private static final ResourceLocation BACKGROUND = new ResourceLocation(BetterLeveling.MOD_ID, "textures/gui/background.png");
 
@@ -33,30 +31,30 @@ public class RenderUtil {
     }
 
     public static MutableComponent getSkillCost(ISkill pSkill, int pCurrentLevel) {
-        return new TranslatableComponent("").append(ModComponents.COST).append(String.valueOf(SkillUtil.getCurrentCost(pSkill, pCurrentLevel))).append(XP);
+        return new TranslatableComponent("").append(ModComponents.COST).append(String.valueOf(SkillUtil.getCurrentCost(pSkill, pCurrentLevel))).append(ModComponents.XP);
     }
 
     public static MutableComponent getCostPerLevel(ISkill pSkill) {
-        return new TranslatableComponent("").append(COST).append(String.valueOf(pSkill.getCostPerLevel())).append(XP).append(PER_LEVEL);
+        return new TranslatableComponent("").append(ModComponents.COST).append(String.valueOf(pSkill.getCostPerLevel())).append(ModComponents.XP).append(ModComponents.PER_LEVEL);
     }
 
     public static MutableComponent getBonusPerLevel(ISkill pSkill) {
-        return new TranslatableComponent("").append(BONUS).append(pSkill.getDescriptionIndexOf(1)).append(String.format("%.2f", pSkill.getBonusPerLevel() * 100)).append(pSkill.getDescriptionIndexOf(2)).append(pSkill.getDescriptionIndexOf(3)).append(PER_LEVEL);
+        return new TranslatableComponent("").append(ModComponents.BONUS).append(pSkill.getDescriptionIndexOf(1)).append(String.format("%.2f", pSkill.getBonusPerLevel() * 100)).append(pSkill.getDescriptionIndexOf(2)).append(pSkill.getDescriptionIndexOf(3)).append(ModComponents.PER_LEVEL);
     }
 
     public static MutableComponent getCurrentLevel(ISkill pSkill, int pCurrentLevel) {
-        return new TranslatableComponent("").append(CURRENT).append(LEVEL).append(String.valueOf(pCurrentLevel)).append("/").append(String.valueOf(pSkill.getMaxLevel()));
+        return new TranslatableComponent("").append(ModComponents.CURRENT).append(ModComponents.LEVEL).append(String.valueOf(pCurrentLevel)).append("/").append(String.valueOf(pSkill.getMaxLevel()));
     }
 
     public static MutableComponent getCurrentCost(ISkill pSkill, int pCurrentLevel) {
-        return new TranslatableComponent("").append(CURRENT).append(COST).append(String.valueOf(SkillUtil.getCurrentCost(pSkill, pCurrentLevel))).append(XP);
+        return new TranslatableComponent("").append(ModComponents.CURRENT).append(ModComponents.COST).append(String.valueOf(SkillUtil.getCurrentCost(pSkill, pCurrentLevel))).append(ModComponents.XP);
     }
 
     public static MutableComponent getCurrentBonus(ISkill pSkill, int pCurrentLevel) {
-        return new TranslatableComponent("").append(CURRENT).append(BONUS).append(pSkill.getDescriptionIndexOf(1)).append(String.format("%.2f", SkillUtil.getCurrentBonus(pSkill, pCurrentLevel) * 100)).append(pSkill.getDescriptionIndexOf(2)).append(pSkill.getDescriptionIndexOf(3));
+        return new TranslatableComponent("").append(ModComponents.CURRENT).append(ModComponents.BONUS).append(pSkill.getDescriptionIndexOf(1)).append(String.format("%.2f", SkillUtil.getCurrentBonus(pSkill, pCurrentLevel) * 100)).append(pSkill.getDescriptionIndexOf(2)).append(pSkill.getDescriptionIndexOf(3));
     }
 
     public static MutableComponent getPrerequisite(ISkill pPrerequisiteSkill, int pPrerequisiteLevel) {
-        return new TranslatableComponent("").append(BULLET).append(pPrerequisiteSkill.getTranslation()).append(": ").append(String.valueOf(pPrerequisiteLevel));
+        return new TranslatableComponent("").append(ModComponents.BULLET).append(pPrerequisiteSkill.getTranslation()).append(": ").append(String.valueOf(pPrerequisiteLevel));
     }
 }

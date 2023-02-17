@@ -2,6 +2,7 @@ package darkorg.betterleveling.impl;
 
 import darkorg.betterleveling.api.ISpecialization;
 import darkorg.betterleveling.config.ServerConfig;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
@@ -26,17 +27,28 @@ public class Specialization implements ISpecialization {
 
     @Override
     public int getLevelCost() {
-        return ServerConfig.SPEC_LEVEL_COST.get();
+        return ServerConfig.SECONDARY_SPEC_COST.get();
     }
 
     @Override
-    public TranslatableComponent getTranslation() {
-        return this.translation;
+    public String getTranslationKey() {
+        return this.translation.getKey();
     }
 
     @Override
-    public TranslatableComponent getDescription() {
-        return this.description;
+    public String getDescriptionKey() {
+        return this.description.getKey();
+    }
+
+    @Override
+    public MutableComponent getTranslation() {
+        return new TranslatableComponent(this.getTranslationKey());
+
+    }
+
+    @Override
+    public MutableComponent getDescription() {
+        return new TranslatableComponent(this.getDescriptionKey());
     }
 
     @Override

@@ -2,7 +2,7 @@
 
 # About
 
-This mod adds a functional RPG skill system into Minecraft.
+This mod adds a functional RPG specialization and skill system into Minecraft.
 
 ## Notice
 
@@ -13,7 +13,7 @@ This mod is still work-in-progress!
 
 You can choose one of 3 specializations for your first after you reach certain level. `(5 by default)`
 
-Each specialization has 6 skills which you can level up by spending your experience levels.
+Each specialization gives bonus XP and has 6 skills which you can level up by spending your experience levels.
 
 You can simply harvest crops just by right-clicking on them!  
 With native support for the Harvest Proficiency skill!
@@ -25,6 +25,7 @@ The default key for opening the GUI is `B`.
 ## Specializations & Skills
 
 ### Combat
+`Earn bonus XP on kill`
 
 1. Strength  
    `Increase damage output`
@@ -40,6 +41,7 @@ The default key for opening the GUI is `B`.
    `Sneak faster, for faster ambushes`
 
 ### Crafting
+`Earn bonus XP upon crafting`
 
 1. Green Thumb  
    `Grow crops around you faster`
@@ -58,6 +60,7 @@ The default key for opening the GUI is `B`.
 **Works with Blast Furnace and Smoker too!**
 
 ### Mining
+`Earn bonus XP when mining ores`
 
 1. Stonecutting  
    `Increase the speed at which you break stone`
@@ -78,17 +81,14 @@ After reaching level 5, press `B` and choose your first specialization.
 ![Choose your first specialization](https://i.ibb.co/Snztyth/choose.gif)
 
 Level up your skills!  
-![Specialization Menu](https://i.ibb.co/T1hjBL3/spec.png)  
+![Specialization Menu](https://i.ibb.co/T1hjBL3/spec.png)
 
-![Skill Menu](https://i.ibb.co/7vZpFDw/skill.png)  
+![Skill Menu](https://i.ibb.co/7vZpFDw/skill.png)
 
 Unlock other specializations.  
 ![Unlock Specialization](https://i.ibb.co/72GjxBS/unlock-spec.png)
 
 ## FAQ
-Q: Update to 1.19?  
-A: Soon.
-
 Q: Experiencing bugs/issues while using the mod?  
 A: Please, submit your bug report [here](https://github.com/darkorg69/better-leveling/issues).
 

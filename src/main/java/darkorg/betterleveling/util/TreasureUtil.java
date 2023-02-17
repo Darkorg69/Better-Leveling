@@ -16,18 +16,18 @@ public class TreasureUtil {
         return Math.toIntExact(Math.round(pOriginalCount * pRandom.nextDouble(pPotentialLootBound)));
     }
 
-    @SuppressWarnings("deprecation")
-    public static ItemStack getRandomTreasure(TagKey<Item> pTag, Random pRandom) {
-        return new ItemStack(Registry.ITEM.getTag(pTag).flatMap(tag -> tag.getRandomElement(pRandom)).orElseThrow());
-    }
-
     public static void spawnTreasure(ServerLevel pServerLevel, BlockPos pPos, Random pRandom, ItemStack pItemStack) {
         if (pItemStack.isDamageableItem()) {
             pItemStack.setDamageValue(Math.round(pRandom.nextFloat(0.0F, 0.69F) * pItemStack.getMaxDamage()));
-            EnchantmentHelper.enchantItem(pRandom, pItemStack, pRandom.nextInt(0, 30), true);
+            EnchantmentHelper.enchantItem(pServerLevel.random, pItemStack, pRandom.nextInt(0, 30), true);
         } else {
             pItemStack.setCount(pRandom.nextInt(1, 3));
         }
         Block.popResource(pServerLevel, pPos, pItemStack);
+    }
+
+    @SuppressWarnings("deprecation")
+    public static ItemStack getRandomTreasure(TagKey<Item> pTag, Random pRandom) {
+        return new ItemStack(Registry.ITEM.getTag(pTag).flatMap(pHolderSet -> pHolderSet.getRandomElement(pRandom)).orElseThrow());
     }
 }
