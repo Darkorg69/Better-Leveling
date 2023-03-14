@@ -1,6 +1,5 @@
 package darkorg.betterleveling.capability;
 
-import darkorg.betterleveling.api.IPlayerCapability;
 import darkorg.betterleveling.impl.PlayerCapability;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.Direction;
@@ -10,14 +9,17 @@ import net.minecraftforge.common.capabilities.ICapabilitySerializable;
 import net.minecraftforge.common.util.LazyOptional;
 
 public class PlayerCapabilityProvider implements ICapabilitySerializable<CompoundNBT> {
-    @CapabilityInject(IPlayerCapability.class)
-    public static Capability<IPlayerCapability> PLAYER_CAP = null;
-    private IPlayerCapability instance;
-    private final LazyOptional<IPlayerCapability> optional = LazyOptional.of(this::getCapability);
+    @CapabilityInject(PlayerCapability.class)
+    public static Capability<PlayerCapability> PLAYER_CAP = null;
 
-    private IPlayerCapability getCapability() {
+    private PlayerCapability instance;
+
+    private final LazyOptional<PlayerCapability> optional = LazyOptional.of(this::getCapability);
+
+    private PlayerCapability getCapability() {
         return this.instance == null ? this.instance = new PlayerCapability() : this.instance;
     }
+
 
     @Override
     public <T> LazyOptional<T> getCapability(Capability<T> pCapability, Direction pSide) {
@@ -26,11 +28,12 @@ public class PlayerCapabilityProvider implements ICapabilitySerializable<Compoun
 
     @Override
     public CompoundNBT serializeNBT() {
-        return getCapability().getNBTData();
+
+        return getCapability().getData();
     }
 
     @Override
     public void deserializeNBT(CompoundNBT pData) {
-        getCapability().setNBTData(pData);
+        getCapability().setData(pData);
     }
 }

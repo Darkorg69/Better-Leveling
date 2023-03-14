@@ -1,0 +1,10 @@
+{
+  "conditions": [
+    {
+      "condition": "minecraft:block_state_property",
+      "block": "minecraft:iron_ore"
+    }
+  ],
+  "generated": "betterleveling:raw_iron",
+  "type": "betterleveling:raw_ore_loot"
+}

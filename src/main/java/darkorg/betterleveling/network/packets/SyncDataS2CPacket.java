@@ -16,22 +16,24 @@ public class SyncDataS2CPacket {
         this.data = pData;
     }
 
-    public SyncDataS2CPacket(PacketBuffer buf) {
-        this.data = buf.readNbt();
+    public SyncDataS2CPacket(PacketBuffer pBuf) {
+        this.data = pBuf.readNbt();
     }
 
-    public static void encode(SyncDataS2CPacket packet, PacketBuffer buf) {
-        buf.writeNbt(packet.data);
+    public static void encode(SyncDataS2CPacket pPacket, PacketBuffer pBuf) {
+        pBuf.writeNbt(pPacket.data);
     }
 
-    public static void handle(SyncDataS2CPacket packet, Supplier<NetworkEvent.Context> supplier) {
-        NetworkEvent.Context context = supplier.get();
+    public static void handle(SyncDataS2CPacket pPacket, Supplier<NetworkEvent.Context> pSupplier) {
+        NetworkEvent.Context context = pSupplier.get();
         if (context.getDirection().getReceptionSide().isClient()) {
             context.enqueueWork(() -> {
                 // HERE WE ARE ON THE CLIENT!
                 ClientPlayerEntity localPlayer = Minecraft.getInstance().player;
                 if (localPlayer != null) {
-                    localPlayer.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(playerCapability -> playerCapability.receiveDataFromServer(packet.data));
+                    localPlayer.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(capability -> {
+                        capability.receiveDataFromServer(pPacket.data);
+                    });
                 }
             });
         }

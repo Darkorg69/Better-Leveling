@@ -1,278 +1,220 @@
 package darkorg.betterleveling.impl;
 
-import darkorg.betterleveling.BetterLeveling;
-import darkorg.betterleveling.api.IPlayerCapability;
-import darkorg.betterleveling.api.ISkill;
-import darkorg.betterleveling.api.ISpecialization;
-import darkorg.betterleveling.config.ServerConfig;
+import darkorg.betterleveling.api.capability.IPlayerCapability;
+import darkorg.betterleveling.impl.skill.Skill;
+import darkorg.betterleveling.impl.specialization.Specialization;
 import darkorg.betterleveling.network.NetworkHandler;
-import darkorg.betterleveling.network.chat.ModComponents;
 import darkorg.betterleveling.network.packets.SyncDataS2CPacket;
-import darkorg.betterleveling.registry.SkillRegistry;
-import darkorg.betterleveling.registry.SpecRegistry;
-import darkorg.betterleveling.util.RegistryUtil;
-import darkorg.betterleveling.util.SkillUtil;
+import darkorg.betterleveling.registry.Skills;
+import darkorg.betterleveling.registry.Specializations;
+import darkorg.betterleveling.util.PlayerUtil;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.INBT;
 import net.minecraft.nbt.ListNBT;
-import net.minecraft.util.text.TranslationTextComponent;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class PlayerCapability implements IPlayerCapability {
-    private final Map<ISpecialization, Boolean> specMap;
-    private final Map<ISkill, Integer> skillMap;
+    private final Map<Specialization, Boolean> specializations;
+    private final Map<Skill, Integer> skills;
+    private Specialization specialization;
+    private int availableExperience;
     private CompoundNBT data;
 
     public PlayerCapability() {
+        this.specializations = new HashMap<>();
+        this.skills = new HashMap<>();
+        this.specialization = null;
+        this.availableExperience = 0;
+
         this.data = new CompoundNBT();
-        ListNBT specs = new ListNBT();
-        ListNBT skills = new ListNBT();
-        this.data.put("Specs", specs);
-        this.data.put("Skills", skills);
-        SpecRegistry.getSpecRegistry().forEach(pSpecialization -> putUnlocked(pSpecialization, false));
-        SkillRegistry.getSkillRegistry().forEach(pSkill -> putLevel(pSkill, 0));
-        this.specMap = new HashMap<>();
-        this.skillMap = new HashMap<>();
-    }
+        this.data.put("Specs", new ListNBT());
+        this.data.put("Skills", new ListNBT());
+        this.data.put("Spec", new CompoundNBT());
 
-    private void putUnlocked(ISpecialization pSpecialization, boolean pUnlocked) {
-        CompoundNBT spec = new CompoundNBT();
-        spec.putString("Name", pSpecialization.getName());
-        spec.putBoolean("Unlocked", pUnlocked);
-
-        ListNBT specs = this.data.getList("Specs", 10);
-
-        if (specs.isEmpty()) {
-            specs.add(spec);
-            return;
-        } else {
-            for (INBT tag : specs) {
-                CompoundNBT nbt = (CompoundNBT) tag;
-                if (nbt.getString("Name").equals(pSpecialization.getName())) {
-                    nbt.putBoolean("Unlocked", pUnlocked);
-                    return;
-                }
-            }
-        }
-        specs.add(spec);
-    }
-
-    private void putLevel(ISkill pSkill, int pLevel) {
-        CompoundNBT skill = new CompoundNBT();
-        skill.putString("Name", pSkill.getName());
-        skill.putInt("Level", pLevel);
-
-        ListNBT skills = this.data.getList("Skills", 10);
-
-        if (skills.isEmpty()) {
-            skills.add(skill);
-            return;
-        } else {
-            for (INBT pTag : skills) {
-                CompoundNBT tag = (CompoundNBT) pTag;
-                if (tag.getString("Name").equals(pSkill.getName())) {
-                    tag.putInt("Level", pLevel);
-                    return;
-                }
-            }
-        }
-        skills.add(skill);
+        Specializations.getAll().forEach(specialization -> this.putSpecialization(specialization, false));
+        Skills.getAll().forEach(skill -> this.putSkill(skill, 0));
+        this.putAvailableExperience(0);
     }
 
     @Override
-    public boolean canUnlock(PlayerEntity pPlayer) {
-        boolean canUnlock = pPlayer.experienceLevel >= ServerConfig.FIRST_SPEC_COST.get();
-        if (!canUnlock) {
-            pPlayer.displayClientMessage(new TranslationTextComponent("").append(ModComponents.CHOOSE_NO_XP).append(" ").append(String.valueOf(ServerConfig.FIRST_SPEC_COST.get())), true);
+    public boolean getUnlocked(PlayerEntity pPlayer, Specialization pSpecialization) {
+        if (pPlayer.level.isClientSide) {
+            return this.specializations.getOrDefault(pSpecialization, false);
         }
-        return canUnlock;
-    }
 
-    @Override
-    public boolean hasUnlocked(PlayerEntity pPlayer) {
-        for (ISpecialization specialization : SpecRegistry.getSpecRegistry()) {
-            boolean unlocked = getUnlocked(pPlayer, specialization);
-            if (unlocked) {
-                return true;
+        for (INBT entry : this.data.getList("Specs", 10)) {
+            CompoundNBT spec = (CompoundNBT) entry;
+            if (spec.getString("Name").equals(pSpecialization.getName())) {
+                return spec.getBoolean("Unlocked");
             }
         }
+
         return false;
     }
 
     @Override
-    public ISpecialization getFirstSpecialization(PlayerEntity pPlayer) {
-        return this.getSpecializations(pPlayer).get(0);
+    public void setUnlocked(ServerPlayerEntity pServerPlayer, Specialization pSpecialization, boolean pUnlocked) {
+        this.putSpecialization(pSpecialization, pUnlocked);
+        this.sendDataToPlayer(pServerPlayer);
     }
 
     @Override
-    public List<ISpecialization> getSpecializations(PlayerEntity pPlayer) {
-        List<ISpecialization> unlockedList = new ArrayList<>();
-        SpecRegistry.getSpecRegistry().forEach(PlayerSpec -> {
-            if (getUnlocked(pPlayer, PlayerSpec)) {
-                unlockedList.add(PlayerSpec);
-            }
-        });
-        return unlockedList;
-    }
-
-    @Override
-    public boolean getUnlocked(PlayerEntity pPlayer, ISpecialization pSpecialization) {
+    public int getLevel(PlayerEntity pPlayer, Skill pSkill) {
         if (pPlayer.level.isClientSide) {
-            return this.specMap.getOrDefault(pSpecialization, false);
+            return this.skills.getOrDefault(pSkill, 0);
         }
-        for (INBT tag : this.data.getList("Specs", 10)) {
-            CompoundNBT nbt = (CompoundNBT) tag;
-            if (nbt.getString("Name").equals(pSpecialization.getName())) {
-                return nbt.getBoolean("Unlocked");
+
+        for (INBT entry : this.data.getList("Skills", 10)) {
+            CompoundNBT skill = (CompoundNBT) entry;
+            if (skill.getString("Name").equals(pSkill.getName())) {
+                return skill.getInt("Level");
             }
         }
-        return false;
-    }
 
-    @Override
-    public void setUnlocked(ServerPlayerEntity pServerPlayer, ISpecialization pSpecialization, boolean pUnlocked) {
-        putUnlocked(pSpecialization, pUnlocked);
-        sendDataToPlayer(pServerPlayer);
-    }
-
-    @Override
-    public void addUnlocked(ServerPlayerEntity pServerPlayer, ISpecialization pSpecialization, boolean pUnlocked) {
-        if (hasUnlocked(pServerPlayer)) {
-            int unlockCost = pSpecialization.getLevelCost();
-            if (unlockCost <= pServerPlayer.experienceLevel) {
-                pServerPlayer.giveExperienceLevels(-unlockCost);
-                setUnlocked(pServerPlayer, pSpecialization, pUnlocked);
-            } else {
-                pServerPlayer.displayClientMessage(ModComponents.NOT_ENOUGH_XP, true);
-            }
-        } else {
-            pServerPlayer.giveExperienceLevels(-ServerConfig.FIRST_SPEC_COST.get());
-            setUnlocked(pServerPlayer, pSpecialization, pUnlocked);
-        }
-    }
-
-    @Override
-    public boolean hasUnlocked(PlayerEntity pPlayer, ISkill pSkill) {
-        if (getUnlocked(pPlayer, pSkill.getParentSpec())) {
-            List<Boolean> logicalResult = new ArrayList<>();
-            pSkill.getPrerequisites().forEach((prerequisite, level) -> {
-                getLevel(pPlayer, prerequisite);
-                logicalResult.add(getLevel(pPlayer, prerequisite) >= level);
-            });
-            return !logicalResult.contains(false);
-        } else {
-            return false;
-        }
-    }
-
-    @Override
-    public int getLevel(PlayerEntity pPlayer, ISkill pSkill) {
-        if (pPlayer.level.isClientSide) {
-            return this.skillMap.getOrDefault(pSkill, 0);
-        }
-        for (INBT tag : this.data.getList("Skills", 10)) {
-            CompoundNBT nbt = (CompoundNBT) tag;
-            if (nbt.getString("Name").equals(pSkill.getName())) {
-                return nbt.getInt("Level");
-            }
-        }
         return 0;
     }
 
     @Override
-    public void setLevel(ServerPlayerEntity pServerPlayer, ISkill pSkill, int pLevel) {
-        putLevel(pSkill, pLevel);
-        sendDataToPlayer(pServerPlayer);
+    public void setLevel(ServerPlayerEntity pServerPlayer, Skill pSkill, int pLevel) {
+        this.putSkill(pSkill, Math.min(pLevel, pSkill.getProperties().getMaxLevel()));
+        this.sendDataToPlayer(pServerPlayer);
     }
 
     @Override
-    public void addLevel(ServerPlayerEntity pServerPlayer, ISkill pSkill, int pAmount) {
-        int currentLevel = getLevel(pServerPlayer, pSkill);
-        if (pAmount > 0) {
-            if (currentLevel >= pSkill.getMaxLevel()) {
-                pServerPlayer.displayClientMessage(ModComponents.CANNOT_INCREASE, true);
-            } else {
-                int cost = SkillUtil.getCurrentCost(pSkill, currentLevel);
-                if (cost <= pServerPlayer.totalExperience) {
-                    pServerPlayer.giveExperiencePoints(-cost);
-                    setLevel(pServerPlayer, pSkill, currentLevel + pAmount);
-                } else {
-                    pServerPlayer.displayClientMessage(ModComponents.NOT_ENOUGH_XP, true);
-                }
-            }
-        } else {
-            if (currentLevel == 0) {
-                pServerPlayer.displayClientMessage(ModComponents.CANNOT_DECREASE, true);
-            } else {
-                pServerPlayer.giveExperiencePoints(Math.round(SkillUtil.getCurrentCost(pSkill, currentLevel - 1) * ServerConfig.XP_REFUND_FACTOR.get().floatValue()));
-                setLevel((pServerPlayer), pSkill, currentLevel + pAmount);
-            }
+    public void addLevel(ServerPlayerEntity pServerPlayer, Skill pSkill, int pLevel) {
+        this.setLevel(pServerPlayer, pSkill, getLevel(pServerPlayer, pSkill) + pLevel);
+    }
+
+    @Override
+    public Specialization getSpecialization(PlayerEntity pPlayer) {
+        if (pPlayer.level.isClientSide) {
+            return this.specialization;
         }
+
+        String name = this.data.getCompound("Spec").getString("Name");
+        return name.isEmpty() ? null : Specializations.getFrom(name);
     }
 
     @Override
-    public CompoundNBT getNBTData() {
-        return this.data;
+    public void setSpecialization(ServerPlayerEntity pServerPlayer, Specialization pSpecialization) {
+        this.putSpecialization(pSpecialization);
+        this.sendDataToPlayer(pServerPlayer);
     }
 
     @Override
-    public void setNBTData(CompoundNBT pData) {
-        this.data = pData;
+    public int getAvailableExperience(PlayerEntity pPlayer) {
+        if (pPlayer.level.isClientSide) {
+            return this.availableExperience;
+        }
+
+        return this.data.getInt("AvailableXP");
+    }
+
+    @Override
+    public void setAvailableExperience(ServerPlayerEntity pServerPlayer, int pAmount) {
+        this.putAvailableExperience(pAmount);
+        this.sendDataToPlayer(pServerPlayer);
+    }
+
+    @Override
+    public void updateAvailableExperience(ServerPlayerEntity pServerPlayer) {
+        this.setAvailableExperience(pServerPlayer, PlayerUtil.getAvailableExperience(pServerPlayer));
     }
 
     @Override
     public void sendDataToPlayer(ServerPlayerEntity pServerPlayer) {
-        CompoundNBT data = new CompoundNBT();
-
-        ListNBT specs = new ListNBT();
-        ListNBT skills = new ListNBT();
-
-        SpecRegistry.getSpecRegistry().forEach(pSpecialization -> {
-            CompoundNBT tag = new CompoundNBT();
-            tag.putString("Name", pSpecialization.getName());
-            tag.putBoolean("Unlocked", getUnlocked(pServerPlayer, pSpecialization));
-            specs.add(tag);
-        });
-        data.put("Specs", specs);
-
-        SkillRegistry.getSkillRegistry().forEach(pSkill -> {
-            CompoundNBT tag = new CompoundNBT();
-            tag.putString("Name", pSkill.getName());
-            int maxLevel = pSkill.getMaxLevel();
-            int currentLevel = getLevel(pServerPlayer, pSkill);
-            if (currentLevel > maxLevel) {
-                BetterLeveling.LOGGER.warn("Skill: " + pSkill.getName() + ", current level (" + currentLevel + ") exceeds the maximum level (" + maxLevel + ") at player " + pServerPlayer.getScoreboardName());
-                putLevel(pSkill, maxLevel);
-            }
-            tag.putInt("Level", getLevel(pServerPlayer, pSkill));
-            skills.add(tag);
-        });
-        data.put("Skills", skills);
-
-        NetworkHandler.sendToPlayer(new SyncDataS2CPacket(data), pServerPlayer);
+        NetworkHandler.sendToPlayer(new SyncDataS2CPacket(this.data), pServerPlayer);
     }
 
     @Override
     public void receiveDataFromServer(CompoundNBT pData) {
-        if (pData != null) {
-            if (pData.contains("Specs")) {
-                for (INBT tag : pData.getList("Specs", 10)) {
-                    CompoundNBT nbt = (CompoundNBT) tag;
-                    this.specMap.put(RegistryUtil.getSpecFromName(nbt.getString("Name")), nbt.getBoolean("Unlocked"));
-                }
-            }
-            if (pData.contains("Skills")) {
-                for (INBT tag : pData.getList("Skills", 10)) {
-                    CompoundNBT nbt = (CompoundNBT) tag;
-                    this.skillMap.put(RegistryUtil.getSkillFromName(nbt.getString("Name")), nbt.getInt("Level"));
-                }
+        for (INBT entry : pData.getList("Specs", 10)) {
+            CompoundNBT specialization = (CompoundNBT) entry;
+            this.specializations.put(Specializations.getFrom(specialization.getString("Name")), specialization.getBoolean("Unlocked"));
+        }
+
+        for (INBT entry : pData.getList("Skills", 10)) {
+            CompoundNBT skill = (CompoundNBT) entry;
+            this.skills.put(Skills.getFrom(skill.getString("Name")), skill.getInt("Level"));
+        }
+
+        String name = pData.getCompound("Spec").getString("Name");
+        this.specialization = name.isEmpty() ? null : Specializations.getFrom(name);
+
+        this.availableExperience = pData.getInt("AvailableXP");
+    }
+
+    @Override
+    public CompoundNBT getData() {
+        return this.data;
+    }
+
+    @Override
+    public void setData(CompoundNBT pData) {
+        this.data = pData;
+    }
+
+    private void putSpecialization(Specialization pSpecialization, boolean pUnlocked) {
+        ListNBT specs = this.data.getList("Specs", 10);
+
+        CompoundNBT spec = new CompoundNBT();
+        spec.putString("Name", pSpecialization.getName());
+        spec.putBoolean("Unlocked", pUnlocked);
+
+        if (specs.isEmpty()) {
+            specs.add(spec);
+            return;
+        }
+
+        for (INBT entry : specs) {
+            CompoundNBT nbt = (CompoundNBT) entry;
+            if (nbt.getString("Name").equals(pSpecialization.getName())) {
+                nbt.putBoolean("Unlocked", pUnlocked);
+                return;
             }
         }
+
+        specs.add(spec);
+    }
+
+    private void putSkill(Skill pSkill, int pLevel) {
+        ListNBT skills = this.data.getList("Skills", 10);
+
+        CompoundNBT skill = new CompoundNBT();
+        skill.putString("Name", pSkill.getName());
+        skill.putInt("Level", pLevel);
+
+        if (skills.isEmpty()) {
+            skills.add(skill);
+            return;
+        }
+
+        for (INBT entry : skills) {
+            CompoundNBT nbt = (CompoundNBT) entry;
+            if (nbt.getString("Name").equals(pSkill.getName())) {
+                nbt.putInt("Level", Math.max(0, pLevel));
+                return;
+            }
+        }
+
+        skills.add(skill);
+    }
+
+    private void putSpecialization(Specialization pSpecialization) {
+        CompoundNBT spec = new CompoundNBT();
+
+        if (pSpecialization != null) {
+            spec.putString("Name", pSpecialization.getName());
+        }
+
+        this.data.put("Spec", spec);
+    }
+
+    private void putAvailableExperience(int pAvailableXP) {
+        this.data.putInt("AvailableXP", pAvailableXP);
     }
 }

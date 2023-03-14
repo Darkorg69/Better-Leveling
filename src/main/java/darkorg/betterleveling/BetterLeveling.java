@@ -1,8 +1,7 @@
 package darkorg.betterleveling;
 
-import darkorg.betterleveling.config.ServerConfig;
-import darkorg.betterleveling.registry.SkillRegistry;
-import darkorg.betterleveling.registry.SpecRegistry;
+import darkorg.betterleveling.config.ModConfig;
+import darkorg.betterleveling.registry.*;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Mod;
 import org.apache.logging.log4j.LogManager;
@@ -14,9 +13,12 @@ public class BetterLeveling {
     public static final Logger LOGGER = LogManager.getLogger();
 
     public BetterLeveling() {
-        ServerConfig.init();
-        SpecRegistry.init();
-        SkillRegistry.init();
+        ModConfig.init();
+        ModBlocks.init();
+        ModItems.init();
+        GlobalLootModifiers.init();
+        Specializations.init();
+        Skills.init();
         MinecraftForge.EVENT_BUS.register(this);
     }
 }

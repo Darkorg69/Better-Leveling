@@ -1,9 +1,0 @@
-{
-  "replace": false,
-  "values": [
-    "#minecraft:coals",
-    "#forge:dusts/redstone",
-    "#forge:gems",
-    "#forge:nuggets"
-  ]
-}

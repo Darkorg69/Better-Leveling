@@ -2,9 +2,12 @@ package darkorg.betterleveling.event;
 
 import darkorg.betterleveling.BetterLeveling;
 import darkorg.betterleveling.capability.PlayerCapabilityProvider;
-import darkorg.betterleveling.gui.screen.ChooseSpecScreen;
-import darkorg.betterleveling.gui.screen.SpecsScreen;
+import darkorg.betterleveling.gui.screen.ChooseSpecializationScreen;
+import darkorg.betterleveling.gui.screen.SpecializationsScreen;
 import darkorg.betterleveling.key.KeyMappings;
+import darkorg.betterleveling.util.PlayerUtil;
+import darkorg.betterleveling.util.RenderUtil;
+import darkorg.betterleveling.util.SpecializationUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraftforge.api.distmarker.Dist;
@@ -21,11 +24,13 @@ public class ClientForgeEvents {
             ClientPlayerEntity localPlayer = minecraft.player;
             if (localPlayer != null) {
                 localPlayer.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(capability -> {
-                    if (capability.hasUnlocked(localPlayer)) {
-                        minecraft.setScreen(new SpecsScreen());
+                    if (SpecializationUtil.hasUnlocked(capability, localPlayer)) {
+                        minecraft.setScreen(new SpecializationsScreen());
                     } else {
-                        if (capability.canUnlock(localPlayer)) {
-                            minecraft.setScreen(new ChooseSpecScreen());
+                        if (PlayerUtil.canUnlockFirstSpecialization(localPlayer)) {
+                            minecraft.setScreen(new ChooseSpecializationScreen());
+                        } else {
+                            localPlayer.displayClientMessage(RenderUtil.getCannotUnlock(), true);
                         }
                     }
                 });
