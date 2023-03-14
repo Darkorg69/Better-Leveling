@@ -2,7 +2,6 @@
   "replace": false,
   "values": [
     "#minecraft:arrows",
-    "#forge:dusts",
-    "#forge:rods"
+    "#forge:bones"
   ]
 }

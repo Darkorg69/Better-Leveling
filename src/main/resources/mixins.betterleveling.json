@@ -4,7 +4,8 @@
   "package": "darkorg.betterleveling.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
-    "MixinAbstractFurnaceBlockEntity"
+    "MixinAbstractFurnaceBlockEntity",
+    "MixinServerPlayerEntity"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -1,15 +1,15 @@
 package darkorg.betterleveling.command;
 
+
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import darkorg.betterleveling.BetterLeveling;
-import darkorg.betterleveling.api.ISpecialization;
 import darkorg.betterleveling.capability.PlayerCapabilityProvider;
+import darkorg.betterleveling.impl.specialization.Specialization;
 import darkorg.betterleveling.network.chat.ModComponents;
-import darkorg.betterleveling.registry.SpecRegistry;
-import darkorg.betterleveling.util.RegistryUtil;
+import darkorg.betterleveling.registry.Specializations;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
@@ -23,7 +23,7 @@ public class SetSpecializationCommand {
                 .then(Commands.literal("set")
                         .then(Commands.literal("specialization")
                                 .then(Commands.argument("name", StringArgumentType.string())
-                                        .suggests((pContext, pBuilder) -> SharedSuggestionProvider.suggest(SpecRegistry.getSpecNameMap().keySet(), pBuilder))
+                                        .suggests((pContext, pBuilder) -> SharedSuggestionProvider.suggest(Specializations.getAllNames(), pBuilder))
                                         .then(Commands.argument("unlocked", BoolArgumentType.bool())
                                                 .suggests((pContext, pBuilder) -> SharedSuggestionProvider.suggest(Arrays.asList("true", "false"), pBuilder))
                                                 .executes(pContext -> setSpecialization(pContext.getSource(), StringArgumentType.getString(pContext, "name"), BoolArgumentType.getBool(pContext, "unlocked")))
@@ -39,15 +39,18 @@ public class SetSpecializationCommand {
 
         if (!serverPlayer.getCapability(PlayerCapabilityProvider.PLAYER_CAP).isPresent()) {
             pSource.sendFailure(ModComponents.CAPABILITY_NOT_FOUND);
+            return 1;
         }
 
-        ISpecialization specialization = RegistryUtil.getSpecFromName(pName);
-
+        Specialization specialization = Specializations.getFrom(pName);
         if (specialization == null) {
             pSource.sendFailure(ModComponents.SPEC_NOT_FOUND);
+            return 1;
         }
 
-        serverPlayer.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(pCapability -> pCapability.setUnlocked(serverPlayer, specialization, pUnlocked));
+        serverPlayer.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(pCapability -> {
+            pCapability.setUnlocked(serverPlayer, specialization, pUnlocked);
+        });
 
         return 1;
     }

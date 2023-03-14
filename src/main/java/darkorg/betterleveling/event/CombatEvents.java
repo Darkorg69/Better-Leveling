@@ -2,13 +2,15 @@ package darkorg.betterleveling.event;
 
 import darkorg.betterleveling.BetterLeveling;
 import darkorg.betterleveling.capability.PlayerCapabilityProvider;
-import darkorg.betterleveling.config.ServerConfig;
+import darkorg.betterleveling.config.ModConfig;
+import darkorg.betterleveling.impl.skill.Skill;
 import darkorg.betterleveling.registry.AttributeModifiers;
-import darkorg.betterleveling.registry.SkillRegistry;
-import darkorg.betterleveling.registry.SpecRegistry;
+import darkorg.betterleveling.registry.Skills;
+import darkorg.betterleveling.registry.Specializations;
 import darkorg.betterleveling.util.SkillUtil;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -23,6 +25,7 @@ import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.event.entity.player.CriticalHitEvent;
 import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.common.Mod;
 
 import java.util.Random;
@@ -31,10 +34,13 @@ import java.util.Random;
 public class CombatEvents {
     @SubscribeEvent
     public static void onCombat(LivingExperienceDropEvent event) {
-        if (event.getAttackingPlayer() instanceof ServerPlayer serverPlayer) {
+        Player attackingPlayer = event.getAttackingPlayer();
+        if (attackingPlayer instanceof ServerPlayer serverPlayer) {
             serverPlayer.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(capability -> {
-                if (capability.getUnlocked(serverPlayer, SpecRegistry.COMBAT)) {
-                    serverPlayer.giveExperiencePoints(Math.toIntExact(Math.round(event.getOriginalExperience() * new Random().nextDouble(ServerConfig.COMBAT_XP_BONUS.get()))));
+                if (capability.getUnlocked(serverPlayer, Specializations.COMBAT.get())) {
+                    Random random = new Random();
+                    double currentBonus = random.nextDouble(0.0D, ModConfig.SPECIALIZATIONS.combatBonus.get());
+                    serverPlayer.giveExperiencePoints(Math.toIntExact(Math.round(event.getOriginalExperience() * currentBonus)));
                 }
             });
         }
@@ -42,29 +48,38 @@ public class CombatEvents {
 
     @SubscribeEvent
     public static void onStrength(LivingHurtEvent event) {
-        if (event.getSource().getDirectEntity() instanceof ServerPlayer serverPlayer) {
+        Entity directEntity = event.getSource().getDirectEntity();
+        if (directEntity instanceof ServerPlayer) {
+            ServerPlayer serverPlayer = (ServerPlayer) directEntity;
             serverPlayer.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(capability -> {
-                if (capability.hasUnlocked(serverPlayer, SkillRegistry.STRENGTH)) {
-                    int currentLevel = capability.getLevel(serverPlayer, SkillRegistry.STRENGTH);
+                Skill skill = Skills.STRENGTH.get();
+                if (SkillUtil.hasUnlocked(capability, serverPlayer, skill)) {
+                    int currentLevel = capability.getLevel(serverPlayer, skill);
                     if (currentLevel > 0) {
-                        event.setAmount(event.getAmount() * (float) SkillUtil.getIncreaseModifier(SkillRegistry.STRENGTH, currentLevel));
+                        double currentBonus = 1.0D + skill.getCurrentBonus(currentLevel);
+                        event.setAmount(event.getAmount() * (float) currentBonus);
                     }
                 }
+
             });
         }
     }
 
     @SubscribeEvent
     public static void onCriticalStrike(CriticalHitEvent event) {
-        if (ServerConfig.VANILLA_CRIT_DISABLED.get() && event.isVanillaCritical()) {
+        if (event.isVanillaCritical() && ModConfig.SKILLS.disableVanillaCrits.get()) {
             event.setResult(Event.Result.DENY);
         }
         Player player = event.getPlayer();
         player.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(capability -> {
-            if (capability.hasUnlocked(player, SkillRegistry.CRITICAL_STRIKE)) {
-                int currentLevel = capability.getLevel(player, SkillRegistry.CRITICAL_STRIKE);
+            Skill skill = Skills.CRITICAL_STRIKE.get();
+            if (SkillUtil.hasUnlocked(capability, player, skill)) {
+                int currentLevel = capability.getLevel(player, skill);
                 if (currentLevel > 0) {
-                    if (player.getRandom().nextDouble() <= SkillUtil.getCurrentChance(SkillRegistry.CRITICAL_STRIKE, currentLevel)) {
+                    if (player.getRandom().nextDouble() <= skill.getCurrentBonus(currentLevel)) {
+                        if (!event.isVanillaCritical()) {
+                            event.setDamageModifier(event.getDamageModifier() * 1.5F);
+                        }
                         event.setResult(Event.Result.ALLOW);
                     }
                 }
@@ -74,12 +89,13 @@ public class CombatEvents {
 
     @SubscribeEvent
     public static void onQuickDraw(LivingEntityUseItemEvent.Start event) {
-        if (event.getEntity() instanceof Player player && event.getItem().getItem() instanceof BowItem) {
+        Entity entity = event.getEntity();
+        if (entity instanceof Player player && event.getItem().getItem() instanceof BowItem) {
             player.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(capability -> {
-                if (capability.hasUnlocked(player, SkillRegistry.QUICK_DRAW)) {
-                    int currentLevel = capability.getLevel(player, SkillRegistry.QUICK_DRAW);
+                if (SkillUtil.hasUnlocked(capability, player, Skills.QUICK_DRAW.get())) {
+                    int currentLevel = capability.getLevel(player, Skills.QUICK_DRAW.get());
                     if (currentLevel > 0) {
-                        event.setDuration(event.getDuration() - Math.toIntExact(Math.round(20 * SkillUtil.getCurrentBonus(SkillRegistry.QUICK_DRAW, currentLevel))));
+                        event.setDuration(event.getDuration() - Math.toIntExact(Math.round(20.0D * Skills.QUICK_DRAW.get().getCurrentBonus(currentLevel))));
                     }
                 }
             });
@@ -88,26 +104,31 @@ public class CombatEvents {
 
     @SubscribeEvent
     public static void onArrowSpeed(EntityJoinWorldEvent event) {
-        if (event.getEntity() instanceof AbstractArrow arrow && arrow.getOwner() instanceof Player player) {
-            player.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(capability -> {
-                if (capability.hasUnlocked(player, SkillRegistry.ARROW_SPEED)) {
-                    int currentLevel = capability.getLevel(player, SkillRegistry.ARROW_SPEED);
-                    if (currentLevel > 0) {
-                        arrow.setDeltaMovement(arrow.getDeltaMovement().scale(SkillUtil.getIncreaseModifier(SkillRegistry.ARROW_SPEED, currentLevel)));
+        Entity entity = event.getEntity();
+        if (entity instanceof AbstractArrow arrow) {
+            if (arrow.getOwner() instanceof ServerPlayer serverPlayer) {
+                serverPlayer.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(capability -> {
+                    if (SkillUtil.hasUnlocked(capability, serverPlayer, Skills.ARROW_SPEED.get())) {
+                        int currentLevel = capability.getLevel(serverPlayer, Skills.ARROW_SPEED.get());
+                        if (currentLevel > 0) {
+                            arrow.setDeltaMovement(arrow.getDeltaMovement().scale(1.0D + Skills.ARROW_SPEED.get().getCurrentBonus(currentLevel)));
+                            arrow.canUpdate();
+                        }
                     }
-                }
-            });
+                });
+            }
         }
     }
 
     @SubscribeEvent
     public static void onIronSkin(LivingHurtEvent event) {
-        if (event.getEntity() instanceof Player player && event.getSource() != DamageSource.FALL) {
+        Entity entity = event.getEntity();
+        if (entity instanceof Player player && event.getSource() != DamageSource.FALL) {
             player.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(capability -> {
-                if (capability.hasUnlocked(player, SkillRegistry.IRON_SKIN)) {
-                    int currentLevel = capability.getLevel(player, SkillRegistry.IRON_SKIN);
+                if (SkillUtil.hasUnlocked(capability, player, Skills.IRON_SKIN.get())) {
+                    int currentLevel = capability.getLevel(player, Skills.IRON_SKIN.get());
                     if (currentLevel > 0) {
-                        event.setAmount(event.getAmount() * (float) SkillUtil.getDecreaseModifier(SkillRegistry.IRON_SKIN, currentLevel));
+                        event.setAmount(event.getAmount() * (float) Skills.IRON_SKIN.get().getCurrentBonus(currentLevel));
                     }
                 }
             });
@@ -116,30 +137,26 @@ public class CombatEvents {
 
     @SubscribeEvent
     public static void onSneakSpeed(TickEvent.PlayerTickEvent event) {
-        if (event.phase == TickEvent.Phase.START) {
-            Player player = event.player;
-            if (player != null) {
-                player.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(capability -> {
-                    if (capability.hasUnlocked(player, SkillRegistry.SNEAK_SPEED)) {
-                        int currentLevel = capability.getLevel(player, SkillRegistry.SNEAK_SPEED);
-                        if (currentLevel > 0) {
-                            AttributeInstance attribute = player.getAttribute(Attributes.MOVEMENT_SPEED);
-                            if (attribute != null) {
-                                AttributeModifier attributeModifier = new AttributeModifier(AttributeModifiers.SNEAK_SPEED_MODIFIER, SkillRegistry.SNEAK_SPEED.getName(), SkillUtil.getCurrentBonus(SkillRegistry.SNEAK_SPEED, currentLevel), AttributeModifier.Operation.MULTIPLY_BASE);
-                                if (player.isCrouching()) {
-                                    if (attribute.getModifier(AttributeModifiers.SNEAK_SPEED_MODIFIER) == null) {
-                                        attribute.addTransientModifier(attributeModifier);
-                                    }
-                                } else {
-                                    if (attribute.getModifier(AttributeModifiers.SNEAK_SPEED_MODIFIER) != null) {
-                                        attribute.removeModifier(attributeModifier);
-                                    }
+        if (event.side == LogicalSide.SERVER && event.phase == TickEvent.Phase.START && event.player instanceof ServerPlayer serverPlayer) {
+            serverPlayer.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(capability -> {
+                if (SkillUtil.hasUnlocked(capability, serverPlayer, Skills.SNEAK_SPEED.get())) {
+                    int currentLevel = capability.getLevel(serverPlayer, Skills.SNEAK_SPEED.get());
+                    if (currentLevel > 0) {
+                        AttributeInstance attribute = serverPlayer.getAttribute(Attributes.MOVEMENT_SPEED);
+                        if (attribute != null) {
+                            if (serverPlayer.isCrouching()) {
+                                if (attribute.getModifier(AttributeModifiers.SNEAK_SPEED_MODIFIER) == null) {
+                                    attribute.addTransientModifier(new AttributeModifier(AttributeModifiers.SNEAK_SPEED_MODIFIER, Skills.SNEAK_SPEED.get().getName(), Skills.SNEAK_SPEED.get().getCurrentBonus(currentLevel), AttributeModifier.Operation.MULTIPLY_BASE));
+                                }
+                            } else {
+                                if (attribute.getModifier(AttributeModifiers.SNEAK_SPEED_MODIFIER) != null) {
+                                    attribute.removeModifier(AttributeModifiers.SNEAK_SPEED_MODIFIER);
                                 }
                             }
                         }
                     }
-                });
-            }
+                }
+            });
         }
     }
 }

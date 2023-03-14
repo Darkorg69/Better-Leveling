@@ -1,101 +1,56 @@
-![Intro](https://i.ibb.co/dmDRsfw/intro.png)
+![](https://i.ibb.co/dmDRsfw/intro.png)
 
 # About
 
 This mod adds a functional RPG specialization and skill system into Minecraft.
 
-## Notice
+# Notice
 
-This mod is for `Forge` only!  
-This mod is still work-in-progress!
+This mod is for `Forge` only!
 
-## Features
+This mod is still **work-in-progress**!
 
-You can choose one of 3 specializations for your first after you reach certain level. `(5 by default)`
+# Features
 
-Each specialization gives bonus XP and has 6 skills which you can level up by spending your experience levels.
+You can choose one of 3 specializations for your first after you reach a certain experience level. `5 by default`
 
-You can simply harvest crops just by right-clicking on them!  
-With native support for the Harvest Proficiency skill!
+You can unlock all specializations later down the line by spending your experience levels `30 by default`
 
-## Important!
+Each specialization gives bonus XP and has 6 skills which you can level up by spending your available experience.
 
-The default key for opening the GUI is `B`.
+A list of all specializations and skills can be found [here](https://github.com/Darkorg69/Better-Leveling/wiki/Specializations-&-Skills).
 
-## Specializations & Skills
+# Important!
 
-### Combat
-`Earn bonus XP on kill`
+The default key for opening the GUI is `B`.  
+You can always change it from the keybindings menu.
 
-1. Strength  
-   `Increase damage output`
-2. Critical Strike  
-   `Increase chance of landing a critical hit`
-3. Quick-Draw  
-   `Decrease the time needed to charge a bow`
-4. Arrow Speed  
-   `Increase the power at which you shoot arrows`
-5. Iron Skin  
-   `Harden your skin, receive less damage`
-6. Sneak Speed  
-   `Sneak faster, for faster ambushes`
+Please, back up your worlds when you update the game or the mod.  
+In case you don't back up your world data loss or world corruption could occur.
 
-### Crafting
-`Earn bonus XP upon crafting`
-
-1. Green Thumb  
-   `Grow crops around you faster`
-2. Harvest Proficiency  
-   `Increase drops from harvesting crops`
-3. Skinning  
-   `Increase skin drops from killing animals`
-4. Meat Gathering  
-   `Increase meat drops from killing animals`
-5. Swim Speed  
-   `Increase ability to swim underwater`
-6. Cooking Speed  
-   `Smelt items in bound furnaces much faster`
-
-**You can bind furnaces to you by sneaking and right-clicking with empty hands.**  
-**Works with Blast Furnace and Smoker too!**
-
-### Mining
-`Earn bonus XP when mining ores`
-
-1. Stonecutting  
-   `Increase the speed at which you break stone`
-2. Prospecting  
-   `Increase potential drops when mining ores`
-3. Woodcutting  
-   `Increase the speed at which you break any wooden blocks`
-4. Treasure Hunting  
-   `Random chance to find treasure while digging`
-5. Soft Landing  
-   `Land softer and decrease fall damage taken`
-6. Sprint Speed  
-   `Sprint faster, travel more`
-
-## Media
+# Media
 
 After reaching level 5, press `B` and choose your first specialization.  
-![Choose your first specialization](https://i.ibb.co/Snztyth/choose.gif)
+![](https://i.ibb.co/N9kWc5d/choose.gif)
 
 Level up your skills!  
-![Specialization Menu](https://i.ibb.co/T1hjBL3/spec.png)
-
-![Skill Menu](https://i.ibb.co/7vZpFDw/skill.png)
+![](https://i.ibb.co/mbvTvmn/levelupskills.gif)
 
 Unlock other specializations.  
-![Unlock Specialization](https://i.ibb.co/72GjxBS/unlock-spec.png)
+![](https://i.ibb.co/6wBHbGD/unlockspecs.gif)
 
-## FAQ
+# FAQ's
+
 Q: Experiencing bugs/issues while using the mod?  
 A: Please, submit your bug report [here](https://github.com/darkorg69/better-leveling/issues).
 
 Q: Fabric port?  
-A: No, at least for now, but you are free to do it yourself.
+A: I could port this mod to Fabric in the future. Before then, you are free to port it yourself.
 
-## Credits
+Q: My furnace isn't cooking faster?
+A: Bind the furnace to you, by shift-right-clicking with an empty hand on it. (It works if you are holding a tool too :D)
+
+# Credits
 
 I want to give special credits to [BeetoGuy](https://www.curseforge.com/members/beetoguy) for
 the [original mod](https://www.curseforge.com/minecraft/mc-mods/level-up) idea.

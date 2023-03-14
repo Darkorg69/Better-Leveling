@@ -1,6 +1,8 @@
 {
   "replace": false,
   "values": [
-    "#betterleveling:resources"
+    "#forge:gems",
+    "#forge:nuggets",
+    "#forge:rods"
   ]
 }

@@ -1,8 +1,9 @@
 package darkorg.betterleveling.mixin;
 
-import darkorg.betterleveling.capability.MachineCapabilityProvider;
+import darkorg.betterleveling.capability.BlockEntityCapabilityProvider;
 import darkorg.betterleveling.capability.PlayerCapabilityProvider;
-import darkorg.betterleveling.registry.SkillRegistry;
+import darkorg.betterleveling.impl.skill.Skill;
+import darkorg.betterleveling.registry.Skills;
 import darkorg.betterleveling.util.SkillUtil;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -21,13 +22,17 @@ abstract class MixinAbstractFurnaceBlockEntity {
     @Inject(at = @At("HEAD"), method = "getTotalCookTime", cancellable = true)
     private static void getModifiedCookTime(Level pLevel, RecipeType<? extends AbstractCookingRecipe> pRecipeType, Container pContainer, CallbackInfoReturnable<Integer> pCallbackInfoReturnable) {
         if (pLevel instanceof ServerLevel serverLevel && pContainer instanceof AbstractFurnaceBlockEntity abstractFurnaceBlockEntity) {
-            abstractFurnaceBlockEntity.getCapability(MachineCapabilityProvider.MACHINE_CAP).ifPresent(machineCapability -> {
-                if (machineCapability.hasOwner() && serverLevel.getPlayerByUUID(machineCapability.getUUID()) instanceof ServerPlayer serverPlayer) {
+            abstractFurnaceBlockEntity.getCapability(BlockEntityCapabilityProvider.BLOCK_ENTITY_CAP).ifPresent(blockEntityCapability -> {
+                if (blockEntityCapability.hasOwner() && blockEntityCapability.getOwner(serverLevel) instanceof ServerPlayer serverPlayer) {
                     serverPlayer.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(playerCapability -> {
-                        if (playerCapability.hasUnlocked(serverPlayer, SkillRegistry.COOKING_SPEED)) {
-                            int currentLevel = playerCapability.getLevel(serverPlayer, SkillRegistry.COOKING_SPEED);
+                        Skill skill = Skills.COOKING_SPEED.get();
+                        if (SkillUtil.hasUnlocked(playerCapability, serverPlayer, skill)) {
+                            int currentLevel = playerCapability.getLevel(serverPlayer, skill);
                             if (currentLevel > 0) {
-                                pCallbackInfoReturnable.setReturnValue(Math.max(1, Math.toIntExact(Math.round(pLevel.getRecipeManager().getRecipeFor(pRecipeType, pContainer, pLevel).map(AbstractCookingRecipe::getCookingTime).orElse(200) * SkillUtil.getDecreaseModifier(SkillRegistry.COOKING_SPEED, currentLevel)))));
+                                int originalCookTime = pLevel.getRecipeManager().getRecipeFor(pRecipeType, pContainer, pLevel).map(AbstractCookingRecipe::getCookingTime).orElse(200);
+                                double currentBonus = 1.0D - skill.getCurrentBonus(currentLevel);
+                                int modifiedCookTime = Math.toIntExact(Math.round(originalCookTime * currentBonus));
+                                pCallbackInfoReturnable.setReturnValue(Math.max(1, modifiedCookTime));
                             }
                         }
                     });

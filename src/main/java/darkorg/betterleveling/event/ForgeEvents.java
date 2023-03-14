@@ -1,25 +1,26 @@
 package darkorg.betterleveling.event;
 
 import darkorg.betterleveling.BetterLeveling;
-import darkorg.betterleveling.capability.MachineCapabilityProvider;
+import darkorg.betterleveling.capability.BlockEntityCapabilityProvider;
 import darkorg.betterleveling.capability.PlayerCapabilityProvider;
 import darkorg.betterleveling.command.MaxPlayerCommand;
 import darkorg.betterleveling.command.ResetPlayerCommand;
 import darkorg.betterleveling.command.SetSkillCommand;
 import darkorg.betterleveling.command.SetSpecializationCommand;
-import darkorg.betterleveling.config.ServerConfig;
-import darkorg.betterleveling.registry.SkillRegistry;
-import darkorg.betterleveling.util.SkillUtil;
-import darkorg.betterleveling.util.StackUtil;
-import darkorg.betterleveling.util.StateUtil;
-import darkorg.betterleveling.util.TreasureUtil;
+import darkorg.betterleveling.config.ModConfig;
+import darkorg.betterleveling.impl.skill.Skill;
+import darkorg.betterleveling.network.chat.ModComponents;
+import darkorg.betterleveling.registry.Skills;
+import darkorg.betterleveling.util.*;
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.BonemealableBlock;
 import net.minecraft.world.level.block.entity.AbstractFurnaceBlockEntity;
@@ -31,6 +32,7 @@ import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.server.command.ConfigCommand;
 
@@ -41,7 +43,8 @@ import java.util.Random;
 public class ForgeEvents {
     @SubscribeEvent
     public static void onAttachCapabilitiesEntity(AttachCapabilitiesEvent<Entity> event) {
-        if (event.getObject() instanceof Player player) {
+        Entity entity = event.getObject();
+        if (entity instanceof Player player) {
             if (!player.getCapability(PlayerCapabilityProvider.PLAYER_CAP).isPresent()) {
                 event.addCapability(new ResourceLocation(BetterLeveling.MOD_ID, "player"), new PlayerCapabilityProvider());
             }
@@ -50,35 +53,11 @@ public class ForgeEvents {
 
     @SubscribeEvent
     public static void onAttachCapabilitiesBlockEntity(AttachCapabilitiesEvent<BlockEntity> event) {
-        if (event.getObject() instanceof AbstractFurnaceBlockEntity tileEntity) {
-            if (!tileEntity.getCapability(MachineCapabilityProvider.MACHINE_CAP).isPresent()) {
-                event.addCapability(new ResourceLocation(BetterLeveling.MOD_ID, "machine"), new MachineCapabilityProvider());
+        BlockEntity tileEntity = event.getObject();
+        if (tileEntity instanceof AbstractFurnaceBlockEntity blockEntity) {
+            if (!blockEntity.getCapability(BlockEntityCapabilityProvider.BLOCK_ENTITY_CAP).isPresent()) {
+                event.addCapability(new ResourceLocation(BetterLeveling.MOD_ID, "block_entity"), new BlockEntityCapabilityProvider());
             }
-        }
-    }
-
-    @SubscribeEvent
-    public static void onEntityJoinLevel(EntityJoinWorldEvent event) {
-        if (event.getEntity() instanceof ServerPlayer serverPlayer) {
-            if (!serverPlayer.level.isClientSide) {
-                serverPlayer.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(capability -> {
-                    capability.sendDataToPlayer(serverPlayer);
-                });
-            }
-        }
-    }
-
-    @SubscribeEvent
-    public static void onPlayerClone(PlayerEvent.Clone event) {
-        if (!event.isWasDeath() || !ServerConfig.RESET_ON_DEATH.get()) {
-            Player original = event.getOriginal();
-            original.reviveCaps();
-            original.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(oldCap -> {
-                event.getEntity().getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(newCap -> {
-                    newCap.setNBTData(oldCap.getNBTData());
-                });
-            });
-            original.invalidateCaps();
         }
     }
 
@@ -92,35 +71,111 @@ public class ForgeEvents {
     }
 
     @SubscribeEvent
-    public static void onSimpleHarvest(PlayerInteractEvent.RightClickBlock event) {
-        if (ServerConfig.SIMPLE_HARVEST_ENABLED.get() && event.getWorld() instanceof ServerLevel serverLevel && event.getEntity() instanceof ServerPlayer serverPlayer) {
+    public static void onEntityJoinLevel(EntityJoinWorldEvent event) {
+        Entity entity = event.getEntity();
+        if (entity instanceof ServerPlayer serverPlayer) {
+            if (!serverPlayer.level.isClientSide) {
+                serverPlayer.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(capability -> capability.sendDataToPlayer(serverPlayer));
+            }
+        }
+    }
+
+    @SubscribeEvent
+    public static void onPlayerClone(PlayerEvent.Clone event) {
+        Player oldPlayer = event.getOriginal();
+        if (oldPlayer instanceof ServerPlayer oldServerPlayer) {
+            oldServerPlayer.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(oldCap -> {
+                Player newPlayer = event.getPlayer();
+                if (newPlayer instanceof ServerPlayer newServerPlayer) {
+                    newServerPlayer.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(newCap -> {
+                        CompoundTag oldData = oldCap.getData();
+                        if (!event.isWasDeath()) {
+                            newCap.setData(oldData);
+                        } else {
+                            if (!ModConfig.GAMEPLAY.resetOnDeath.get()) {
+                                oldData.putInt("AvailableXP", 0);
+                                newCap.setData(oldData);
+                            }
+                        }
+                    });
+                }
+            });
+        }
+    }
+
+    @SubscribeEvent
+    public static void onRightClickHarvest(PlayerInteractEvent.RightClickBlock event) {
+        Level level = event.getWorld();
+        Player player = event.getPlayer();
+        if (level instanceof ServerLevel serverLevel && player instanceof ServerPlayer serverPlayer && ModConfig.GAMEPLAY.rightClickHarvest.get()) {
             BlockPos pos = event.getPos();
             BlockState state = serverLevel.getBlockState(pos);
-            if (StateUtil.isCropBlock(state)) {
+            if (StateUtil.isBonemealablePlant(pos, serverLevel)) {
                 Block block = state.getBlock();
-                if (block instanceof BonemealableBlock bonemealableBlock && !bonemealableBlock.isValidBonemealTarget(serverLevel, pos, state, serverLevel.isClientSide)) {
+                if (StateUtil.isMaxAgeBonemealableBlock(pos, serverLevel, (BonemealableBlock) block)) {
                     List<ItemStack> drops = Block.getDrops(state, serverLevel, pos, null, serverPlayer, serverPlayer.getMainHandItem());
                     serverPlayer.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(capability -> {
-                        if (capability.hasUnlocked(serverPlayer, SkillRegistry.HARVEST_PROFICIENCY)) {
-                            int currentLevel = capability.getLevel(serverPlayer, SkillRegistry.HARVEST_PROFICIENCY);
+                        Skill skill = Skills.HARVEST_PROFICIENCY.get();
+                        if (SkillUtil.hasUnlocked(capability, serverPlayer, skill)) {
+                            int currentLevel = capability.getLevel(serverPlayer, skill);
                             if (currentLevel > 0) {
                                 Random random = new Random();
-                                if (random.nextDouble() <= SkillUtil.getCurrentChance(SkillRegistry.HARVEST_PROFICIENCY, currentLevel)) {
-                                    drops.stream().filter(StackUtil::isCropOrSeed).forEach(stack -> stack.grow(TreasureUtil.getPotentialLoot(stack.getCount(), ServerConfig.HARVEST_PROFICIENCY_POTENTIAL_LOOT_BOUND.get().floatValue(), random)));
+                                if (random.nextDouble() <= skill.getCurrentBonus(currentLevel)) {
+                                    for (ItemStack stack : drops) {
+                                        if (StackUtil.isCrop(stack)) {
+                                            int originalCount = stack.getCount();
+                                            int potentialLoot = TreasureUtil.getPotentialLoot(originalCount, ModConfig.SKILLS.harvestProficiencyPotentialLootBound.get());
+                                            stack.grow(potentialLoot);
+                                        }
+                                    }
                                 }
                             }
                         }
                     });
-                    drops.forEach(stack -> {
+                    for (ItemStack stack : drops) {
                         if (StackUtil.isSeed(stack)) {
                             stack.shrink(1);
                         }
                         Block.popResource(serverLevel, pos, stack);
-                    });
+                    }
                     serverLevel.setBlockAndUpdate(pos, block.defaultBlockState());
                 }
             }
         }
     }
 
+    @SubscribeEvent
+    public static void onRightClickFurnace(PlayerInteractEvent.RightClickBlock event) {
+        Entity entity = event.getEntity();
+        if (event.getSide() == LogicalSide.SERVER && entity instanceof ServerPlayer serverPlayer) {
+            BlockEntity tileEntity = event.getWorld().getBlockEntity(event.getPos());
+            if (tileEntity instanceof AbstractFurnaceBlockEntity abstractFurnaceBlockEntity) {
+                abstractFurnaceBlockEntity.getCapability(BlockEntityCapabilityProvider.BLOCK_ENTITY_CAP).ifPresent(capability -> {
+                    ItemStack stack = event.getItemStack();
+                    if (capability.hasOwner()) {
+                        if (capability.isOwner(serverPlayer) && PlayerUtil.isCrouchingWithEmptyHand(serverPlayer, stack)) {
+                            capability.removeOwner();
+                            serverPlayer.displayClientMessage(ModComponents.UNREGISTER, true);
+                            event.setCanceled(true);
+                            return;
+                        }
+                        if (PlayerUtil.isCrouchingWithEmptyHand(serverPlayer, stack)) {
+                            serverPlayer.displayClientMessage(ModComponents.NOT_OWNED, true);
+                            event.setCanceled(true);
+                            return;
+                        }
+                        if (ModConfig.GAMEPLAY.lockBoundMachines.get()) {
+                            serverPlayer.displayClientMessage(ModComponents.NO_ACCESS, true);
+                            event.setCanceled(true);
+                            return;
+                        }
+                    }
+                    if (PlayerUtil.isCrouchingWithEmptyHand(serverPlayer, stack)) {
+                        capability.setOwner(serverPlayer);
+                        serverPlayer.displayClientMessage(ModComponents.REGISTER, true);
+                    }
+                });
+            }
+        }
+    }
 }

@@ -1,33 +1,85 @@
 package darkorg.betterleveling.util;
 
-import darkorg.betterleveling.api.ISkill;
+import darkorg.betterleveling.impl.PlayerCapability;
+import darkorg.betterleveling.impl.skill.Skill;
+import darkorg.betterleveling.impl.skill.SkillProperties;
+import darkorg.betterleveling.network.chat.ModComponents;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.world.entity.player.Player;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 public class SkillUtil {
-    public static boolean isMinLevel(ISkill pSkill, int pCurrentLevel) {
-        return pSkill.getMinLevel() >= pCurrentLevel;
+    public static boolean hasUnlocked(PlayerCapability pCapability, Player pPlayer, Skill pSkill) {
+        boolean unlocked = false;
+
+        SkillProperties properties = pSkill.getProperties();
+
+        if (pCapability.getUnlocked(pPlayer, properties.getParentSpecialization())) {
+            unlocked = true;
+
+            for (Map.Entry<Skill, Integer> entry : properties.getPrerequisites().entrySet()) {
+                if (pCapability.getLevel(pPlayer, entry.getKey()) < entry.getValue()) {
+                    unlocked = false;
+                }
+            }
+        }
+
+        return unlocked;
     }
 
-    public static boolean isMaxLevel(ISkill pSkill, int pCurrentLevel) {
-        return pSkill.getMaxLevel() <= pCurrentLevel;
-    }
+    public static List<Component> getTooltip(Skill pSkill, boolean pHasUnlocked, int pCurrentLevel, boolean pCanIncrease) {
+        List<Component> tooltip = new ArrayList<>();
 
-    public static int getCurrentCost(ISkill pSkill, int pCurrentLevel) {
-        return pSkill.getCostPerLevel() * (pCurrentLevel + 1);
-    }
+        MutableComponent translation = pSkill.getTranslation();
+        MutableComponent description = pSkill.getDescription();
+        MutableComponent costPerLevel = pSkill.getCostPerLevel();
+        MutableComponent bonusPerLevel = pSkill.getBonusPerLevel();
 
-    public static double getCurrentBonus(ISkill pSkill, int pCurrentLevel) {
-        return pSkill.getBonusPerLevel() * pCurrentLevel;
-    }
+        MutableComponent currentCost = RenderUtil.getCurrentCost(pSkill, pCurrentLevel);
+        MutableComponent currentLevel = RenderUtil.getCurrentLevel(pSkill, pCurrentLevel);
+        MutableComponent currentBonus = RenderUtil.getCurrentBonus(pSkill, pCurrentLevel);
 
-    public static double getCurrentChance(ISkill pSkill, int pCurrentLevel) {
-        return Math.min(getCurrentBonus(pSkill, pCurrentLevel), 1.0D);
-    }
+        tooltip.add(translation);
 
-    public static double getIncreaseModifier(ISkill pSkill, int pCurrentLevel) {
-        return 1.0D + getCurrentBonus(pSkill, pCurrentLevel);
-    }
+        boolean isMaxLevel = pSkill.isMaxLevel(pCurrentLevel);
 
-    public static double getDecreaseModifier(ISkill pSkill, int pCurrentLevel) {
-        return 1.0D - getCurrentBonus(pSkill, pCurrentLevel);
+        if (pHasUnlocked) {
+            tooltip.add(isMaxLevel ? ModComponents.MAX_LEVEL.withStyle(ChatFormatting.RED) : currentLevel.withStyle(ChatFormatting.GRAY));
+
+            if (!isMaxLevel) {
+                tooltip.add(currentCost.withStyle(pCanIncrease ? ChatFormatting.GREEN : ChatFormatting.RED));
+            }
+
+            tooltip.add(currentBonus.withStyle(isMaxLevel ? ChatFormatting.DARK_RED : ChatFormatting.BLUE));
+        } else {
+            tooltip.add(ModComponents.LOCKED.withStyle(ChatFormatting.RED));
+
+            Map<Skill, Integer> prerequisitesMap = pSkill.getProperties().getPrerequisites();
+
+            if (!prerequisitesMap.isEmpty()) {
+                tooltip.add(ModComponents.PREREQUISITES.withStyle(ChatFormatting.DARK_RED));
+                prerequisitesMap.forEach((prerequisiteSkill, prerequisiteLevel) -> {
+                    tooltip.add(RenderUtil.getPrerequisite(prerequisiteSkill, prerequisiteLevel).withStyle(ChatFormatting.GRAY));
+                });
+            }
+        }
+
+        if (Screen.hasShiftDown()) {
+            tooltip.add(ModComponents.EMPTY);
+            tooltip.add(ModComponents.ADDITIONAL_INFO.withStyle(ChatFormatting.AQUA));
+            tooltip.add(description.withStyle(ChatFormatting.YELLOW));
+            tooltip.add(costPerLevel.withStyle(ChatFormatting.DARK_GREEN));
+            tooltip.add(bonusPerLevel.withStyle(ChatFormatting.DARK_BLUE));
+        } else {
+            tooltip.add(ModComponents.HOLD_SHIFT.withStyle(ChatFormatting.AQUA));
+        }
+
+        return tooltip;
     }
 }

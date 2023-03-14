@@ -4,8 +4,8 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import darkorg.betterleveling.BetterLeveling;
 import darkorg.betterleveling.capability.PlayerCapabilityProvider;
-import darkorg.betterleveling.registry.SkillRegistry;
-import darkorg.betterleveling.registry.SpecRegistry;
+import darkorg.betterleveling.network.chat.ModComponents;
+import darkorg.betterleveling.util.CapabilityUtil;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.server.level.ServerPlayer;
@@ -22,9 +22,13 @@ public class ResetPlayerCommand {
     private int resetPlayer(CommandSourceStack pSource) throws CommandSyntaxException {
         ServerPlayer serverPlayer = pSource.getPlayerOrException();
 
-        serverPlayer.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(pCapability -> {
-            SkillRegistry.getSkillRegistry().forEach(pSkill -> pCapability.setLevel(serverPlayer, pSkill, 0));
-            SpecRegistry.getSpecRegistry().forEach(pSpecialization -> pCapability.setUnlocked(serverPlayer, pSpecialization, false));
+        if (!serverPlayer.getCapability(PlayerCapabilityProvider.PLAYER_CAP).isPresent()) {
+            pSource.sendFailure(ModComponents.CAPABILITY_NOT_FOUND);
+            return 1;
+        }
+
+        serverPlayer.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(capability -> {
+            CapabilityUtil.reset(capability, serverPlayer);
         });
 
         return 1;

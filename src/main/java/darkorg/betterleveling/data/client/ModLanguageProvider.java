@@ -1,13 +1,14 @@
 package darkorg.betterleveling.data.client;
 
 import darkorg.betterleveling.BetterLeveling;
-import darkorg.betterleveling.api.ISkill;
-import darkorg.betterleveling.api.ISpecialization;
+import darkorg.betterleveling.impl.skill.Skill;
+import darkorg.betterleveling.impl.specialization.Specialization;
 import darkorg.betterleveling.key.KeyMappings;
 import darkorg.betterleveling.network.chat.ModComponents;
+import darkorg.betterleveling.registry.ModBlocks;
 import darkorg.betterleveling.registry.ModItems;
-import darkorg.betterleveling.registry.SkillRegistry;
-import darkorg.betterleveling.registry.SpecRegistry;
+import darkorg.betterleveling.registry.Skills;
+import darkorg.betterleveling.registry.Specializations;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraftforge.common.data.LanguageProvider;
@@ -23,8 +24,9 @@ public class ModLanguageProvider extends LanguageProvider {
         add(KeyMappings.KEY_OPEN_GUI, "Open GUI");
 
         add(ModItems.RAW_DEBRIS.get(), "Raw Debris");
+        add(ModBlocks.RAW_DEBRIS_BLOCK.get(), "Raw Debris Block");
 
-        add(ModComponents.ADDITIONAL_INFORMATION, "Additional information:");
+        add(ModComponents.ADDITIONAL_INFO, "Additional information:");
         add(ModComponents.AVAILABLE, "Available: ");
         add(ModComponents.BONUS, "Bonus: ");
         add(ModComponents.BULLET, "• ");
@@ -32,7 +34,7 @@ public class ModLanguageProvider extends LanguageProvider {
         add(ModComponents.CANNOT_INCREASE, "Cannot increase level");
         add(ModComponents.CAPABILITY_NOT_FOUND, "Command exception: Capability not found");
         add(ModComponents.CHOOSE_CONFIRM, "Are you sure you want to choose this specialization as your first?");
-        add(ModComponents.CHOOSE_NO_XP, "Before choosing your first specialization you must first reach level: ");
+        add(ModComponents.CANNOT_UNLOCK, "Cannot yet unlock a specialization. Required level: ");
         add(ModComponents.CHOOSE_SPEC_TITLE, "Choose your specialization");
         add(ModComponents.CONFIRM_DECREASE, "Are you sure you want to decrease the level of this skill?");
         add(ModComponents.CONFIRM_INCREASE, "Are you sure you want to increase the level of this skill?");
@@ -42,6 +44,7 @@ public class ModLanguageProvider extends LanguageProvider {
         add(ModComponents.DECREASE, "Decrease");
         add(ModComponents.HOLD_SHIFT, "Hold SHIFT for additional information");
         add(ModComponents.INCREASE, "Increase");
+        add(ModComponents.INVALID_LEVEL, "Invalid level");
         add(ModComponents.LEVEL, "Level: ");
         add(ModComponents.LEVELS, " Levels");
         add(ModComponents.LOCKED, "Locked");
@@ -55,149 +58,156 @@ public class ModLanguageProvider extends LanguageProvider {
         add(ModComponents.SELECT_BUTTON, "Select");
         add(ModComponents.SKILL_NOT_FOUND, "Command exception: Skill not found");
         add(ModComponents.SPEC, " Specialization");
-        add(ModComponents.SPEC_LOCKED, "This spec is locked");
+        add(ModComponents.SPEC_IS_LOCKED, "This spec is locked");
         add(ModComponents.SPEC_NOT_FOUND, "Command exception: Specialization not found");
         add(ModComponents.UNLOCK_COST, "Unlock cost: ");
-        add(ModComponents.UNLOCK_SPEC, "Unlock");
+        add(ModComponents.UNLOCK, "Unlock");
         add(ModComponents.UNREGISTER, "Machine unbound successfully");
         add(ModComponents.XP, "XP");
 
-        addTranslation(SpecRegistry.COMBAT, "Combat");
-        addDescription(SpecRegistry.COMBAT, "Protector of the realm");
+        addTranslation(Specializations.COMBAT.get(), "Combat");
+        addDescription(Specializations.COMBAT.get(), "Protector of the realm");
+        addDescription(Specializations.COMBAT.get(), "Earn bonus XP on kill", 1);
 
-        addTranslation(SkillRegistry.STRENGTH, "Strength");
-        addDescription(SkillRegistry.STRENGTH, "Increase damage output");
-        addDescriptionIndexOf(SkillRegistry.STRENGTH, "+", 1);
-        addDescriptionIndexOf(SkillRegistry.STRENGTH, "% ", 2);
-        addDescriptionIndexOf(SkillRegistry.STRENGTH, "damage", 3);
+        addTranslation(Skills.STRENGTH.get(), "Strength");
+        addDescription(Skills.STRENGTH.get(), "Increase damage output");
+        addDescription(Skills.STRENGTH.get(), "+", 1);
+        addDescription(Skills.STRENGTH.get(), "% ", 2);
+        addDescription(Skills.STRENGTH.get(), "damage", 3);
 
-        addTranslation(SkillRegistry.CRITICAL_STRIKE, "Critical Strike");
-        addDescription(SkillRegistry.CRITICAL_STRIKE, "Increase critical chance");
-        addDescriptionIndexOf(SkillRegistry.CRITICAL_STRIKE, "+", 1);
-        addDescriptionIndexOf(SkillRegistry.CRITICAL_STRIKE, "% ", 2);
-        addDescriptionIndexOf(SkillRegistry.CRITICAL_STRIKE, "chance", 3);
+        addTranslation(Skills.CRITICAL_STRIKE.get(), "Critical Strike");
+        addDescription(Skills.CRITICAL_STRIKE.get(), "Increase critical chance");
+        addDescription(Skills.CRITICAL_STRIKE.get(), "+", 1);
+        addDescription(Skills.CRITICAL_STRIKE.get(), "% ", 2);
+        addDescription(Skills.CRITICAL_STRIKE.get(), "chance", 3);
 
-        addTranslation(SkillRegistry.QUICK_DRAW, "Quick-Draw");
-        addDescription(SkillRegistry.QUICK_DRAW, "Decrease total bow charge time");
-        addDescriptionIndexOf(SkillRegistry.QUICK_DRAW, "-", 1);
-        addDescriptionIndexOf(SkillRegistry.QUICK_DRAW, "% ", 2);
-        addDescriptionIndexOf(SkillRegistry.QUICK_DRAW, "total time", 3);
+        addTranslation(Skills.QUICK_DRAW.get(), "Quick-Draw");
+        addDescription(Skills.QUICK_DRAW.get(), "Decrease total bow charge time");
+        addDescription(Skills.QUICK_DRAW.get(), "-", 1);
+        addDescription(Skills.QUICK_DRAW.get(), "% ", 2);
+        addDescription(Skills.QUICK_DRAW.get(), "total time", 3);
 
-        addTranslation(SkillRegistry.ARROW_SPEED, "Arrow Speed");
-        addDescription(SkillRegistry.ARROW_SPEED, "Increase arrow speed");
-        addDescriptionIndexOf(SkillRegistry.ARROW_SPEED, "+", 1);
-        addDescriptionIndexOf(SkillRegistry.ARROW_SPEED, "% ", 2);
-        addDescriptionIndexOf(SkillRegistry.ARROW_SPEED, "velocity", 3);
+        addTranslation(Skills.ARROW_SPEED.get(), "Arrow Speed");
+        addDescription(Skills.ARROW_SPEED.get(), "Increase arrow speed");
+        addDescription(Skills.ARROW_SPEED.get(), "+", 1);
+        addDescription(Skills.ARROW_SPEED.get(), "% ", 2);
+        addDescription(Skills.ARROW_SPEED.get(), "velocity", 3);
 
-        addTranslation(SkillRegistry.IRON_SKIN, "Iron Skin");
-        addDescription(SkillRegistry.IRON_SKIN, "Reduce damage taken");
-        addDescriptionIndexOf(SkillRegistry.IRON_SKIN, "-", 1);
-        addDescriptionIndexOf(SkillRegistry.IRON_SKIN, "% ", 2);
-        addDescriptionIndexOf(SkillRegistry.IRON_SKIN, "damage", 3);
+        addTranslation(Skills.IRON_SKIN.get(), "Iron Skin");
+        addDescription(Skills.IRON_SKIN.get(), "Reduce damage taken");
+        addDescription(Skills.IRON_SKIN.get(), "-", 1);
+        addDescription(Skills.IRON_SKIN.get(), "% ", 2);
+        addDescription(Skills.IRON_SKIN.get(), "damage", 3);
 
-        addTranslation(SkillRegistry.SNEAK_SPEED, "Sneak Speed");
-        addDescription(SkillRegistry.SNEAK_SPEED, "Increase speed while sneaking");
-        addDescriptionIndexOf(SkillRegistry.SNEAK_SPEED, "+", 1);
-        addDescriptionIndexOf(SkillRegistry.SNEAK_SPEED, "% ", 2);
-        addDescriptionIndexOf(SkillRegistry.SNEAK_SPEED, "speed", 3);
+        addTranslation(Skills.SNEAK_SPEED.get(), "Sneak Speed");
+        addDescription(Skills.SNEAK_SPEED.get(), "Increase speed while sneaking");
+        addDescription(Skills.SNEAK_SPEED.get(), "+", 1);
+        addDescription(Skills.SNEAK_SPEED.get(), "% ", 2);
+        addDescription(Skills.SNEAK_SPEED.get(), "speed", 3);
 
-        addTranslation(SpecRegistry.CRAFTING, "Crafting");
-        addDescription(SpecRegistry.CRAFTING, "Craft and gather resources");
+        addTranslation(Specializations.CRAFTING.get(), "Crafting");
+        addDescription(Specializations.CRAFTING.get(), "Craft and gather resources");
+        addDescription(Specializations.CRAFTING.get(), "Earn bonus XP when crafting", 1);
 
-        addTranslation(SkillRegistry.GREEN_THUMB, "Green Thumb");
-        addDescription(SkillRegistry.GREEN_THUMB, "Chance to tick crops around you");
-        addDescriptionIndexOf(SkillRegistry.GREEN_THUMB, "+", 1);
-        addDescriptionIndexOf(SkillRegistry.GREEN_THUMB, "% ", 2);
-        addDescriptionIndexOf(SkillRegistry.GREEN_THUMB, "chance", 3);
+        addTranslation(Skills.GREEN_THUMB.get(), "Green Thumb");
+        addDescription(Skills.GREEN_THUMB.get(), "Chance to tick crops around you");
+        addDescription(Skills.GREEN_THUMB.get(), "+", 1);
+        addDescription(Skills.GREEN_THUMB.get(), "% ", 2);
+        addDescription(Skills.GREEN_THUMB.get(), "chance", 3);
 
-        addTranslation(SkillRegistry.HARVEST_PROFICIENCY, "Harvest Proficiency");
-        addDescription(SkillRegistry.HARVEST_PROFICIENCY, "Chance to increase crops drops");
-        addDescriptionIndexOf(SkillRegistry.HARVEST_PROFICIENCY, "+", 1);
-        addDescriptionIndexOf(SkillRegistry.HARVEST_PROFICIENCY, "% ", 2);
-        addDescriptionIndexOf(SkillRegistry.HARVEST_PROFICIENCY, "chance", 3);
+        addTranslation(Skills.HARVEST_PROFICIENCY.get(), "Harvest Proficiency");
+        addDescription(Skills.HARVEST_PROFICIENCY.get(), "Chance to increase crops drops");
+        addDescription(Skills.HARVEST_PROFICIENCY.get(), "+", 1);
+        addDescription(Skills.HARVEST_PROFICIENCY.get(), "% ", 2);
+        addDescription(Skills.HARVEST_PROFICIENCY.get(), "chance", 3);
 
-        addTranslation(SkillRegistry.SKINNING, "Skinning");
-        addDescription(SkillRegistry.SKINNING, "Chance to increase skin drops");
-        addDescriptionIndexOf(SkillRegistry.SKINNING, "+", 1);
-        addDescriptionIndexOf(SkillRegistry.SKINNING, "% ", 2);
-        addDescriptionIndexOf(SkillRegistry.SKINNING, "chance", 3);
+        addTranslation(Skills.SKINNING.get(), "Skinning");
+        addDescription(Skills.SKINNING.get(), "Chance to increase skin drops");
+        addDescription(Skills.SKINNING.get(), "+", 1);
+        addDescription(Skills.SKINNING.get(), "% ", 2);
+        addDescription(Skills.SKINNING.get(), "chance", 3);
 
-        addTranslation(SkillRegistry.MEAT_GATHERING, "Meat Gathering");
-        addDescription(SkillRegistry.MEAT_GATHERING, "Chance to increase meat drops");
-        addDescriptionIndexOf(SkillRegistry.MEAT_GATHERING, "+", 1);
-        addDescriptionIndexOf(SkillRegistry.MEAT_GATHERING, "% ", 2);
-        addDescriptionIndexOf(SkillRegistry.MEAT_GATHERING, "chance", 3);
+        addTranslation(Skills.MEAT_GATHERING.get(), "Meat Gathering");
+        addDescription(Skills.MEAT_GATHERING.get(), "Chance to increase meat drops");
+        addDescription(Skills.MEAT_GATHERING.get(), "+", 1);
+        addDescription(Skills.MEAT_GATHERING.get(), "% ", 2);
+        addDescription(Skills.MEAT_GATHERING.get(), "chance", 3);
 
-        addTranslation(SkillRegistry.SWIM_SPEED, "Swim Speed");
-        addDescription(SkillRegistry.SWIM_SPEED, "Increase swimming speed");
-        addDescriptionIndexOf(SkillRegistry.SWIM_SPEED, "+", 1);
-        addDescriptionIndexOf(SkillRegistry.SWIM_SPEED, "% ", 2);
-        addDescriptionIndexOf(SkillRegistry.SWIM_SPEED, "speed", 3);
+        addTranslation(Skills.SWIM_SPEED.get(), "Swim Speed");
+        addDescription(Skills.SWIM_SPEED.get(), "Increase swimming speed");
+        addDescription(Skills.SWIM_SPEED.get(), "+", 1);
+        addDescription(Skills.SWIM_SPEED.get(), "% ", 2);
+        addDescription(Skills.SWIM_SPEED.get(), "speed", 3);
 
-        addTranslation(SkillRegistry.COOKING_SPEED, "Cooking Speed");
-        addDescription(SkillRegistry.COOKING_SPEED, "Decrease total cooking time");
-        addDescriptionIndexOf(SkillRegistry.COOKING_SPEED, "-", 1);
-        addDescriptionIndexOf(SkillRegistry.COOKING_SPEED, "% ", 2);
-        addDescriptionIndexOf(SkillRegistry.COOKING_SPEED, "total time", 3);
+        addTranslation(Skills.COOKING_SPEED.get(), "Cooking Speed");
+        addDescription(Skills.COOKING_SPEED.get(), "Decrease total cooking time");
+        addDescription(Skills.COOKING_SPEED.get(), "-", 1);
+        addDescription(Skills.COOKING_SPEED.get(), "% ", 2);
+        addDescription(Skills.COOKING_SPEED.get(), "total time", 3);
 
-        addTranslation(SpecRegistry.MINING, "Mining");
-        addDescription(SpecRegistry.MINING, "Branch mining is for cowards");
+        addTranslation(Specializations.MINING.get(), "Mining");
+        addDescription(Specializations.MINING.get(), "Branch mining is for cowards");
+        addDescription(Specializations.MINING.get(), "Earn bonus XP for mining ores", 1);
 
-        addTranslation(SkillRegistry.WOODCUTTING, "Woodcutting");
-        addDescription(SkillRegistry.WOODCUTTING, "Increase wood chopping speed");
-        addDescriptionIndexOf(SkillRegistry.WOODCUTTING, "+", 1);
-        addDescriptionIndexOf(SkillRegistry.WOODCUTTING, "% ", 2);
-        addDescriptionIndexOf(SkillRegistry.WOODCUTTING, "speed", 3);
+        addTranslation(Skills.WOODCUTTING.get(), "Woodcutting");
+        addDescription(Skills.WOODCUTTING.get(), "Increase wood chopping speed");
+        addDescription(Skills.WOODCUTTING.get(), "+", 1);
+        addDescription(Skills.WOODCUTTING.get(), "% ", 2);
+        addDescription(Skills.WOODCUTTING.get(), "speed", 3);
 
-        addTranslation(SkillRegistry.STONECUTTING, "Stonecutting");
-        addDescription(SkillRegistry.STONECUTTING, "Increase stone mining speed");
-        addDescriptionIndexOf(SkillRegistry.STONECUTTING, "+", 1);
-        addDescriptionIndexOf(SkillRegistry.STONECUTTING, "% ", 2);
-        addDescriptionIndexOf(SkillRegistry.STONECUTTING, "speed", 3);
+        addTranslation(Skills.STONECUTTING.get(), "Stonecutting");
+        addDescription(Skills.STONECUTTING.get(), "Increase stone mining speed");
+        addDescription(Skills.STONECUTTING.get(), "+", 1);
+        addDescription(Skills.STONECUTTING.get(), "% ", 2);
+        addDescription(Skills.STONECUTTING.get(), "speed", 3);
 
-        addTranslation(SkillRegistry.PROSPECTING, "Prospecting");
-        addDescription(SkillRegistry.PROSPECTING, "Chance to increase ore drops");
-        addDescriptionIndexOf(SkillRegistry.PROSPECTING, "+", 1);
-        addDescriptionIndexOf(SkillRegistry.PROSPECTING, "% ", 2);
-        addDescriptionIndexOf(SkillRegistry.PROSPECTING, "chance", 3);
+        addTranslation(Skills.PROSPECTING.get(), "Prospecting");
+        addDescription(Skills.PROSPECTING.get(), "Chance to increase ore drops");
+        addDescription(Skills.PROSPECTING.get(), "+", 1);
+        addDescription(Skills.PROSPECTING.get(), "% ", 2);
+        addDescription(Skills.PROSPECTING.get(), "chance", 3);
 
-        addTranslation(SkillRegistry.TREASURE_HUNTING, "Treasure Hunting");
-        addDescription(SkillRegistry.TREASURE_HUNTING, "Chance to dig treasure from dirt");
-        addDescriptionIndexOf(SkillRegistry.TREASURE_HUNTING, "+", 1);
-        addDescriptionIndexOf(SkillRegistry.TREASURE_HUNTING, "% ", 2);
-        addDescriptionIndexOf(SkillRegistry.TREASURE_HUNTING, "chance", 3);
+        addTranslation(Skills.TREASURE_HUNTING.get(), "Treasure Hunting");
+        addDescription(Skills.TREASURE_HUNTING.get(), "Chance to dig treasure from dirt");
+        addDescription(Skills.TREASURE_HUNTING.get(), "+", 1);
+        addDescription(Skills.TREASURE_HUNTING.get(), "% ", 2);
+        addDescription(Skills.TREASURE_HUNTING.get(), "chance", 3);
 
-        addTranslation(SkillRegistry.SOFT_LANDING, "Soft Landing");
-        addDescription(SkillRegistry.SOFT_LANDING, "Decrease fall damage taken");
-        addDescriptionIndexOf(SkillRegistry.SOFT_LANDING, "-", 1);
-        addDescriptionIndexOf(SkillRegistry.SOFT_LANDING, "% ", 2);
-        addDescriptionIndexOf(SkillRegistry.SOFT_LANDING, "damage", 3);
+        addTranslation(Skills.SOFT_LANDING.get(), "Soft Landing");
+        addDescription(Skills.SOFT_LANDING.get(), "Decrease fall damage taken");
+        addDescription(Skills.SOFT_LANDING.get(), "-", 1);
+        addDescription(Skills.SOFT_LANDING.get(), "% ", 2);
+        addDescription(Skills.SOFT_LANDING.get(), "damage", 3);
 
-        addTranslation(SkillRegistry.SPRINT_SPEED, "Sprint Speed");
-        addDescription(SkillRegistry.SPRINT_SPEED, "Increase speed while sprinting");
-        addDescriptionIndexOf(SkillRegistry.SPRINT_SPEED, "+", 1);
-        addDescriptionIndexOf(SkillRegistry.SPRINT_SPEED, "% ", 2);
-        addDescriptionIndexOf(SkillRegistry.SPRINT_SPEED, "speed", 3);
+        addTranslation(Skills.SPRINT_SPEED.get(), "Sprint Speed");
+        addDescription(Skills.SPRINT_SPEED.get(), "Increase speed while sprinting");
+        addDescription(Skills.SPRINT_SPEED.get(), "+", 1);
+        addDescription(Skills.SPRINT_SPEED.get(), "% ", 2);
+        addDescription(Skills.SPRINT_SPEED.get(), "speed", 3);
     }
 
-    private void addTranslation(ISkill pSkill, String pTranslation) {
-        add(pSkill.getTranslationKey(), pTranslation);
+    private void addTranslation(Specialization pSpecialization, String pTranslation) {
+        add(pSpecialization.getTranslationId(), pTranslation);
     }
 
-    private void addDescription(ISkill pSkill, String pTranslation) {
-        add(pSkill.getDescriptionKey(), pTranslation);
+    private void addDescription(Specialization pSpecialization, String pTranslation) {
+        add(pSpecialization.getDescriptionId(), pTranslation);
     }
 
-    private void addDescriptionIndexOf(ISkill pSkill, String pTranslation, int pIndex) {
-        add(pSkill.getDescriptionIndexOfKey(pIndex), pTranslation);
+    private void addDescription(Specialization pSpecialization, String pDescription, int pIndex) {
+        add(pSpecialization.getDescriptionId(pIndex), pDescription);
     }
 
-    private void addTranslation(ISpecialization pSpecialization, String pTranslation) {
-        add(pSpecialization.getTranslationKey(), pTranslation);
+    private void addTranslation(Skill pSkill, String pTranslation) {
+        add(pSkill.getTranslationId(), pTranslation);
     }
 
-    private void addDescription(ISpecialization pSpecialization, String pTranslation) {
-        add(pSpecialization.getDescriptionKey(), pTranslation);
+    private void addDescription(Skill pSkill, String pDescription) {
+        add(pSkill.getDescriptionId(), pDescription);
+    }
+
+    private void addDescription(Skill pSkill, String pDescription, int pIndex) {
+        add(pSkill.getDescriptionId(pIndex), pDescription);
     }
 
     private void add(TranslatableComponent pTranslatableContents, String pTranslation) {
