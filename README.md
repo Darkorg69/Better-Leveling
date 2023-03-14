@@ -31,7 +31,7 @@ In case you don't back up your world data loss or world corruption could occur.
 # Media
 
 After reaching level 5, press `B` and choose your first specialization.  
-![](https://i.ibb.co/N9kWc5d/choose.gif)
+![](https://i.ibb.co/27kyxDP/choose.gif)
 
 Level up your skills!  
 ![](https://i.ibb.co/mbvTvmn/levelupskills.gif)
