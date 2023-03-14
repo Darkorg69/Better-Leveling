@@ -67,7 +67,7 @@ public class CombatEvents {
 
     @SubscribeEvent
     public static void onCriticalStrike(CriticalHitEvent event) {
-        if (ModConfig.SKILLS.disableVanillaCrits.get() && event.isVanillaCritical()) {
+        if (event.isVanillaCritical() && ModConfig.SKILLS.disableVanillaCrits.get()) {
             event.setResult(Event.Result.DENY);
         }
         PlayerEntity player = event.getPlayer();
@@ -77,6 +77,9 @@ public class CombatEvents {
                 int currentLevel = capability.getLevel(player, skill);
                 if (currentLevel > 0) {
                     if (player.getRandom().nextDouble() <= skill.getCurrentBonus(currentLevel)) {
+                        if (!event.isVanillaCritical()) {
+                            event.setDamageModifier(event.getDamageModifier() * 1.5F);
+                        }
                         event.setResult(Event.Result.ALLOW);
                     }
                 }
