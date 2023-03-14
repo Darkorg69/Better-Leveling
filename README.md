@@ -47,7 +47,7 @@ A: Please, submit your bug report [here](https://github.com/darkorg69/better-lev
 Q: Fabric port?  
 A: I could port this mod to Fabric in the future. Before then, you are free to port it yourself.
 
-Q: My furnace isn't cooking faster?
+Q: My furnace isn't cooking faster?  
 A: Bind the furnace to you, by shift-right-clicking with an empty hand on it. (It works if you are holding a tool too :D)
 
 # Credits
