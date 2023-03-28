@@ -84,6 +84,7 @@ public class ForgeEvents {
     public static void onPlayerClone(PlayerEvent.Clone event) {
         Player oldPlayer = event.getOriginal();
         if (oldPlayer instanceof ServerPlayer oldServerPlayer) {
+            oldServerPlayer.reviveCaps();
             oldServerPlayer.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(oldCap -> {
                 Player newPlayer = event.getPlayer();
                 if (newPlayer instanceof ServerPlayer newServerPlayer) {
@@ -100,6 +101,7 @@ public class ForgeEvents {
                     });
                 }
             });
+            oldServerPlayer.invalidateCaps();
         }
     }
 
