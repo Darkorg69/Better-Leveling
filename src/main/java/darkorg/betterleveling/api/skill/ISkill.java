@@ -18,7 +18,7 @@ public interface ISkill {
     }
 
     default int getCurrentRefund(int pCurrentLevel) {
-        return Math.toIntExact(Math.round(this.getCurrentCost(pCurrentLevel - 1) * ModConfig.GAMEPLAY.xpRefundFactor.get()));
+        return Math.toIntExact(Math.round(this.getCurrentCost(pCurrentLevel - 1) * ModConfig.SKILLS.xpRefundFactor.get()));
     }
 
     default double getCurrentBonus(int pCurrentLevel) {

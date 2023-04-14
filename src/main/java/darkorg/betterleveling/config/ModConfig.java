@@ -13,12 +13,10 @@ import org.apache.commons.lang3.tuple.Pair;
 
 public class ModConfig {
     public static final Client CLIENT;
-    public static final Common COMMON;
     public static final Gameplay GAMEPLAY;
     public static final Specializations SPECIALIZATIONS;
     public static final Skills SKILLS;
     static final ForgeConfigSpec clientSpec;
-    static final ForgeConfigSpec commonSpec;
     static final ForgeConfigSpec gameplaySpec;
     static final ForgeConfigSpec specializationsSpec;
     static final ForgeConfigSpec skillsSpec;
@@ -27,12 +25,6 @@ public class ModConfig {
         final Pair<Client, ForgeConfigSpec> specPair = new ForgeConfigSpec.Builder().configure(Client::new);
         clientSpec = specPair.getRight();
         CLIENT = specPair.getLeft();
-    }
-
-    static {
-        final Pair<Common, ForgeConfigSpec> specPair = new ForgeConfigSpec.Builder().configure(Common::new);
-        commonSpec = specPair.getRight();
-        COMMON = specPair.getLeft();
     }
 
     static {
@@ -55,7 +47,6 @@ public class ModConfig {
 
     public static void init() {
         ModLoadingContext.get().registerConfig(Type.CLIENT, clientSpec, BetterLeveling.MOD_ID + "-client.toml");
-        //ModLoadingContext.get().registerConfig(Type.COMMON, commonSpec, BetterLeveling.MOD_ID + "-common.toml");
         ModLoadingContext.get().registerConfig(Type.SERVER, gameplaySpec, BetterLeveling.MOD_ID + "-gameplay.toml");
         ModLoadingContext.get().registerConfig(Type.SERVER, specializationsSpec, BetterLeveling.MOD_ID + "-specializations.toml");
         ModLoadingContext.get().registerConfig(Type.SERVER, skillsSpec, BetterLeveling.MOD_ID + "-skills.toml");
@@ -199,24 +190,23 @@ public class ModConfig {
     }
 
     public static class Gameplay {
-        public final IntValue firstSpecCost;
         public final BooleanValue resetOnDeath;
-        public final DoubleValue xpRefundFactor;
         public final BooleanValue lockBoundMachines;
         public final BooleanValue rightClickHarvest;
+        public final BooleanValue applyRawOreLootModifier;
 
         Gameplay(ForgeConfigSpec.Builder pBuilder) {
             pBuilder.comment("Settings related to gameplay").push("gameplay");
-            firstSpecCost = pBuilder.comment("Define how much levels the player needs to unlock his FIRST specialization").defineInRange("firstSpecCost", 5, 0, Integer.MAX_VALUE);
             resetOnDeath = pBuilder.comment("If all progress should be lost on death").define("resetOnDeath", false);
-            xpRefundFactor = pBuilder.comment("Define the amount of XP refunded when decreasing skill level").defineInRange("xpRefundFactor", 0.5D, 0.0D, 1.0D);
+            rightClickHarvest = pBuilder.comment("If right-click harvesting should be enabled.").define("rightClickHarvest", false);
             lockBoundMachines = pBuilder.comment("If enabled, bound machines will be usable only by their owner").define("lockBoundMachines", false);
-            rightClickHarvest = pBuilder.comment("If right-click harvesting should be enabled.").define("rightClickHarvest", true);
+            applyRawOreLootModifier = pBuilder.comment("Define if ores should drop their raw resource instead", "Iron Ore drops -> Raw Iron instead (1.16 only)", "Gold Ore drops -> Raw Gold instead (1.16 only)", "Ancient Debris drops -> Raw Debris instead").define("applyRawOreLootModifier", true);
             pBuilder.pop();
         }
     }
 
     public static class Specializations {
+        public final IntValue firstSpecCost;
         public final IntValue combatCost;
         public final DoubleValue combatBonus;
         public final IntValue craftingCost;
@@ -226,6 +216,10 @@ public class ModConfig {
         public final DoubleValue miningBonus;
 
         Specializations(ForgeConfigSpec.Builder pBuilder) {
+            pBuilder.comment("Settings related to Specializations").push("specializations");
+            firstSpecCost = pBuilder.comment("Define how much levels the player needs to unlock his FIRST specialization").defineInRange("firstSpecCost", 5, 0, Integer.MAX_VALUE);
+            pBuilder.pop();
+
             pBuilder.comment("Combat Specialization", "Protector of the realm", "Earn bonus XP on kill").push("combat");
             combatCost = pBuilder.comment("Define how much levels the player needs to unlock the Combat specialization").defineInRange("cost", 30, 0, Integer.MAX_VALUE);
             combatBonus = pBuilder.comment("Define the maximum amount of bonus XP on kill, based on the original dropped XP").defineInRange("bonus", 1.0D, 0.0D, Double.MAX_VALUE);
@@ -245,6 +239,7 @@ public class ModConfig {
     }
 
     public static class Skills {
+        public final DoubleValue xpRefundFactor;
         public final IntValue strengthMaxLevel;
         public final IntValue strengthCostPerLevel;
         public final DoubleValue strengthBonusPerLevel;
@@ -328,6 +323,10 @@ public class ModConfig {
         public final ConfigValue<String> sprintSpeedPrerequisites;
 
         Skills(ForgeConfigSpec.Builder pBuilder) {
+            pBuilder.comment("Settings related to Skills").push("skills");
+            xpRefundFactor = pBuilder.comment("Define the amount of XP refunded when decreasing skill level").defineInRange("xpRefundFactor", 0.5D, 0.0D, 1.0D);
+            pBuilder.pop();
+
             pBuilder.comment("Increase melee damage").push("strength");
             strengthMaxLevel = pBuilder.defineInRange("maxLevel", 10, 1, Integer.MAX_VALUE);
             strengthCostPerLevel = pBuilder.defineInRange("costPerLevel", 40, 1, Integer.MAX_VALUE);

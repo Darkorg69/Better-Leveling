@@ -1,7 +1,8 @@
 package darkorg.betterleveling.loot;
 
 import com.google.gson.JsonObject;
-import net.minecraft.enchantment.EnchantmentHelper;
+import darkorg.betterleveling.config.ModConfig;
+import darkorg.betterleveling.util.StackUtil;
 import net.minecraft.enchantment.Enchantments;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -20,32 +21,33 @@ import java.util.List;
 public class RawOreLootModifier extends LootModifier {
     private final Item generated;
 
-    public RawOreLootModifier(ILootCondition[] conditionsIn, Item pGenerated) {
-        super(conditionsIn);
+    public RawOreLootModifier(ILootCondition[] pLootConditions, Item pGenerated) {
+        super(pLootConditions);
         this.generated = pGenerated;
     }
 
     @Override
     protected List<ItemStack> doApply(List<ItemStack> pGeneratedLoot, LootContext pContext) {
-        ItemStack tool = pContext.getParamOrNull(LootParameters.TOOL);
+        if (ModConfig.GAMEPLAY.applyRawOreLootModifier.get()) {
+            ItemStack tool = pContext.getParamOrNull(LootParameters.TOOL);
+            if (!StackUtil.isSilktouch(tool)) {
+                pGeneratedLoot.clear();
 
-        if (tool != null && EnchantmentHelper.getItemEnchantmentLevel(Enchantments.SILK_TOUCH, tool) <= 0) {
-            pGeneratedLoot.clear();
+                ItemStack stack = new ItemStack(this.generated);
+                ApplyBonus.addOreBonusCount(Enchantments.BLOCK_FORTUNE).build().apply(stack, pContext);
 
-            ItemStack stack = new ItemStack(this.generated);
-            ApplyBonus.addOreBonusCount(Enchantments.BLOCK_FORTUNE).build().apply(stack, pContext);
-
-            pGeneratedLoot.add(stack);
+                pGeneratedLoot.add(stack);
+            }
         }
         return pGeneratedLoot;
     }
 
     public static class Serializer extends GlobalLootModifierSerializer<RawOreLootModifier> {
         @Override
-        public JsonObject write(RawOreLootModifier instance) {
-            JsonObject jsonObject = this.makeConditions(instance.conditions);
+        public JsonObject write(RawOreLootModifier pInstance) {
+            JsonObject jsonObject = this.makeConditions(pInstance.conditions);
 
-            ResourceLocation key = ForgeRegistries.ITEMS.getKey(instance.generated);
+            ResourceLocation key = ForgeRegistries.ITEMS.getKey(pInstance.generated);
             if (key != null) {
                 jsonObject.addProperty("generated", key.toString());
             }

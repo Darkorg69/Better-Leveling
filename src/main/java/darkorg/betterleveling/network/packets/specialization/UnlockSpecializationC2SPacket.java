@@ -38,7 +38,7 @@ public class UnlockSpecializationC2SPacket {
                 serverPlayer.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(pCapability -> {
                     Specialization specialization = Specializations.getFrom(pPacket.data.getString("Name"));
                     if (!serverPlayer.isCreative()) {
-                        serverPlayer.giveExperienceLevels(!SpecializationUtil.hasUnlocked(pCapability, serverPlayer) ? -ModConfig.GAMEPLAY.firstSpecCost.get() : -specialization.getProperties().getLevelCost());
+                        serverPlayer.giveExperienceLevels(!SpecializationUtil.hasUnlocked(pCapability, serverPlayer) ? -ModConfig.SPECIALIZATIONS.firstSpecCost.get() : -specialization.getProperties().getLevelCost());
                     }
                     pCapability.setUnlocked(serverPlayer, specialization, true);
                 });

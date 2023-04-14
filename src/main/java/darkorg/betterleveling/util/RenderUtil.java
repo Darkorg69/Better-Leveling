@@ -43,7 +43,7 @@ public class RenderUtil {
     }
 
     public static IFormattableTextComponent getCannotUnlock() {
-        return new TranslationTextComponent("").append(ModComponents.CANNOT_UNLOCK).append(String.valueOf(ModConfig.GAMEPLAY.firstSpecCost.get()));
+        return new TranslationTextComponent("").append(ModComponents.CANNOT_UNLOCK).append(String.valueOf(ModConfig.SPECIALIZATIONS.firstSpecCost.get()));
     }
 
     public static IFormattableTextComponent getAvailableXP(int pAvailableExperience) {

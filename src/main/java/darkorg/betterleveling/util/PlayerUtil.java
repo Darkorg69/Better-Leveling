@@ -9,7 +9,7 @@ import net.minecraft.item.ItemStack;
 
 public class PlayerUtil {
     public static boolean canUnlockFirstSpecialization(PlayerEntity pPlayer) {
-        return pPlayer.experienceLevel >= ModConfig.GAMEPLAY.firstSpecCost.get() || pPlayer.isCreative();
+        return pPlayer.experienceLevel >= ModConfig.SPECIALIZATIONS.firstSpecCost.get() || pPlayer.isCreative();
     }
 
     public static boolean canUnlockSpecialization(PlayerEntity pPlayer, Specialization pSpecialization) {

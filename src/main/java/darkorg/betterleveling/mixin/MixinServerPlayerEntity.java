@@ -20,27 +20,25 @@ public abstract class MixinServerPlayerEntity extends PlayerEntity implements IC
 
     @Inject(at = @At("TAIL"), method = "setExperiencePoints")
     public void setExperiencePoints(int pLevels, CallbackInfo pCallbackInfo) {
-        this.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(pCapability -> {
-            pCapability.updateAvailableExperience((ServerPlayerEntity) (Object) this);
-        });
+        updateAvailableExperience();
     }
 
     @Inject(at = @At("TAIL"), method = "giveExperiencePoints")
     public void giveExperiencePoints(int pXpPoints, CallbackInfo pCallbackInfo) {
-        this.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(pCapability -> {
-            pCapability.updateAvailableExperience((ServerPlayerEntity) (Object) this);
-        });
+        updateAvailableExperience();
     }
 
     @Inject(at = @At("TAIL"), method = "setExperienceLevels")
     public void setExperienceLevels(int pLevels, CallbackInfo pCallbackInfo) {
-        this.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(pCapability -> {
-            pCapability.updateAvailableExperience((ServerPlayerEntity) (Object) this);
-        });
+        updateAvailableExperience();
     }
 
     @Inject(at = @At("TAIL"), method = "giveExperienceLevels")
     public void giveExperienceLevels(int pLevels, CallbackInfo pCallbackInfo) {
+        updateAvailableExperience();
+    }
+
+    private void updateAvailableExperience() {
         this.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(pCapability -> {
             pCapability.updateAvailableExperience((ServerPlayerEntity) (Object) this);
         });

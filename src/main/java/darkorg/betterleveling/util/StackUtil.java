@@ -1,5 +1,7 @@
 package darkorg.betterleveling.util;
 
+import net.minecraft.enchantment.EnchantmentHelper;
+import net.minecraft.enchantment.Enchantments;
 import net.minecraft.item.ItemStack;
 
 public class StackUtil {
@@ -19,8 +21,11 @@ public class StackUtil {
         return ItemUtil.isMeat(pItemStack.getItem());
     }
 
-
     public static boolean isBlacklistCrafting(ItemStack pItemStack) {
         return ItemUtil.isBlacklistCrafting(pItemStack.getItem());
+    }
+
+    public static boolean isSilktouch(ItemStack pItemStack) {
+        return pItemStack != null && EnchantmentHelper.getItemEnchantmentLevel(Enchantments.SILK_TOUCH, pItemStack) <= 0;
     }
 }
