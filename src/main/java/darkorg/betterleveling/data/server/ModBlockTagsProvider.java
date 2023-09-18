@@ -1,24 +1,21 @@
 package darkorg.betterleveling.data.server;
 
-import darkorg.betterleveling.BetterLeveling;
 import darkorg.betterleveling.registry.ModTags;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.data.PackOutput;
+import net.minecraft.data.DataGenerator;
+import net.minecraft.data.tags.BlockTagsProvider;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraftforge.common.data.BlockTagsProvider;
 import net.minecraftforge.common.data.ExistingFileHelper;
-import org.jetbrains.annotations.NotNull;
-
-import java.util.concurrent.CompletableFuture;
+import org.jetbrains.annotations.Nullable;
 
 public class ModBlockTagsProvider extends BlockTagsProvider {
-    public ModBlockTagsProvider(PackOutput pOutput, CompletableFuture<HolderLookup.Provider> pLookupProvider, ExistingFileHelper pExistingFileHelper) {
-        super(pOutput, pLookupProvider, BetterLeveling.MOD_ID, pExistingFileHelper);
+
+    public ModBlockTagsProvider(DataGenerator dataGenerator, String modId, @Nullable ExistingFileHelper existingFileHelper) {
+        super(dataGenerator, modId, existingFileHelper);
     }
 
     @Override
-    protected void addTags(@NotNull HolderLookup.Provider pProvider) {
+    protected void addTags() {
         tag(ModTags.Blocks.CROPS_BEETROOT).add(Blocks.BEETROOTS);
         tag(ModTags.Blocks.CROPS_CARROT).add(Blocks.CARROTS);
         tag(ModTags.Blocks.CROPS_NETHER_WART).add(Blocks.NETHER_WART);

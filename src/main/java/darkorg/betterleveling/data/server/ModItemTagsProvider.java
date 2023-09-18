@@ -1,29 +1,25 @@
 package darkorg.betterleveling.data.server;
 
-import darkorg.betterleveling.BetterLeveling;
 import darkorg.betterleveling.registry.ModItems;
 import darkorg.betterleveling.registry.ModTags;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.data.PackOutput;
+import net.minecraft.data.DataGenerator;
+import net.minecraft.data.tags.BlockTagsProvider;
 import net.minecraft.data.tags.ItemTagsProvider;
-import net.minecraft.data.tags.TagsProvider;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.level.block.Block;
 import net.minecraftforge.common.Tags;
 import net.minecraftforge.common.data.ExistingFileHelper;
-import org.jetbrains.annotations.NotNull;
-
-import java.util.concurrent.CompletableFuture;
+import org.jetbrains.annotations.Nullable;
 
 @SuppressWarnings("unchecked")
 public class ModItemTagsProvider extends ItemTagsProvider {
-    public ModItemTagsProvider(PackOutput pOutput, CompletableFuture<HolderLookup.Provider> pLookupProvider, TagsProvider<Block> pBlockTagsProvider, ExistingFileHelper pExistingFileHelper) {
-        super(pOutput, pLookupProvider, pBlockTagsProvider, BetterLeveling.MOD_ID, pExistingFileHelper);
+
+    public ModItemTagsProvider(DataGenerator p_126530_, BlockTagsProvider p_126531_, String modId, @Nullable ExistingFileHelper existingFileHelper) {
+        super(p_126530_, p_126531_, modId, existingFileHelper);
     }
 
     @Override
-    protected void addTags(@NotNull HolderLookup.Provider pLookupProvider) {
+    protected void addTags() {
         tag(ModTags.Items.SKIN).add(Items.RABBIT_HIDE).addTag(ItemTags.WOOL).addTag(Tags.Items.FEATHERS).addTag(Tags.Items.LEATHER);
         tag(ModTags.Items.MEAT).addTag(ModTags.Items.MEAT_RAW).addTag(ModTags.Items.MEAT_COOKED);
         tag(ModTags.Items.MEAT_RAW).add(Items.BEEF, Items.CHICKEN, Items.MUTTON, Items.PORKCHOP, Items.RABBIT, Items.ROTTEN_FLESH);

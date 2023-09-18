@@ -9,18 +9,15 @@ import darkorg.betterleveling.data.server.ModItemTagsProvider;
 import darkorg.betterleveling.data.server.ModRecipeProvider;
 import darkorg.betterleveling.network.NetworkHandler;
 import darkorg.betterleveling.registry.ModItems;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.data.DataGenerator;
-import net.minecraft.data.PackOutput;
-import net.minecraft.world.item.CreativeModeTabs;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.data.ExistingFileHelper;
 import net.minecraftforge.data.event.GatherDataEvent;
-import net.minecraftforge.event.CreativeModeTabEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-
-import java.util.concurrent.CompletableFuture;
+import org.jetbrains.annotations.NotNull;
 
 @Mod.EventBusSubscriber(modid = BetterLeveling.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class ModEvents {
@@ -29,27 +26,25 @@ public class ModEvents {
         event.enqueueWork(NetworkHandler::init);
     }
 
-    @SubscribeEvent
-    public static void onCreativeModeTabBuildContents(CreativeModeTabEvent.BuildContents event) {
-        if (event.getTab() == CreativeModeTabs.INGREDIENTS) {
-            event.accept(ModItems.RAW_DEBRIS);
+    public static final CreativeModeTab BETTER_LEVELING = new CreativeModeTab(BetterLeveling.MOD_ID) {
+        @Override
+        public @NotNull ItemStack makeIcon() {
+            return ModItems.RAW_DEBRIS.get().getDefaultInstance();
         }
-    }
+    };
 
     @SubscribeEvent
     public static void gatherData(GatherDataEvent event) {
         DataGenerator generator = event.getGenerator();
-        PackOutput packOutput = generator.getPackOutput();
         ExistingFileHelper existingFileHelper = event.getExistingFileHelper();
-        CompletableFuture<HolderLookup.Provider> lookupProvider = event.getLookupProvider();
-        ModLanguageProvider en_us = new ModLanguageProvider(packOutput, "en_us");
-        ModItemModelProvider itemModelProvider = new ModItemModelProvider(packOutput, existingFileHelper);
+        ModLanguageProvider en_us = new ModLanguageProvider(generator, "en_us");
+        ModItemModelProvider itemModelProvider = new ModItemModelProvider(generator, existingFileHelper);
         generator.addProvider(event.includeClient(), en_us);
         generator.addProvider(event.includeClient(), itemModelProvider);
-        ModRecipeProvider recipeProvider = new ModRecipeProvider(packOutput);
-        ModGlobalLootModifierProvider lootModifierProvider = new ModGlobalLootModifierProvider(packOutput);
-        ModBlockTagsProvider blockTagsProvider = new ModBlockTagsProvider(packOutput, lookupProvider, existingFileHelper);
-        ModItemTagsProvider itemTagsProvider = new ModItemTagsProvider(packOutput, lookupProvider, blockTagsProvider, existingFileHelper);
+        ModRecipeProvider recipeProvider = new ModRecipeProvider(generator);
+        ModGlobalLootModifierProvider lootModifierProvider = new ModGlobalLootModifierProvider(generator);
+        ModBlockTagsProvider blockTagsProvider = new ModBlockTagsProvider(generator, BetterLeveling.MOD_ID, existingFileHelper);
+        ModItemTagsProvider itemTagsProvider = new ModItemTagsProvider(generator, blockTagsProvider, BetterLeveling.MOD_ID, existingFileHelper);
         generator.addProvider(event.includeServer(), recipeProvider);
         generator.addProvider(event.includeServer(), lootModifierProvider);
         generator.addProvider(event.includeServer(), blockTagsProvider);

@@ -8,12 +8,12 @@ import darkorg.betterleveling.network.chat.ModTranslatableContents;
 import darkorg.betterleveling.registry.ModItems;
 import darkorg.betterleveling.registry.SkillRegistry;
 import darkorg.betterleveling.registry.SpecRegistry;
-import net.minecraft.data.PackOutput;
+import net.minecraft.data.DataGenerator;
 import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraftforge.common.data.LanguageProvider;
 
 public class ModLanguageProvider extends LanguageProvider {
-    public ModLanguageProvider(PackOutput pOutput, String pLocale) {
+    public ModLanguageProvider(DataGenerator pOutput, String pLocale) {
         super(pOutput, BetterLeveling.MOD_ID, pLocale);
     }
 
@@ -24,6 +24,7 @@ public class ModLanguageProvider extends LanguageProvider {
 
         add(ModItems.RAW_DEBRIS.get(), "Raw Debris");
 
+        add(ModTranslatableContents.ITEM_GROUP, "Better Leveling");
         add(ModTranslatableContents.ADDITIONAL_INFORMATION, "Additional information:");
         add(ModTranslatableContents.AVAILABLE, "Available: ");
         add(ModTranslatableContents.BONUS, "Bonus: ");

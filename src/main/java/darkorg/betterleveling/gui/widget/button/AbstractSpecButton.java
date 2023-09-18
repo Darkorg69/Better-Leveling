@@ -3,13 +3,11 @@ package darkorg.betterleveling.gui.widget.button;
 import darkorg.betterleveling.api.ISpecialization;
 import darkorg.betterleveling.registry.SpecRegistry;
 import net.minecraft.client.gui.components.AbstractButton;
-import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
@@ -88,10 +86,6 @@ public abstract class AbstractSpecButton extends AbstractButton {
         this.representativeItemStack = pValue.getRepresentativeItemStack();
     }
 
-    @Override
-    protected void updateWidgetNarration(@NotNull NarrationElementOutput pNarrationElementOutput) {
-
-    }
 
     @OnlyIn(Dist.CLIENT)
     public interface OnValueChange {

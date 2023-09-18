@@ -62,29 +62,24 @@ public class SkillButton extends AbstractButton {
         RenderUtil.setShaderTextureButton();
 
         if (!this.isUnlocked) {
-            this.blit(pPoseStack, this.getX(), this.getY(), 64, 166, width, height);
-            this.blit(pPoseStack, this.getX() + 6, this.getY() + 6, 0, 198, 20, 20);
+            this.blit(pPoseStack, this.x, this.y, 64, 166, width, height);
+            this.blit(pPoseStack, this.x + 6, this.y + 6, 0, 198, 20, 20);
         } else {
             if (!this.isMaxLevel) {
-                this.blit(pPoseStack, this.getX(), this.getY(), 64, 166, width, height);
-                drawString(pPoseStack, minecraft.font, String.valueOf(this.level), this.getX() + 4, this.getY() + 4, 16777215);
+                this.blit(pPoseStack, this.x, this.y, 64, 166, width, height);
+                drawString(pPoseStack, minecraft.font, String.valueOf(this.level), this.x + 4, this.y + 4, 16777215);
             } else {
-                this.blit(pPoseStack, this.getX(), this.getY(), 96, 166, width, height);
+                this.blit(pPoseStack, this.x, this.y, 96, 166, width, height);
             }
         }
         if (isHoveredOrFocused()) {
             this.renderToolTip(pPoseStack, pMouseX, pMouseY);
         }
         if (this.isUnlocked) {
-            minecraft.getItemRenderer().renderGuiItem(this.representativeStack, this.getX() + 8, this.getY() + 8);
+            minecraft.getItemRenderer().renderGuiItem(this.representativeStack, this.x + 8, this.y + 8);
         }
 
         this.renderBg(pPoseStack, minecraft, pMouseX, pMouseY);
-    }
-
-    @Override
-    protected void updateWidgetNarration(@NotNull NarrationElementOutput pNarrationElementOutput) {
-
     }
 
     public void renderToolTip(@NotNull PoseStack pPoseStack, int pMouseX, int pMouseY) {
@@ -93,6 +88,11 @@ public class SkillButton extends AbstractButton {
 
     public ISkill getSkill() {
         return this.skill;
+    }
+
+    @Override
+    public void updateNarration(@NotNull NarrationElementOutput pNarrationElementOutput) {
+
     }
 
     @OnlyIn(Dist.CLIENT)

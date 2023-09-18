@@ -1,7 +1,7 @@
 package darkorg.betterleveling.util;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.Registry;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.RandomSource;
@@ -29,6 +29,6 @@ public class TreasureUtil {
 
     @SuppressWarnings("deprecation")
     public static ItemStack getRandomTreasure(TagKey<Item> pTag, RandomSource pRandom) {
-        return new ItemStack(BuiltInRegistries.ITEM.getTag(pTag).flatMap(pHolderSet -> pHolderSet.getRandomElement(pRandom)).orElseThrow());
+        return new ItemStack(Registry.ITEM.getTag(pTag).flatMap(pHolderSet -> pHolderSet.getRandomElement(pRandom)).orElseThrow());
     }
 }

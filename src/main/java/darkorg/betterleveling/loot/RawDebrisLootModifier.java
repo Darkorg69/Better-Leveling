@@ -25,7 +25,7 @@ public class RawDebrisLootModifier extends LootModifier {
     }
 
     @Override
-    protected @NotNull ObjectArrayList<ItemStack> doApply(ObjectArrayList<ItemStack> pGeneratedLoot, LootContext pContext) {
+    protected @NotNull ObjectArrayList<ItemStack> doApply(ObjectArrayList<ItemStack> pGeneratedLoot, @NotNull LootContext pContext) {
         ItemStack itemStack = pContext.getParamOrNull(LootContextParams.TOOL);
 
         if (itemStack != null && itemStack.getEnchantmentLevel(Enchantments.SILK_TOUCH) <= 0) {

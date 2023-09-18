@@ -4,6 +4,7 @@ import darkorg.betterleveling.BetterLeveling;
 import net.minecraft.network.chat.contents.TranslatableContents;
 
 public class ModTranslatableContents {
+    public static final TranslatableContents ITEM_GROUP = new TranslatableContents("itemGroup." + BetterLeveling.MOD_ID);
     public static final TranslatableContents ADDITIONAL_INFORMATION = new TranslatableContents(BetterLeveling.MOD_ID + ".gui.additional_information");
     public static final TranslatableContents AVAILABLE = new TranslatableContents(BetterLeveling.MOD_ID + ".gui.available");
     public static final TranslatableContents BONUS = new TranslatableContents(BetterLeveling.MOD_ID + ".gui.current_bonus");
