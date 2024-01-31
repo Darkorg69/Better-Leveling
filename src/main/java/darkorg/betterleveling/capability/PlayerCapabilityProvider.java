@@ -8,9 +8,10 @@ import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.common.capabilities.CapabilityToken;
 import net.minecraftforge.common.capabilities.ICapabilitySerializable;
 import net.minecraftforge.common.util.LazyOptional;
+import org.jetbrains.annotations.NotNull;
 
 public class PlayerCapabilityProvider implements ICapabilitySerializable<CompoundTag> {
-    public static Capability<PlayerCapability> PLAYER_CAP = CapabilityManager.get(new CapabilityToken<>() {});
+    public static final Capability<PlayerCapability> PLAYER_CAP = CapabilityManager.get(new CapabilityToken<>() {});
     private PlayerCapability instance;
     private final LazyOptional<PlayerCapability> optional = LazyOptional.of(this::getCapability);
 
@@ -18,8 +19,9 @@ public class PlayerCapabilityProvider implements ICapabilitySerializable<Compoun
         return this.instance == null ? this.instance = new PlayerCapability() : this.instance;
     }
 
+    @NotNull
     @Override
-    public <T> LazyOptional<T> getCapability(Capability<T> pCapability, Direction pSide) {
+    public <T> LazyOptional<T> getCapability(@NotNull Capability<T> pCapability, Direction pSide) {
         return PLAYER_CAP.orEmpty(pCapability, optional);
     }
 

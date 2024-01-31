@@ -19,29 +19,21 @@ public abstract class MixinServerPlayerEntity extends Player {
 
     @Inject(at = @At("TAIL"), method = "setExperiencePoints")
     public void setExperiencePoints(int pLevels, CallbackInfo pCallbackInfo) {
-        this.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(pCapability -> {
-            pCapability.updateAvailableExperience((ServerPlayer) (Object) this);
-        });
+        this.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(pCapability -> pCapability.updateAvailableExperience((ServerPlayer) (Object) this));
     }
 
     @Inject(at = @At("TAIL"), method = "giveExperiencePoints")
     public void giveExperiencePoints(int pXpPoints, CallbackInfo pCallbackInfo) {
-        this.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(pCapability -> {
-            pCapability.updateAvailableExperience((ServerPlayer) (Object) this);
-        });
+        this.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(pCapability -> pCapability.updateAvailableExperience((ServerPlayer) (Object) this));
     }
 
     @Inject(at = @At("TAIL"), method = "setExperienceLevels")
     public void setExperienceLevels(int pLevels, CallbackInfo pCallbackInfo) {
-        this.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(pCapability -> {
-            pCapability.updateAvailableExperience((ServerPlayer) (Object) this);
-        });
+        this.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(pCapability -> pCapability.updateAvailableExperience((ServerPlayer) (Object) this));
     }
 
     @Inject(at = @At("TAIL"), method = "giveExperienceLevels")
     public void giveExperienceLevels(int pLevels, CallbackInfo pCallbackInfo) {
-        this.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(pCapability -> {
-            pCapability.updateAvailableExperience((ServerPlayer) (Object) this);
-        });
+        this.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(pCapability -> pCapability.updateAvailableExperience((ServerPlayer) (Object) this));
     }
 }

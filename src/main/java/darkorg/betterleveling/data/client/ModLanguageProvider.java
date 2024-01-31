@@ -9,13 +9,13 @@ import darkorg.betterleveling.registry.ModBlocks;
 import darkorg.betterleveling.registry.ModItems;
 import darkorg.betterleveling.registry.Skills;
 import darkorg.betterleveling.registry.Specializations;
-import net.minecraft.data.DataGenerator;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.data.PackOutput;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraftforge.common.data.LanguageProvider;
 
 public class ModLanguageProvider extends LanguageProvider {
-    public ModLanguageProvider(DataGenerator pGenerator, String pLocale) {
-        super(pGenerator, BetterLeveling.MOD_ID, pLocale);
+    public ModLanguageProvider(PackOutput pPackOutput) {
+        super(pPackOutput, BetterLeveling.MOD_ID, "en_us");
     }
 
     @Override
@@ -210,7 +210,7 @@ public class ModLanguageProvider extends LanguageProvider {
         add(pSkill.getDescriptionId(pIndex), pDescription);
     }
 
-    private void add(TranslatableComponent pTranslatableContents, String pTranslation) {
-        add(pTranslatableContents.getKey(), pTranslation);
+    private void add(MutableComponent pTranslatableComponent, String pTranslation) {
+        add(pTranslatableComponent.getString(), pTranslation);
     }
 }

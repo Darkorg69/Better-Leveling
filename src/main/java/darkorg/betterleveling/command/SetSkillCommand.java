@@ -56,9 +56,7 @@ public class SetSkillCommand {
             return 1;
         }
 
-        serverPlayer.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(pCapability -> {
-            pCapability.setLevel(serverPlayer, skill, pLevel);
-        });
+        serverPlayer.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(pCapability -> pCapability.setLevel(serverPlayer, skill, pLevel));
 
         return 1;
     }

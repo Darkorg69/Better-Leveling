@@ -7,6 +7,7 @@ import darkorg.betterleveling.util.RenderUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.jetbrains.annotations.NotNull;
 
 @OnlyIn(Dist.CLIENT)
 public class SpecializationButton extends AbstractSpecializationButton {
@@ -18,31 +19,25 @@ public class SpecializationButton extends AbstractSpecializationButton {
     }
 
     @Override
-    public void renderButton(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
+    public void renderWidget(@NotNull PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
         Minecraft minecraft = Minecraft.getInstance();
 
         RenderUtil.setShaderTextureButton();
 
-        this.blit(pPoseStack, this.x, this.y, this.isUnlocked ? 32 : 0, 166, this.width, this.height);
+        blit(pPoseStack, this.getX(), this.getY(), this.isUnlocked ? 32 : 0, 166, this.width, this.height);
 
-        minecraft.getItemRenderer().renderGuiItem(this.value.getRepresentativeItemStack(), this.x + 8, this.y + 8);
+        minecraft.getItemRenderer().renderGuiItem(pPoseStack, this.value.getRepresentativeItemStack(), this.getX() + 8, this.getY() + 8);
 
-        drawCenteredString(pPoseStack, minecraft.font, this.value.getTranslation(), this.x + 16, this.y - 10, 16777215);
+        drawCenteredString(pPoseStack, minecraft.font, this.value.getTranslation(), this.getX() + 16, this.getY() - 10, 16777215);
 
         if (this.isHovered || this.isFocused()) {
             this.renderToolTip(pPoseStack, pMouseX, pMouseY);
         }
 
-        this.renderBg(pPoseStack, minecraft, pMouseX, pMouseY);
+        //this.renderBg(pPoseStack, minecraft, pMouseX, pMouseY);
     }
 
-    @Override
     public void renderToolTip(PoseStack pPoseStack, int pMouseX, int pMouseY) {
         this.onTooltip.onTooltip(pPoseStack, pMouseX, pMouseY);
-    }
-
-    @Override
-    public void onPress() {
-        super.onPress();
     }
 }

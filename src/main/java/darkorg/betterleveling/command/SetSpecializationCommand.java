@@ -48,9 +48,7 @@ public class SetSpecializationCommand {
             return 1;
         }
 
-        serverPlayer.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(pCapability -> {
-            pCapability.setUnlocked(serverPlayer, specialization, pUnlocked);
-        });
+        serverPlayer.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(pCapability -> pCapability.setUnlocked(serverPlayer, specialization, pUnlocked));
 
         return 1;
     }

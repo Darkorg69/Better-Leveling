@@ -5,7 +5,7 @@
   "betterleveling..invalid_level": "Invalid level",
   "betterleveling.gui.additional_info": "Additional information:",
   "betterleveling.gui.available": "Available: ",
-  "betterleveling.gui.bullet": "\u2022 ",
+  "betterleveling.gui.bullet": "• ",
   "betterleveling.gui.cannot_access": "You cannot use this machine.",
   "betterleveling.gui.cannot_decrease": "Cannot decrease level",
   "betterleveling.gui.cannot_increase": "Cannot increase level",

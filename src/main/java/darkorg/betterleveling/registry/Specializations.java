@@ -24,7 +24,7 @@ public class Specializations {
     public static final RegistryObject<Specialization> CRAFTING = register("crafting", () -> new Specialization(new SpecializationProperties(Items.CRAFTING_TABLE, ModConfig.SPECIALIZATIONS.craftingCost)));
     public static final RegistryObject<Specialization> MINING = register("mining", () -> new Specialization(new SpecializationProperties(Items.IRON_PICKAXE, ModConfig.SPECIALIZATIONS.miningCost)));
 
-    private static final Supplier<IForgeRegistry<Specialization>> REGISTRY = SPECIALIZATIONS.makeRegistry(Specialization.class, RegistryBuilder::new);
+    private static final Supplier<IForgeRegistry<Specialization>> REGISTRY = SPECIALIZATIONS.makeRegistry(RegistryBuilder::new);
 
     public static void init() {
         SPECIALIZATIONS.register(FMLJavaModLoadingContext.get().getModEventBus());

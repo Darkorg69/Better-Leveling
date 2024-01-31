@@ -3,19 +3,20 @@ package darkorg.betterleveling.gui.widget.button;
 import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.vertex.PoseStack;
 import darkorg.betterleveling.impl.specialization.Specialization;
-import darkorg.betterleveling.network.chat.ModComponents;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.jetbrains.annotations.NotNull;
 
 @OnlyIn(Dist.CLIENT)
 public abstract class AbstractSpecializationButton extends AbstractButton {
     protected final ImmutableList<Specialization> values;
     private final OnValueChange onValueChange;
     protected Specialization value;
-    protected OnTooltip onTooltip;
+    protected final OnTooltip onTooltip;
     private int index;
 
     public AbstractSpecializationButton(int pX, int pY, int pWidth, int pHeight, Specialization pValue, ImmutableList<Specialization> pValues, OnValueChange pOnValueChange) {
@@ -24,7 +25,7 @@ public abstract class AbstractSpecializationButton extends AbstractButton {
     }
 
     public AbstractSpecializationButton(int pX, int pY, int pWidth, int pHeight, Specialization pValue, ImmutableList<Specialization> pValues, OnValueChange pOnValueChange, OnTooltip pOnTooltip) {
-        super(pX, pY, pWidth, pHeight, ModComponents.EMPTY);
+        super(pX, pY, pWidth, pHeight, Component.empty());
 
         this.value = pValue;
         this.values = pValues;
@@ -57,9 +58,10 @@ public abstract class AbstractSpecializationButton extends AbstractButton {
     }
 
     @Override
-    public void updateNarration(NarrationElementOutput pNarrationElementOutput) {
+    protected void updateWidgetNarration(@NotNull NarrationElementOutput pNarrationElementOutput) {
 
     }
+
 
     @OnlyIn(Dist.CLIENT)
     public interface OnValueChange {

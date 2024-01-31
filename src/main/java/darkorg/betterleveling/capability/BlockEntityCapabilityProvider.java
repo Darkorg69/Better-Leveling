@@ -8,9 +8,10 @@ import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.common.capabilities.CapabilityToken;
 import net.minecraftforge.common.capabilities.ICapabilitySerializable;
 import net.minecraftforge.common.util.LazyOptional;
+import org.jetbrains.annotations.NotNull;
 
 public class BlockEntityCapabilityProvider implements ICapabilitySerializable<CompoundTag> {
-    public static Capability<BlockEntityCapability> BLOCK_ENTITY_CAP = CapabilityManager.get(new CapabilityToken<>() {});
+    public static final Capability<BlockEntityCapability> BLOCK_ENTITY_CAP = CapabilityManager.get(new CapabilityToken<>() {});
     private BlockEntityCapability instance;
     private final LazyOptional<BlockEntityCapability> optional = LazyOptional.of(this::getCapability);
 
@@ -18,8 +19,9 @@ public class BlockEntityCapabilityProvider implements ICapabilitySerializable<Co
         return this.instance == null ? this.instance = new BlockEntityCapability() : this.instance;
     }
 
+    @NotNull
     @Override
-    public <T> LazyOptional<T> getCapability(Capability<T> pCapability, Direction pSide) {
+    public <T> LazyOptional<T> getCapability(@NotNull Capability<T> pCapability, Direction pSide) {
         return BLOCK_ENTITY_CAP.orEmpty(pCapability, optional);
     }
 

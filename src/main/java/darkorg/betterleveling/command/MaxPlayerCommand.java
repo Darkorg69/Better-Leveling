@@ -27,9 +27,7 @@ public class MaxPlayerCommand {
             return 1;
         }
 
-        serverPlayer.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(capability -> {
-            CapabilityUtil.max(capability, serverPlayer);
-        });
+        serverPlayer.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(capability -> CapabilityUtil.max(capability, serverPlayer));
 
         return 1;
     }

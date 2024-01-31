@@ -22,6 +22,7 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.gui.widget.ExtendedButton;
+import org.jetbrains.annotations.NotNull;
 
 @OnlyIn(Dist.CLIENT)
 public class SkillScreen extends Screen {
@@ -44,7 +45,7 @@ public class SkillScreen extends Screen {
     private boolean isMaxLevel;
 
     public SkillScreen(Skill pSkill) {
-        super(ModComponents.EMPTY);
+        super(Component.empty());
         this.skill = pSkill;
         this.translation = this.skill.getTranslation();
         this.description = this.skill.getDescription();
@@ -97,11 +98,11 @@ public class SkillScreen extends Screen {
     }
 
     @Override
-    public void render(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
+    public void render(@NotNull PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
         this.renderBackground(pPoseStack);
 
         RenderUtil.setShaderTexture();
-        this.blit(pPoseStack, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight);
+        blit(pPoseStack, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight);
 
         drawCenteredString(pPoseStack, this.font, this.translation, this.width / 2, this.topPos + 12, 16777215);
         drawCenteredString(pPoseStack, this.font, this.description, this.width / 2, this.topPos + 24, 16777045);

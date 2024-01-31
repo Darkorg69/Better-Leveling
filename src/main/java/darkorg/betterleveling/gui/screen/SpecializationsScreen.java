@@ -26,6 +26,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
 import net.minecraftforge.client.gui.widget.ExtendedButton;
+import org.jetbrains.annotations.NotNull;
 
 public class SpecializationsScreen extends Screen {
     private static final ImmutableList<Specialization> SPECIALIZATIONS = Specializations.getAll();
@@ -44,7 +45,7 @@ public class SpecializationsScreen extends Screen {
     private Component availableXP;
 
     public SpecializationsScreen() {
-        super(ModComponents.EMPTY);
+        super(Component.empty());
     }
 
     @Override
@@ -103,11 +104,11 @@ public class SpecializationsScreen extends Screen {
     }
 
     @Override
-    public void render(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
+    public void render(@NotNull PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
         this.renderBackground(pPoseStack);
 
         RenderUtil.setShaderTexture();
-        this.blit(pPoseStack, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight);
+        blit(pPoseStack, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight);
 
         if (this.isUnlocked) {
             drawCenteredString(pPoseStack, this.font, this.availableXP, this.leftPos + this.imageWidth / 2, this.topPos + 51, 16777215);

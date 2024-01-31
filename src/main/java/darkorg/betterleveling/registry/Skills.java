@@ -43,7 +43,7 @@ public class Skills {
     public static final RegistryObject<Skill> SOFT_LANDING = register("soft_landing", () -> new Skill(SkillProperties.of(Specializations.MINING, FEATHER, ModConfig.CLIENT.softLandingRenderRow, ModConfig.CLIENT.softLandingRenderColumn, ModConfig.SKILLS.softLandingMaxLevel, ModConfig.SKILLS.softLandingCostPerLevel, ModConfig.SKILLS.softLandingBonusPerLevel, ModConfig.SKILLS.softLandingPrerequisites)));
     public static final RegistryObject<Skill> SPRINT_SPEED = register("sprint_speed", () -> new Skill(SkillProperties.of(Specializations.MINING, GOLDEN_BOOTS, ModConfig.CLIENT.sprintSpeedRenderRow, ModConfig.CLIENT.sprintSpeedRenderColumn, ModConfig.SKILLS.sprintSpeedMaxLevel, ModConfig.SKILLS.sprintSpeedCostPerLevel, ModConfig.SKILLS.sprintSpeedBonusPerLevel, ModConfig.SKILLS.sprintSpeedPrerequisites)));
 
-    private static final Supplier<IForgeRegistry<Skill>> REGISTRY = Skills.SKILLS.makeRegistry(Skill.class, RegistryBuilder::new);
+    private static final Supplier<IForgeRegistry<Skill>> REGISTRY = Skills.SKILLS.makeRegistry(RegistryBuilder::new);
 
     public static void init() {
         SKILLS.register(FMLJavaModLoadingContext.get().getModEventBus());

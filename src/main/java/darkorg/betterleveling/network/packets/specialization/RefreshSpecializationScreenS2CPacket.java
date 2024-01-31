@@ -30,9 +30,7 @@ public class RefreshSpecializationScreenS2CPacket {
     public static void handle(RefreshSpecializationScreenS2CPacket pPacket, Supplier<NetworkEvent.Context> pSupplier) {
         NetworkEvent.Context context = pSupplier.get();
         // HERE WE ARE ON THE CLIENT!
-        context.enqueueWork(() -> {
-            DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> RefreshSpecializationScreenS2CPacket::handleOnClient);
-        });
+        context.enqueueWork(() -> DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> RefreshSpecializationScreenS2CPacket::handleOnClient));
 
         context.setPacketHandled(true);
     }

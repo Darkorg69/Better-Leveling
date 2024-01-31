@@ -1,7 +1,7 @@
 package darkorg.betterleveling.api;
 
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 
 public interface ITranslatable {
     String getName();
@@ -17,14 +17,14 @@ public interface ITranslatable {
     }
 
     default MutableComponent getTranslation() {
-        return new TranslatableComponent(getTranslationId());
+        return Component.translatable(getTranslationId());
     }
 
     default MutableComponent getDescription() {
-        return new TranslatableComponent(getDescriptionId(0));
+        return Component.translatable(getDescriptionId(0));
     }
 
     default MutableComponent getDescription(int pIndex) {
-        return new TranslatableComponent(getDescriptionId(pIndex));
+        return Component.translatable(getDescriptionId(pIndex));
     }
 }

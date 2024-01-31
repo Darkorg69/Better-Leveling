@@ -1,34 +1,15 @@
 package darkorg.betterleveling.data.server;
 
-import com.google.common.collect.ImmutableList;
-import com.mojang.datafixers.util.Pair;
 import darkorg.betterleveling.data.loot.ModBlockLootTables;
-import net.minecraft.data.DataGenerator;
+import net.minecraft.data.PackOutput;
 import net.minecraft.data.loot.LootTableProvider;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.level.storage.loot.LootTable;
-import net.minecraft.world.level.storage.loot.ValidationContext;
-import net.minecraft.world.level.storage.loot.parameters.LootContextParamSet;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 
 import java.util.List;
-import java.util.Map;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
+import java.util.Set;
 
 public class ModLootTableProvider extends LootTableProvider {
-    public ModLootTableProvider(DataGenerator pGenerator) {
-        super(pGenerator);
-    }
-
-    @Override
-    protected List<Pair<Supplier<Consumer<BiConsumer<ResourceLocation, LootTable.Builder>>>, LootContextParamSet>> getTables() {
-        return ImmutableList.of(Pair.of(ModBlockLootTables::new, LootContextParamSets.BLOCK));
-    }
-
-    @Override
-    protected void validate(Map<ResourceLocation, LootTable> pMap, ValidationContext pValidationContext) {
-
+    public ModLootTableProvider(PackOutput pPackOutput) {
+        super(pPackOutput, Set.of(), List.of(new LootTableProvider.SubProviderEntry(ModBlockLootTables::new, LootContextParamSets.BLOCK)));
     }
 }

@@ -28,7 +28,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.RegisterCommandsEvent;
-import net.minecraftforge.event.entity.EntityJoinWorldEvent;
+import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -71,7 +71,7 @@ public class ForgeEvents {
     }
 
     @SubscribeEvent
-    public static void onEntityJoinLevel(EntityJoinWorldEvent event) {
+    public static void onEntityJoinLevel(EntityJoinLevelEvent event) {
         Entity entity = event.getEntity();
         if (entity instanceof ServerPlayer serverPlayer) {
             if (!serverPlayer.level.isClientSide) {
@@ -86,7 +86,7 @@ public class ForgeEvents {
         if (oldPlayer instanceof ServerPlayer oldServerPlayer) {
             oldServerPlayer.reviveCaps();
             oldServerPlayer.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(oldCap -> {
-                Player newPlayer = event.getPlayer();
+                Player newPlayer = event.getEntity();
                 if (newPlayer instanceof ServerPlayer newServerPlayer) {
                     newServerPlayer.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(newCap -> {
                         CompoundTag oldData = oldCap.getData();
@@ -107,8 +107,8 @@ public class ForgeEvents {
 
     @SubscribeEvent
     public static void onRightClickHarvest(PlayerInteractEvent.RightClickBlock event) {
-        Level level = event.getWorld();
-        Player player = event.getPlayer();
+        Level level = event.getLevel();
+        Player player = event.getEntity();
         if (level instanceof ServerLevel serverLevel && player instanceof ServerPlayer serverPlayer && ModConfig.GAMEPLAY.rightClickHarvest.get()) {
             BlockPos pos = event.getPos();
             BlockState state = serverLevel.getBlockState(pos);
@@ -150,7 +150,7 @@ public class ForgeEvents {
     public static void onRightClickFurnace(PlayerInteractEvent.RightClickBlock event) {
         Entity entity = event.getEntity();
         if (event.getSide() == LogicalSide.SERVER && entity instanceof ServerPlayer serverPlayer) {
-            BlockEntity tileEntity = event.getWorld().getBlockEntity(event.getPos());
+            BlockEntity tileEntity = event.getLevel().getBlockEntity(event.getPos());
             if (tileEntity instanceof AbstractFurnaceBlockEntity abstractFurnaceBlockEntity) {
                 abstractFurnaceBlockEntity.getCapability(BlockEntityCapabilityProvider.BLOCK_ENTITY_CAP).ifPresent(capability -> {
                     ItemStack stack = event.getItemStack();

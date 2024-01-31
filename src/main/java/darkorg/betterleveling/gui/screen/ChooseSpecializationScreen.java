@@ -17,6 +17,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.gui.widget.ExtendedButton;
+import org.jetbrains.annotations.NotNull;
 
 @OnlyIn(Dist.CLIENT)
 public class ChooseSpecializationScreen extends Screen {
@@ -46,16 +47,16 @@ public class ChooseSpecializationScreen extends Screen {
     }
 
     @Override
-    public void render(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
+    public void render(@NotNull PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
         this.renderBackground(pPoseStack);
         drawCenteredString(pPoseStack, this.font, this.title, this.width / 2, this.topPos - 10, 16777215);
         RenderUtil.setShaderTexture();
-        this.blit(pPoseStack, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight);
+        blit(pPoseStack, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight);
         super.render(pPoseStack, pMouseX, pMouseY, pPartialTick);
     }
 
-    private void onValueChange(Specialization specialization) {
-        this.specialization = specialization;
+    private void onValueChange(Specialization pSpecialization) {
+        this.specialization = pSpecialization;
     }
 
     private void onPress(Button pSelectButton) {

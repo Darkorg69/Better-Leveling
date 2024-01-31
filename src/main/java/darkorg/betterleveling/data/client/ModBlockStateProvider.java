@@ -2,14 +2,18 @@ package darkorg.betterleveling.data.client;
 
 import darkorg.betterleveling.BetterLeveling;
 import darkorg.betterleveling.registry.ModBlocks;
-import net.minecraft.data.DataGenerator;
+import net.minecraft.data.PackOutput;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
 import net.minecraftforge.client.model.generators.BlockStateProvider;
 import net.minecraftforge.common.data.ExistingFileHelper;
+import net.minecraftforge.registries.ForgeRegistries;
+
+import java.util.Objects;
 
 public class ModBlockStateProvider extends BlockStateProvider {
-    public ModBlockStateProvider(DataGenerator pDataGenerator, ExistingFileHelper pExistingFileHelper) {
-        super(pDataGenerator, BetterLeveling.MOD_ID, pExistingFileHelper);
+    public ModBlockStateProvider(PackOutput pPackOutput, ExistingFileHelper pExistingFileHelper) {
+        super(pPackOutput, BetterLeveling.MOD_ID, pExistingFileHelper);
     }
 
     @Override
@@ -19,10 +23,6 @@ public class ModBlockStateProvider extends BlockStateProvider {
 
     private void simpleBlockWithBlockItem(Block pBlock) {
         simpleBlock(pBlock);
-        itemModels().withExistingParent(getName(pBlock), blockTexture(pBlock));
-    }
-
-    private String getName(Block pBlock) {
-        return pBlock.getRegistryName() != null ? pBlock.getRegistryName().getPath() : null;
+        itemModels().withExistingParent(ForgeRegistries.BLOCKS.getKey(pBlock).getPath(), blockTexture(pBlock));
     }
 }

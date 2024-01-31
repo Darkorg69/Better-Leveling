@@ -27,9 +27,7 @@ public class ResetPlayerCommand {
             return 1;
         }
 
-        serverPlayer.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(capability -> {
-            CapabilityUtil.reset(capability, serverPlayer);
-        });
+        serverPlayer.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(capability -> CapabilityUtil.reset(capability, serverPlayer));
 
         return 1;
     }

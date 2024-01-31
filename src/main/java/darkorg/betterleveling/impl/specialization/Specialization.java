@@ -4,12 +4,13 @@ import darkorg.betterleveling.api.IItemStackRepresentable;
 import darkorg.betterleveling.api.ITranslatable;
 import darkorg.betterleveling.api.specialization.ISpecialization;
 import darkorg.betterleveling.network.chat.ModComponents;
+import darkorg.betterleveling.registry.Specializations;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.registries.ForgeRegistryEntry;
 
-public class Specialization extends ForgeRegistryEntry<Specialization> implements ISpecialization, ITranslatable, IItemStackRepresentable {
+public class Specialization implements ISpecialization, ITranslatable, IItemStackRepresentable {
     private final SpecializationProperties properties;
 
     public Specialization(SpecializationProperties pProperties) {
@@ -37,6 +38,10 @@ public class Specialization extends ForgeRegistryEntry<Specialization> implement
     }
 
     public MutableComponent getUnlockCost() {
-        return new TranslatableComponent("").append(ModComponents.UNLOCK_COST).append(String.valueOf(this.getProperties().getLevelCost())).append(ModComponents.LEVELS);
+        return Component.translatable("").append(ModComponents.UNLOCK_COST).append(String.valueOf(this.getProperties().getLevelCost())).append(ModComponents.LEVELS);
+    }
+
+    public ResourceLocation getRegistryName() {
+        return Specializations.getRegistry().getKey(this);
     }
 }

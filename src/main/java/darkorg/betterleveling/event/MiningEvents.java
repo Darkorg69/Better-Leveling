@@ -26,7 +26,7 @@ import net.minecraftforge.common.Tags;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.living.LivingFallEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
-import net.minecraftforge.event.world.BlockEvent;
+import net.minecraftforge.event.level.BlockEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.common.Mod;
@@ -54,7 +54,7 @@ public class MiningEvents {
 
     @SubscribeEvent
     public static void onStonecutting(PlayerEvent.BreakSpeed event) {
-        Player player = event.getPlayer();
+        Player player = event.getEntity();
         if (player != null && event.getState().getMaterial() == Material.STONE) {
             player.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(capability -> {
                 Skill skill = Skills.STONECUTTING.get();
@@ -105,14 +105,14 @@ public class MiningEvents {
 
     @SubscribeEvent
     public static void onWoodcutting(PlayerEvent.BreakSpeed event) {
-        Player player = event.getPlayer();
-        if (player instanceof ServerPlayer serverPlayer) {
+        Player player = event.getEntity();
+        if (player != null) {
             Material material = event.getState().getMaterial();
             if (material == Material.WOOD || material == Material.NETHER_WOOD) {
-                serverPlayer.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(capability -> {
+                player.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(capability -> {
                     Skill skill = Skills.WOODCUTTING.get();
-                    if (SkillUtil.hasUnlocked(capability, serverPlayer, skill)) {
-                        int currentLevel = capability.getLevel(serverPlayer, skill);
+                    if (SkillUtil.hasUnlocked(capability, player, skill)) {
+                        int currentLevel = capability.getLevel(player, skill);
                         if (currentLevel > 0) {
                             double currentBonus = 1.0D + skill.getCurrentBonus(currentLevel);
                             event.setNewSpeed(event.getOriginalSpeed() * (float) currentBonus);

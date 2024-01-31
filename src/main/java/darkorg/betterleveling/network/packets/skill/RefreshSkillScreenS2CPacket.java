@@ -36,9 +36,7 @@ public class RefreshSkillScreenS2CPacket {
     public static void handle(RefreshSkillScreenS2CPacket pPacket, Supplier<NetworkEvent.Context> pSupplier) {
         NetworkEvent.Context context = pSupplier.get();
         // HERE WE ARE ON THE CLIENT!
-        context.enqueueWork(() -> {
-            DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> handleOnClient(pPacket));
-        });
+        context.enqueueWork(() -> DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> handleOnClient(pPacket)));
 
         context.setPacketHandled(true);
     }

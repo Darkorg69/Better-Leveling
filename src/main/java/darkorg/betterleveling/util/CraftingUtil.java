@@ -42,7 +42,7 @@ public class CraftingUtil {
 
         for (int i = 0; i < pInventory.getContainerSize(); i++) {
             ItemStack stack = pInventory.getItem(i);
-            if (!stack.isEmpty() && !stack.hasContainerItem()) {
+            if (!stack.isEmpty() && !stack.hasCraftingRemainingItem()) {
                 Item ingredient = stack.getItem();
                 if (!ingredientsMap.containsKey(ingredient)) {
                     ingredientsMap.put(ingredient, 1);
@@ -55,9 +55,7 @@ public class CraftingUtil {
 
         List<ItemStack> ingredients = new ArrayList<>();
 
-        ingredientsMap.forEach((ingredient, count) -> {
-            ingredients.add(new ItemStack(ingredient, count));
-        });
+        ingredientsMap.forEach((ingredient, count) -> ingredients.add(new ItemStack(ingredient, count)));
 
         return ingredients;
     }

@@ -18,7 +18,6 @@ public class SkillProperties implements ISkillProperties {
     private final ItemLike itemLike;
     private final IntValue row;
     private final IntValue column;
-    private final int min_level = 0;
     private final IntValue maxLevel;
     private final IntValue costPerLevel;
     private final DoubleValue bonusPerLevel;
@@ -61,7 +60,7 @@ public class SkillProperties implements ISkillProperties {
 
     @Override
     public int getMinLevel() {
-        return min_level;
+        return 0;
     }
 
     @Override

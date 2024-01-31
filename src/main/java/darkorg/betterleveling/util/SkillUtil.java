@@ -64,14 +64,12 @@ public class SkillUtil {
 
             if (!prerequisitesMap.isEmpty()) {
                 tooltip.add(ModComponents.PREREQUISITES.withStyle(ChatFormatting.DARK_RED));
-                prerequisitesMap.forEach((prerequisiteSkill, prerequisiteLevel) -> {
-                    tooltip.add(RenderUtil.getPrerequisite(prerequisiteSkill, prerequisiteLevel).withStyle(ChatFormatting.GRAY));
-                });
+                prerequisitesMap.forEach((prerequisiteSkill, prerequisiteLevel) -> tooltip.add(RenderUtil.getPrerequisite(prerequisiteSkill, prerequisiteLevel).withStyle(ChatFormatting.GRAY)));
             }
         }
 
         if (Screen.hasShiftDown()) {
-            tooltip.add(ModComponents.EMPTY);
+            tooltip.add(Component.empty());
             tooltip.add(ModComponents.ADDITIONAL_INFO.withStyle(ChatFormatting.AQUA));
             tooltip.add(description.withStyle(ChatFormatting.YELLOW));
             tooltip.add(costPerLevel.withStyle(ChatFormatting.DARK_GREEN));

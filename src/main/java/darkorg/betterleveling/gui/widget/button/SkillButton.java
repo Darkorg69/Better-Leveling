@@ -4,16 +4,17 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import darkorg.betterleveling.capability.PlayerCapabilityProvider;
 import darkorg.betterleveling.gui.screen.SkillScreen;
 import darkorg.betterleveling.impl.skill.Skill;
-import darkorg.betterleveling.network.chat.ModComponents;
 import darkorg.betterleveling.util.RenderUtil;
 import darkorg.betterleveling.util.SkillUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.jetbrains.annotations.NotNull;
 
 @OnlyIn(Dist.CLIENT)
 public class SkillButton extends AbstractButton {
@@ -25,7 +26,7 @@ public class SkillButton extends AbstractButton {
     private boolean isMaxLevel;
 
     public SkillButton(int pX, int pY, Skill pSkill, OnTooltip pOnTooltip) {
-        super(pX + pSkill.getProperties().getColumn() * 50, pY + pSkill.getProperties().getRow() * 51, 32, 32, ModComponents.EMPTY);
+        super(pX + pSkill.getProperties().getColumn() * 50, pY + pSkill.getProperties().getRow() * 51, 32, 32, Component.empty());
 
         this.skill = pSkill;
         this.onTooltip = pOnTooltip;
@@ -52,39 +53,38 @@ public class SkillButton extends AbstractButton {
     }
 
     @Override
-    public void renderButton(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
+    public void renderWidget(@NotNull PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
         Minecraft minecraft = Minecraft.getInstance();
 
         RenderUtil.setShaderTextureButton();
 
         if (this.active) {
             if (this.isMaxLevel) {
-                this.blit(pPoseStack, this.x, this.y, 96, 166, width, height);
+                blit(pPoseStack, this.getX(), this.getY(), 96, 166, width, height);
             } else {
-                this.blit(pPoseStack, this.x, this.y, 64, 166, width, height);
-                drawString(pPoseStack, minecraft.font, String.valueOf(this.currentLevel), this.x + 4, this.y + 4, 16777215);
+                blit(pPoseStack, this.getX(), this.getY(), 64, 166, width, height);
+                drawString(pPoseStack, minecraft.font, String.valueOf(this.currentLevel), this.getX() + 4, this.getY() + 4, 16777215);
             }
-            minecraft.getItemRenderer().renderGuiItem(this.itemStack, this.x + 8, this.y + 8);
+            minecraft.getItemRenderer().renderGuiItem(pPoseStack, this.itemStack, this.getX() + 8, this.getY() + 8);
         } else {
-            this.blit(pPoseStack, this.x, this.y, 64, 166, width, height);
-            this.blit(pPoseStack, this.x + 6, this.y + 6, 0, 198, 20, 20);
+            blit(pPoseStack, this.getX(), this.getY(), 64, 166, width, height);
+            blit(pPoseStack, this.getX() + 6, this.getY() + 6, 0, 198, 20, 20);
         }
 
         if (this.isHovered || this.isFocused()) {
             this.renderToolTip(pPoseStack, pMouseX, pMouseY);
         }
 
-        this.renderBg(pPoseStack, minecraft, pMouseX, pMouseY);
+        //this.renderBg(pPoseStack, minecraft, pMouseX, pMouseY);
     }
 
     @Override
+    protected void updateWidgetNarration(@NotNull NarrationElementOutput pNarrationElementOutput) {
+
+    }
+
     public void renderToolTip(PoseStack pPoseStack, int pMouseX, int pMouseY) {
         this.onTooltip.onTooltip(this, pPoseStack, pMouseX, pMouseY);
-    }
-
-    @Override
-    public void updateNarration(NarrationElementOutput pNarrationElementOutput) {
-
     }
 
     @OnlyIn(Dist.CLIENT)

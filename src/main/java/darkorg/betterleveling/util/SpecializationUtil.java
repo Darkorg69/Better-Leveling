@@ -46,7 +46,7 @@ public class SpecializationUtil {
         }
 
         if (Screen.hasShiftDown()) {
-            tooltip.add(ModComponents.EMPTY);
+            tooltip.add(Component.empty());
             tooltip.add(ModComponents.ADDITIONAL_INFO.withStyle(ChatFormatting.AQUA));
             tooltip.add(description.withStyle(ChatFormatting.YELLOW));
         } else {

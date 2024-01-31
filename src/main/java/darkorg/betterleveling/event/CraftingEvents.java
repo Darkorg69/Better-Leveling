@@ -25,7 +25,7 @@ import net.minecraftforge.event.TickEvent.Phase;
 import net.minecraftforge.event.TickEvent.PlayerTickEvent;
 import net.minecraftforge.event.entity.living.LivingDropsEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
-import net.minecraftforge.event.world.BlockEvent;
+import net.minecraftforge.event.level.BlockEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.common.Mod;
@@ -48,7 +48,7 @@ public class CraftingEvents {
                         if (ingredients.size() > 1) {
                             Random random = new Random();
                             int sum = ingredients.stream().mapToInt(ItemStack::getCount).sum();
-                            double currentBonus = random.nextDouble(0.5D, ModConfig.SPECIALIZATIONS.combatBonus.get());
+                            double currentBonus = random.nextDouble(0.5D, ModConfig.SPECIALIZATIONS.craftingBonus.get());
                             serverPlayer.giveExperiencePoints(Math.toIntExact(Math.round(sum * currentBonus)));
                         }
                     }

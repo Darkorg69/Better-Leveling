@@ -6,13 +6,17 @@ import darkorg.betterleveling.data.client.ModItemModelProvider;
 import darkorg.betterleveling.data.client.ModLanguageProvider;
 import darkorg.betterleveling.data.server.*;
 import darkorg.betterleveling.network.NetworkHandler;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.data.DataGenerator;
+import net.minecraft.data.PackOutput;
 import net.minecraftforge.common.data.ExistingFileHelper;
+import net.minecraftforge.data.event.GatherDataEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.config.ModConfigEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.minecraftforge.forge.event.lifecycle.GatherDataEvent;
+
+import java.util.concurrent.CompletableFuture;
 
 @Mod.EventBusSubscriber(modid = BetterLeveling.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class ModEvents {
@@ -34,28 +38,28 @@ public class ModEvents {
     @SubscribeEvent
     public static void gatherData(GatherDataEvent event) {
         DataGenerator generator = event.getGenerator();
+        PackOutput packOutput = generator.getPackOutput();
         ExistingFileHelper existingFileHelper = event.getExistingFileHelper();
+        CompletableFuture<HolderLookup.Provider> lookupProvider = event.getLookupProvider();
 
-        ModLanguageProvider en_us = new ModLanguageProvider(generator, "en_us");
-        ModItemModelProvider itemModelProvider = new ModItemModelProvider(generator, existingFileHelper);
-        ModBlockStateProvider blockStateProvider = new ModBlockStateProvider(generator, existingFileHelper);
+        ModLanguageProvider en_us = new ModLanguageProvider(packOutput);
+        ModItemModelProvider itemModelProvider = new ModItemModelProvider(packOutput, existingFileHelper);
+        ModBlockStateProvider blockStateProvider = new ModBlockStateProvider(packOutput, existingFileHelper);
 
-        ModRecipeProvider recipeProvider = new ModRecipeProvider(generator);
-        ModLootTableProvider lootTableProvider = new ModLootTableProvider(generator);
-        ModGlobalLootModifierProvider globalLootModifierProvider = new ModGlobalLootModifierProvider(generator);
+        generator.addProvider(event.includeClient(), en_us);
+        generator.addProvider(event.includeClient(), itemModelProvider);
+        generator.addProvider(event.includeClient(), blockStateProvider);
 
-        ModBlockTagsProvider blockTagsProvider = new ModBlockTagsProvider(generator, existingFileHelper);
-        ModItemTagsProvider itemTagsProvider = new ModItemTagsProvider(generator, blockTagsProvider, existingFileHelper);
+        ModRecipeProvider recipeProvider = new ModRecipeProvider(packOutput);
+        ModLootTableProvider lootTableProvider = new ModLootTableProvider(packOutput);
+        ModGlobalLootModifierProvider globalLootModifierProvider = new ModGlobalLootModifierProvider(packOutput);
+        ModBlockTagsProvider blockTagsProvider = new ModBlockTagsProvider(packOutput, lookupProvider, existingFileHelper);
+        ModItemTagsProvider itemTagsProvider = new ModItemTagsProvider(packOutput, lookupProvider, blockTagsProvider.contentsGetter(), existingFileHelper);
 
-        generator.addProvider(en_us);
-        generator.addProvider(itemModelProvider);
-        generator.addProvider(blockStateProvider);
-
-        generator.addProvider(recipeProvider);
-        generator.addProvider(lootTableProvider);
-        generator.addProvider(globalLootModifierProvider);
-
-        generator.addProvider(blockTagsProvider);
-        generator.addProvider(itemTagsProvider);
+        generator.addProvider(event.includeServer(), recipeProvider);
+        generator.addProvider(event.includeServer(), lootTableProvider);
+        generator.addProvider(event.includeServer(), globalLootModifierProvider);
+        generator.addProvider(event.includeServer(), blockTagsProvider);
+        generator.addProvider(event.includeServer(), itemTagsProvider);
     }
 }

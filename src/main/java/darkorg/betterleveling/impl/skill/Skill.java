@@ -4,12 +4,13 @@ import darkorg.betterleveling.api.IItemStackRepresentable;
 import darkorg.betterleveling.api.ITranslatable;
 import darkorg.betterleveling.api.skill.ISkill;
 import darkorg.betterleveling.network.chat.ModComponents;
+import darkorg.betterleveling.registry.Skills;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.registries.ForgeRegistryEntry;
 
-public class Skill extends ForgeRegistryEntry<Skill> implements ISkill, ITranslatable, IItemStackRepresentable {
+public class Skill implements ISkill, ITranslatable, IItemStackRepresentable {
     private final SkillProperties properties;
 
     public Skill(SkillProperties pProperties) {
@@ -21,6 +22,7 @@ public class Skill extends ForgeRegistryEntry<Skill> implements ISkill, ITransla
     }
 
     public String getName() {
+
         return this.getRegistryName() != null ? this.getRegistryName().getPath() : null;
     }
 
@@ -33,10 +35,14 @@ public class Skill extends ForgeRegistryEntry<Skill> implements ISkill, ITransla
     }
 
     public MutableComponent getBonusPerLevel() {
-        return new TranslatableComponent("").append(ModComponents.BONUS).append(this.getDescription(1)).append(String.format("%.2f", this.getProperties().getBonusPerLevel() * 100)).append(this.getDescription(2)).append(this.getDescription(3)).append(ModComponents.PER_LEVEL);
+        return Component.translatable("").append(ModComponents.BONUS).append(this.getDescription(1)).append(String.format("%.2f", this.getProperties().getBonusPerLevel() * 100)).append(this.getDescription(2)).append(this.getDescription(3)).append(ModComponents.PER_LEVEL);
     }
 
     public MutableComponent getCostPerLevel() {
-        return new TranslatableComponent("").append(ModComponents.COST).append(String.valueOf(this.getProperties().getCostPerLevel())).append(ModComponents.XP).append(ModComponents.PER_LEVEL);
+        return Component.translatable("").append(ModComponents.COST).append(String.valueOf(this.getProperties().getCostPerLevel())).append(ModComponents.XP).append(ModComponents.PER_LEVEL);
+    }
+
+    public ResourceLocation getRegistryName() {
+        return Skills.getRegistry().getKey(this);
     }
 }

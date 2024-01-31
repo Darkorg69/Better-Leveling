@@ -443,9 +443,9 @@ public class ModConfig {
             treasureHuntingMaxLevel = pBuilder.defineInRange("maxLevel", 10, 1, Integer.MAX_VALUE);
             treasureHuntingCostPerLevel = pBuilder.defineInRange("costPerLevel", 60, 1, Integer.MAX_VALUE);
             treasureHuntingBonusPerLevel = pBuilder.defineInRange("bonusPerLevel", 0.0125D, 0.0D, Double.MAX_VALUE);
-            treasureHuntingRareWeight = pBuilder.defineInRange("rareTreasureWeight", 1, 1, Integer.MAX_VALUE);
-            treasureHuntingUncommonWeight = pBuilder.defineInRange("uncommonTreasureWeight", 3, 1, Integer.MAX_VALUE);
-            treasureHuntingCommonWeight = pBuilder.defineInRange("commonTreasureWeight", 6, 1, Integer.MAX_VALUE);
+            treasureHuntingRareWeight = pBuilder.defineInRange("rareTreasureWeight", 3, 1, Integer.MAX_VALUE);
+            treasureHuntingUncommonWeight = pBuilder.defineInRange("uncommonTreasureWeight", 10, 1, Integer.MAX_VALUE);
+            treasureHuntingCommonWeight = pBuilder.defineInRange("commonTreasureWeight", 87, 1, Integer.MAX_VALUE);
             treasureHuntingPrerequisites = pBuilder.define("prerequisites", "prospecting:3,stonecutting:8");
             pBuilder.pop();
 

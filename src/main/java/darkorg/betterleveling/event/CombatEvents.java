@@ -9,7 +9,7 @@ import darkorg.betterleveling.registry.Skills;
 import darkorg.betterleveling.registry.Specializations;
 import darkorg.betterleveling.util.SkillUtil;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
@@ -18,7 +18,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.item.BowItem;
 import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.entity.EntityJoinWorldEvent;
+import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.event.entity.living.LivingEntityUseItemEvent;
 import net.minecraftforge.event.entity.living.LivingExperienceDropEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
@@ -49,8 +49,7 @@ public class CombatEvents {
     @SubscribeEvent
     public static void onStrength(LivingHurtEvent event) {
         Entity directEntity = event.getSource().getDirectEntity();
-        if (directEntity instanceof ServerPlayer) {
-            ServerPlayer serverPlayer = (ServerPlayer) directEntity;
+        if (directEntity instanceof ServerPlayer serverPlayer) {
             serverPlayer.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(capability -> {
                 Skill skill = Skills.STRENGTH.get();
                 if (SkillUtil.hasUnlocked(capability, serverPlayer, skill)) {
@@ -60,7 +59,6 @@ public class CombatEvents {
                         event.setAmount(event.getAmount() * (float) currentBonus);
                     }
                 }
-
             });
         }
     }
@@ -70,7 +68,7 @@ public class CombatEvents {
         if (event.isVanillaCritical() && ModConfig.SKILLS.disableVanillaCrits.get()) {
             event.setResult(Event.Result.DENY);
         }
-        Player player = event.getPlayer();
+        Player player = event.getEntity();
         player.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(capability -> {
             Skill skill = Skills.CRITICAL_STRIKE.get();
             if (SkillUtil.hasUnlocked(capability, player, skill)) {
@@ -103,7 +101,7 @@ public class CombatEvents {
     }
 
     @SubscribeEvent
-    public static void onArrowSpeed(EntityJoinWorldEvent event) {
+    public static void onArrowSpeed(EntityJoinLevelEvent event) {
         Entity entity = event.getEntity();
         if (entity instanceof AbstractArrow arrow) {
             if (arrow.getOwner() instanceof ServerPlayer serverPlayer) {
@@ -123,7 +121,7 @@ public class CombatEvents {
     @SubscribeEvent
     public static void onIronSkin(LivingHurtEvent event) {
         Entity entity = event.getEntity();
-        if (entity instanceof Player player && event.getSource() != DamageSource.FALL) {
+        if (entity instanceof Player player && !event.getSource().is(DamageTypes.FALL)) {
             player.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(capability -> {
                 if (SkillUtil.hasUnlocked(capability, player, Skills.IRON_SKIN.get())) {
                     int currentLevel = capability.getLevel(player, Skills.IRON_SKIN.get());
