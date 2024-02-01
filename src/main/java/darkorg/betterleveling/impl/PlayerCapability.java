@@ -42,7 +42,7 @@ public class PlayerCapability implements IPlayerCapability {
 
     @Override
     public boolean getUnlocked(Player pPlayer, Specialization pSpecialization) {
-        if (pPlayer.level.isClientSide) {
+        if (pPlayer.level().isClientSide) {
             return this.specializations.getOrDefault(pSpecialization, false);
         }
 
@@ -64,7 +64,7 @@ public class PlayerCapability implements IPlayerCapability {
 
     @Override
     public int getLevel(Player pPlayer, Skill pSkill) {
-        if (pPlayer.level.isClientSide) {
+        if (pPlayer.level().isClientSide) {
             return this.skills.getOrDefault(pSkill, 0);
         }
 
@@ -91,7 +91,7 @@ public class PlayerCapability implements IPlayerCapability {
 
     @Override
     public Specialization getSpecialization(Player pPlayer) {
-        if (pPlayer.level.isClientSide) {
+        if (pPlayer.level().isClientSide) {
             return this.specialization;
         }
 
@@ -107,7 +107,7 @@ public class PlayerCapability implements IPlayerCapability {
 
     @Override
     public int getAvailableExperience(Player pPlayer) {
-        if (pPlayer.level.isClientSide) {
+        if (pPlayer.level().isClientSide) {
             return this.availableExperience;
         }
 

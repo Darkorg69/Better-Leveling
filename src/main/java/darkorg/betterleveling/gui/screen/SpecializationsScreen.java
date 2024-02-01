@@ -1,7 +1,6 @@
 package darkorg.betterleveling.gui.screen;
 
 import com.google.common.collect.ImmutableList;
-import com.mojang.blaze3d.vertex.PoseStack;
 import darkorg.betterleveling.capability.PlayerCapabilityProvider;
 import darkorg.betterleveling.gui.widget.button.SkillButton;
 import darkorg.betterleveling.gui.widget.button.SpecializationButton;
@@ -20,7 +19,10 @@ import darkorg.betterleveling.util.RenderUtil;
 import darkorg.betterleveling.util.SkillUtil;
 import darkorg.betterleveling.util.SpecializationUtil;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.screens.ConfirmScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.player.LocalPlayer;
@@ -104,27 +106,28 @@ public class SpecializationsScreen extends Screen {
     }
 
     @Override
-    public void render(@NotNull PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
-        this.renderBackground(pPoseStack);
+    public void render(@NotNull GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
+        this.renderBackground(pGuiGraphics, pMouseX, pMouseY, pPartialTick);
 
-        RenderUtil.setShaderTexture();
-        blit(pPoseStack, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight);
+        pGuiGraphics.blit(RenderUtil.BACKGROUND, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight);
 
         if (this.isUnlocked) {
-            drawCenteredString(pPoseStack, this.font, this.availableXP, this.leftPos + this.imageWidth / 2, this.topPos + 51, 16777215);
+            pGuiGraphics.drawCenteredString(this.font, this.availableXP, this.leftPos + this.imageWidth / 2, this.topPos + 51, 16777215);
         } else {
-            drawCenteredString(pPoseStack, this.font, ModComponents.SPEC_IS_LOCKED, this.leftPos + this.imageWidth / 2, this.topPos + 51, 16733525);
+            pGuiGraphics.drawCenteredString(this.font, ModComponents.SPEC_IS_LOCKED, this.leftPos + this.imageWidth / 2, this.topPos + 51, 16733525);
         }
 
-        super.render(pPoseStack, pMouseX, pMouseY, pPartialTick);
+        for (Renderable renderable : this.renderables) {
+            renderable.render(pGuiGraphics, pMouseX, pMouseY, pPartialTick);
+        }
     }
 
     private void onValueChange(Specialization pSpecialization) {
         NetworkHandler.sendToServer(new RequestSpecializationsScreenC2SPacket(pSpecialization));
     }
 
-    private void onSpecializationTooltip(PoseStack pPoseStack, int pMouseX, int pMouseY) {
-        this.renderComponentTooltip(pPoseStack, SpecializationUtil.getTooltip(this.specialization, this.isUnlocked, this.canUnlock), pMouseX, pMouseY);
+    private void onSpecializationTooltip(GuiGraphics pGuiGraphics, Font pFont, int pMouseX, int pMouseY) {
+        pGuiGraphics.renderComponentTooltip(pFont, SpecializationUtil.getTooltip(this.specialization, this.isUnlocked, this.canUnlock), pMouseX, pMouseY);
     }
 
     private void onUnlock(Button pButton) {
@@ -138,11 +141,11 @@ public class SpecializationsScreen extends Screen {
         NetworkHandler.sendToServer(new RequestSpecializationsScreenC2SPacket(this.specialization));
     }
 
-    private void onSkillTooltip(SkillButton pButton, PoseStack pPoseStack, int pMouseX, int pMouseY) {
+    private void onSkillTooltip(SkillButton pButton, GuiGraphics pGuiGraphics, Font pFont, int pMouseX, int pMouseY) {
         Skill skill = pButton.getSkill();
         int currentLevel = this.capability.getLevel(this.localPlayer, skill);
         boolean canIncrease = PlayerUtil.canIncreaseSkill(this.localPlayer, skill, skill.isMaxLevel(currentLevel), this.availableExperience, currentLevel);
         boolean hasUnlocked = SkillUtil.hasUnlocked(this.capability, this.localPlayer, skill);
-        this.renderComponentTooltip(pPoseStack, SkillUtil.getTooltip(skill, hasUnlocked, currentLevel, canIncrease), pMouseX, pMouseY);
+        pGuiGraphics.renderComponentTooltip(pFont, SkillUtil.getTooltip(skill, hasUnlocked, currentLevel, canIncrease), pMouseX, pMouseY);
     }
 }

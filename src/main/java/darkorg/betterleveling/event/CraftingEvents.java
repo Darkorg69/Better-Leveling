@@ -69,7 +69,7 @@ public class CraftingEvents {
                     if (SkillUtil.hasUnlocked(capability, serverPlayer, skill)) {
                         int currentLevel = capability.getLevel(serverPlayer, skill);
                         if (currentLevel > 0) {
-                            ServerLevel serverLevel = serverPlayer.getLevel();
+                            ServerLevel serverLevel = serverPlayer.serverLevel();
                             if (serverLevel.random.nextDouble() <= skill.getCurrentBonus(currentLevel)) {
                                 BlockPos.betweenClosedStream(serverPlayer.getBoundingBox().inflate(16, 16, 16)).forEach(pos -> {
                                     BlockState state = serverLevel.getBlockState(pos);
@@ -91,7 +91,7 @@ public class CraftingEvents {
         if (player instanceof ServerPlayer serverPlayer) {
             if (!serverPlayer.isCreative()) {
                 BlockPos pos = event.getPos();
-                ServerLevel serverLevel = serverPlayer.getLevel();
+                ServerLevel serverLevel = serverPlayer.serverLevel();
                 if (StateUtil.isBonemealablePlant(pos, serverLevel)) {
                     BlockState state = event.getState();
                     if (StateUtil.isMaxAgeBonemealableBlock(pos, serverLevel, (BonemealableBlock) state.getBlock())) {

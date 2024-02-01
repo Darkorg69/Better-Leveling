@@ -12,10 +12,8 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.event.network.CustomPayloadEvent;
 import net.minecraftforge.fml.DistExecutor;
-import net.minecraftforge.network.NetworkEvent;
-
-import java.util.function.Supplier;
 
 public class RefreshSkillScreenS2CPacket {
     private final CompoundTag data;
@@ -33,12 +31,11 @@ public class RefreshSkillScreenS2CPacket {
         pBuf.writeNbt(pPacket.data);
     }
 
-    public static void handle(RefreshSkillScreenS2CPacket pPacket, Supplier<NetworkEvent.Context> pSupplier) {
-        NetworkEvent.Context context = pSupplier.get();
+    public static void handle(RefreshSkillScreenS2CPacket pPacket, CustomPayloadEvent.Context pContext) {
         // HERE WE ARE ON THE CLIENT!
-        context.enqueueWork(() -> DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> handleOnClient(pPacket)));
+        pContext.enqueueWork(() -> DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> handleOnClient(pPacket)));
 
-        context.setPacketHandled(true);
+        pContext.setPacketHandled(true);
     }
 
     @OnlyIn(Dist.CLIENT)

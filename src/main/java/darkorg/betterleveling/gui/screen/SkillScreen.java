@@ -1,6 +1,5 @@
 package darkorg.betterleveling.gui.screen;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import darkorg.betterleveling.capability.PlayerCapabilityProvider;
 import darkorg.betterleveling.impl.skill.Skill;
 import darkorg.betterleveling.key.KeyMappings;
@@ -13,7 +12,9 @@ import darkorg.betterleveling.network.packets.specialization.RequestSpecializati
 import darkorg.betterleveling.util.PlayerUtil;
 import darkorg.betterleveling.util.RenderUtil;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.screens.ConfirmScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.player.LocalPlayer;
@@ -98,25 +99,26 @@ public class SkillScreen extends Screen {
     }
 
     @Override
-    public void render(@NotNull PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
-        this.renderBackground(pPoseStack);
+    public void render(@NotNull GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
+        this.renderBackground(pGuiGraphics, pMouseX, pMouseY, pPartialTick);
 
-        RenderUtil.setShaderTexture();
-        blit(pPoseStack, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight);
+        pGuiGraphics.blit(RenderUtil.BACKGROUND, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight);
 
-        drawCenteredString(pPoseStack, this.font, this.translation, this.width / 2, this.topPos + 12, 16777215);
-        drawCenteredString(pPoseStack, this.font, this.description, this.width / 2, this.topPos + 24, 16777045);
-        drawCenteredString(pPoseStack, this.font, this.bonusPerLevel, this.width / 2, this.topPos + 36, 5592575);
-        drawCenteredString(pPoseStack, this.font, this.availableXP, this.width / 2, this.topPos + 48, 16777215);
+        pGuiGraphics.drawCenteredString(this.font, this.translation, this.width / 2, this.topPos + 12, 16777215);
+        pGuiGraphics.drawCenteredString(this.font, this.description, this.width / 2, this.topPos + 24, 16777045);
+        pGuiGraphics.drawCenteredString(this.font, this.bonusPerLevel, this.width / 2, this.topPos + 36, 5592575);
+        pGuiGraphics.drawCenteredString(this.font, this.availableXP, this.width / 2, this.topPos + 48, 16777215);
 
         if (this.isMaxLevel) {
-            drawCenteredString(pPoseStack, this.font, ModComponents.MAX_LEVEL, this.width / 2, this.topPos + 70, 16733525);
+            pGuiGraphics.drawCenteredString(this.font, ModComponents.MAX_LEVEL, this.width / 2, this.topPos + 70, 16733525);
         } else {
-            drawCenteredString(pPoseStack, this.font, this.skillCost, this.width / 2, this.topPos + 70, this.canIncrease ? 5635925 : 16733525);
-            drawCenteredString(pPoseStack, this.font, this.currentLevel, this.width / 2, this.topPos + 82, 16777215);
+            pGuiGraphics.drawCenteredString(this.font, this.skillCost, this.width / 2, this.topPos + 70, this.canIncrease ? 5635925 : 16733525);
+            pGuiGraphics.drawCenteredString(this.font, this.currentLevel, this.width / 2, this.topPos + 82, 16777215);
         }
 
-        super.render(pPoseStack, pMouseX, pMouseY, pPartialTick);
+        for (Renderable renderable : this.renderables) {
+            renderable.render(pGuiGraphics, pMouseX, pMouseY, pPartialTick);
+        }
     }
 
     private void onIncrease(Button button) {

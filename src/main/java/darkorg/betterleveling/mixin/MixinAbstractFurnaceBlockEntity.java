@@ -7,7 +7,6 @@ import darkorg.betterleveling.registry.Skills;
 import darkorg.betterleveling.util.SkillUtil;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.item.crafting.AbstractCookingRecipe;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.AbstractFurnaceBlockEntity;
 import org.spongepowered.asm.mixin.Mixin;
@@ -27,7 +26,7 @@ abstract class MixinAbstractFurnaceBlockEntity {
                         if (SkillUtil.hasUnlocked(playerCapability, serverPlayer, skill)) {
                             int currentLevel = playerCapability.getLevel(serverPlayer, skill);
                             if (currentLevel > 0) {
-                                int originalCookTime = pAbstractFurnaceBlockEntity.quickCheck.getRecipeFor(pAbstractFurnaceBlockEntity, serverLevel).map(AbstractCookingRecipe::getCookingTime).orElse(200);
+                                int originalCookTime = pAbstractFurnaceBlockEntity.quickCheck.getRecipeFor(pAbstractFurnaceBlockEntity, pLevel).map((pRecipeHolder) -> pRecipeHolder.value().getCookingTime()).orElse(200);
                                 double currentBonus = 1.0D - skill.getCurrentBonus(currentLevel);
                                 int modifiedCookTime = Math.toIntExact(Math.round(originalCookTime * currentBonus));
                                 pCallbackInfoReturnable.setReturnValue(Math.max(1, modifiedCookTime));

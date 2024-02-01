@@ -6,9 +6,7 @@ import darkorg.betterleveling.registry.Skills;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraftforge.network.NetworkEvent;
-
-import java.util.function.Supplier;
+import net.minecraftforge.event.network.CustomPayloadEvent;
 
 public class IncreaseSkillC2SPacket {
     private final CompoundTag data;
@@ -26,11 +24,10 @@ public class IncreaseSkillC2SPacket {
         pBuf.writeNbt(pPacket.data);
     }
 
-    public static void handle(IncreaseSkillC2SPacket pPacket, Supplier<NetworkEvent.Context> pSupplier) {
-        NetworkEvent.Context context = pSupplier.get();
-        context.enqueueWork(() -> {
+    public static void handle(IncreaseSkillC2SPacket pPacket, CustomPayloadEvent.Context pContext) {
+        pContext.enqueueWork(() -> {
             // HERE WE ARE ON THE SERVER!
-            ServerPlayer serverPlayer = context.getSender();
+            ServerPlayer serverPlayer = pContext.getSender();
             if (serverPlayer != null) {
                 serverPlayer.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(capability -> {
                     Skill skill = Skills.getFrom(pPacket.data.getString("Name"));
@@ -41,6 +38,6 @@ public class IncreaseSkillC2SPacket {
                 });
             }
         });
-        context.setPacketHandled(true);
+        pContext.setPacketHandled(true);
     }
 }

@@ -4,11 +4,12 @@ import darkorg.betterleveling.BetterLeveling;
 import darkorg.betterleveling.key.KeyMappings;
 import darkorg.betterleveling.registry.ModBlocks;
 import darkorg.betterleveling.registry.ModItems;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
-import net.minecraftforge.event.CreativeModeTabEvent;
+import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
@@ -20,11 +21,12 @@ public class ClientModEvents {
     }
 
     @SubscribeEvent
-    public static void onCreativeModeTabs(CreativeModeTabEvent.BuildContents event) {
-        CreativeModeTab tab = event.getTab();
-        if (tab == CreativeModeTabs.BUILDING_BLOCKS) {
+    public static void onCreativeModeTabs(BuildCreativeModeTabContentsEvent event) {
+        ResourceKey<CreativeModeTab> tabKey = event.getTabKey();
+
+        if (tabKey == CreativeModeTabs.BUILDING_BLOCKS) {
             event.accept(ModBlocks.RAW_DEBRIS_BLOCK);
-        } else if (tab == CreativeModeTabs.INGREDIENTS) {
+        } else if (tabKey == CreativeModeTabs.INGREDIENTS) {
             event.accept(ModItems.RAW_DEBRIS);
         }
     }

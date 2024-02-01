@@ -22,6 +22,6 @@ public class StateUtil {
     }
 
     public static boolean isMaxAgeBonemealableBlock(BlockPos pPos, ServerLevel pServerLevel, BonemealableBlock pBonemealableBlock) {
-        return !pBonemealableBlock.isValidBonemealTarget(pServerLevel, pPos, pServerLevel.getBlockState(pPos), pServerLevel.isClientSide);
+        return !pBonemealableBlock.isValidBonemealTarget(pServerLevel, pPos, pServerLevel.getBlockState(pPos));
     }
 }

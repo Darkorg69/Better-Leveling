@@ -74,7 +74,7 @@ public class ForgeEvents {
     public static void onEntityJoinLevel(EntityJoinLevelEvent event) {
         Entity entity = event.getEntity();
         if (entity instanceof ServerPlayer serverPlayer) {
-            if (!serverPlayer.level.isClientSide) {
+            if (!serverPlayer.level().isClientSide) {
                 serverPlayer.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(capability -> capability.sendDataToPlayer(serverPlayer));
             }
         }

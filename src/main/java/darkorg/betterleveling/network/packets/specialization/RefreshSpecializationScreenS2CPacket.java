@@ -9,10 +9,8 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.event.network.CustomPayloadEvent;
 import net.minecraftforge.fml.DistExecutor;
-import net.minecraftforge.network.NetworkEvent;
-
-import java.util.function.Supplier;
 
 public class RefreshSpecializationScreenS2CPacket {
     public RefreshSpecializationScreenS2CPacket() {
@@ -27,12 +25,11 @@ public class RefreshSpecializationScreenS2CPacket {
 
     }
 
-    public static void handle(RefreshSpecializationScreenS2CPacket pPacket, Supplier<NetworkEvent.Context> pSupplier) {
-        NetworkEvent.Context context = pSupplier.get();
+    public static void handle(RefreshSpecializationScreenS2CPacket pPacket, CustomPayloadEvent.Context pContext) {
         // HERE WE ARE ON THE CLIENT!
-        context.enqueueWork(() -> DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> RefreshSpecializationScreenS2CPacket::handleOnClient));
+        pContext.enqueueWork(() -> DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> RefreshSpecializationScreenS2CPacket::handleOnClient));
 
-        context.setPacketHandled(true);
+        pContext.setPacketHandled(true);
     }
 
     @OnlyIn(Dist.CLIENT)

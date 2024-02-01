@@ -3,13 +3,10 @@ package darkorg.betterleveling.data.client;
 import darkorg.betterleveling.BetterLeveling;
 import darkorg.betterleveling.registry.ModBlocks;
 import net.minecraft.data.PackOutput;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
 import net.minecraftforge.client.model.generators.BlockStateProvider;
 import net.minecraftforge.common.data.ExistingFileHelper;
 import net.minecraftforge.registries.ForgeRegistries;
-
-import java.util.Objects;
 
 public class ModBlockStateProvider extends BlockStateProvider {
     public ModBlockStateProvider(PackOutput pPackOutput, ExistingFileHelper pExistingFileHelper) {

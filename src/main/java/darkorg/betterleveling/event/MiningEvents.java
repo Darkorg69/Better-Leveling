@@ -21,7 +21,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.material.Material;
+import net.minecraft.world.level.material.MapColor;
 import net.minecraftforge.common.Tags;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.living.LivingFallEvent;
@@ -55,7 +55,7 @@ public class MiningEvents {
     @SubscribeEvent
     public static void onStonecutting(PlayerEvent.BreakSpeed event) {
         Player player = event.getEntity();
-        if (player != null && event.getState().getMaterial() == Material.STONE) {
+        if (player != null && event.getState().getMapColor(player.level(), event.getPosition().orElseThrow()) == MapColor.STONE) {
             player.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(capability -> {
                 Skill skill = Skills.STONECUTTING.get();
                 if (SkillUtil.hasUnlocked(capability, player, skill)) {
@@ -79,7 +79,7 @@ public class MiningEvents {
                     serverPlayer.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(capability -> {
                         Skill skill = Skills.PROSPECTING.get();
                         if (SkillUtil.hasUnlocked(capability, serverPlayer, skill)) {
-                            ServerLevel serverLevel = serverPlayer.getLevel();
+                            ServerLevel serverLevel = serverPlayer.serverLevel();
                             int currentLevel = capability.getLevel(serverPlayer, skill);
                             if (currentLevel > 0) {
                                 Random random = new Random();
@@ -107,8 +107,8 @@ public class MiningEvents {
     public static void onWoodcutting(PlayerEvent.BreakSpeed event) {
         Player player = event.getEntity();
         if (player != null) {
-            Material material = event.getState().getMaterial();
-            if (material == Material.WOOD || material == Material.NETHER_WOOD) {
+            MapColor mapColor = event.getState().getMapColor(player.level(), event.getPosition().orElseThrow());
+            if (mapColor == MapColor.WOOD) {
                 player.getCapability(PlayerCapabilityProvider.PLAYER_CAP).ifPresent(capability -> {
                     Skill skill = Skills.WOODCUTTING.get();
                     if (SkillUtil.hasUnlocked(capability, player, skill)) {
@@ -137,7 +137,7 @@ public class MiningEvents {
                             Random random = new Random();
                             if (random.nextDouble() < skill.getCurrentBonus(currentLevel)) {
                                 BlockPos pos = event.getPos();
-                                ServerLevel serverLevel = serverPlayer.getLevel();
+                                ServerLevel serverLevel = serverPlayer.serverLevel();
                                 int rare = ModConfig.SKILLS.treasureHuntingRareWeight.get();
                                 int uncommon = ModConfig.SKILLS.treasureHuntingUncommonWeight.get();
                                 int common = ModConfig.SKILLS.treasureHuntingCommonWeight.get();

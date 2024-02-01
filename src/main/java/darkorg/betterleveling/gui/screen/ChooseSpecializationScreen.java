@@ -1,7 +1,6 @@
 package darkorg.betterleveling.gui.screen;
 
 import com.google.common.collect.ImmutableList;
-import com.mojang.blaze3d.vertex.PoseStack;
 import darkorg.betterleveling.gui.widget.button.ChooseSpecializationButton;
 import darkorg.betterleveling.impl.specialization.Specialization;
 import darkorg.betterleveling.network.NetworkHandler;
@@ -11,7 +10,9 @@ import darkorg.betterleveling.network.packets.specialization.UnlockSpecializatio
 import darkorg.betterleveling.registry.Specializations;
 import darkorg.betterleveling.util.RenderUtil;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.screens.ConfirmScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraftforge.api.distmarker.Dist;
@@ -47,12 +48,15 @@ public class ChooseSpecializationScreen extends Screen {
     }
 
     @Override
-    public void render(@NotNull PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
-        this.renderBackground(pPoseStack);
-        drawCenteredString(pPoseStack, this.font, this.title, this.width / 2, this.topPos - 10, 16777215);
-        RenderUtil.setShaderTexture();
-        blit(pPoseStack, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight);
-        super.render(pPoseStack, pMouseX, pMouseY, pPartialTick);
+    public void render(@NotNull GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
+        this.renderBackground(pGuiGraphics, pMouseX, pMouseY, pPartialTick);
+
+        pGuiGraphics.drawCenteredString(this.font, this.title, this.width / 2, this.topPos - 10, 16777215);
+        pGuiGraphics.blit(RenderUtil.BACKGROUND, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight);
+
+        for (Renderable renderable : this.renderables) {
+            renderable.render(pGuiGraphics, pMouseX, pMouseY, pPartialTick);
+        }
     }
 
     private void onValueChange(Specialization pSpecialization) {

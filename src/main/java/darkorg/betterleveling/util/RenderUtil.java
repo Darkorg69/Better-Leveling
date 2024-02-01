@@ -1,37 +1,21 @@
 package darkorg.betterleveling.util;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import darkorg.betterleveling.BetterLeveling;
 import darkorg.betterleveling.config.ModConfig;
 import darkorg.betterleveling.impl.skill.Skill;
 import darkorg.betterleveling.network.chat.ModComponents;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.client.ForgeHooksClient;
 
 public class RenderUtil {
-    private static final ResourceLocation BACKGROUND = new ResourceLocation(BetterLeveling.MOD_ID, "textures/gui/background.png");
-
-    public static void setShaderTexture() {
-        RenderSystem.setShader(GameRenderer::getPositionTexShader);
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-        RenderSystem.setShaderTexture(0, BACKGROUND);
-    }
-
-    public static void setShaderTextureButton() {
-        setShaderTexture();
-        RenderSystem.enableBlend();
-        RenderSystem.defaultBlendFunc();
-        RenderSystem.enableDepthTest();
-    }
+    public static final ResourceLocation BACKGROUND = new ResourceLocation(BetterLeveling.MOD_ID, "textures/gui/background.png");
 
     public static void updateScreen(Screen pGuiScreen) {
         Minecraft minecraft = Minecraft.getInstance();
-        minecraft.clearLevel();
         ForgeHooksClient.clearGuiLayers(minecraft);
         Screen old = minecraft.screen;
         if (old != null && pGuiScreen != old) {
@@ -40,7 +24,6 @@ public class RenderUtil {
         minecraft.screen = pGuiScreen;
         pGuiScreen.init(minecraft, minecraft.getWindow().getGuiScaledWidth(), minecraft.getWindow().getGuiScaledHeight());
         minecraft.noRender = false;
-        //NarratorChatListener.INSTANCE.sayNow(pGuiScreen.getNarrationMessage());
         minecraft.updateTitle();
     }
 

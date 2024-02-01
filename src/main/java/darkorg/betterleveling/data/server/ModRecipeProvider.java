@@ -10,19 +10,17 @@ import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraftforge.common.crafting.conditions.IConditionBuilder;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.function.Consumer;
-
 public class ModRecipeProvider extends RecipeProvider implements IConditionBuilder {
     public ModRecipeProvider(PackOutput pPackOutput) {
         super(pPackOutput);
     }
 
     @Override
-    protected void buildRecipes(@NotNull Consumer<FinishedRecipe> pFinishedRecipeConsumer) {
+    protected void buildRecipes(@NotNull RecipeOutput pRecipeOutput) {
         ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ModItems.RAW_DEBRIS.get(), 9)
                 .requires(ModBlocks.RAW_DEBRIS_BLOCK.get())
                 .unlockedBy("has_raw_debris_block", has(ModBlocks.RAW_DEBRIS_BLOCK.get()))
-                .save(pFinishedRecipeConsumer);
+                .save(pRecipeOutput);
 
         ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, ModBlocks.RAW_DEBRIS_BLOCK.get())
                 .define('#', ModItems.RAW_DEBRIS.get())
@@ -30,15 +28,15 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 .pattern("###")
                 .pattern("###")
                 .unlockedBy("has_raw_debris", has(ModItems.RAW_DEBRIS.get()))
-                .save(pFinishedRecipeConsumer);
+                .save(pRecipeOutput);
 
         SimpleCookingRecipeBuilder.smelting(Ingredient.of(ModItems.RAW_DEBRIS.get()), RecipeCategory.MISC, Items.NETHERITE_SCRAP, 2.0F, 200)
                 .unlockedBy("has_raw_debris", has(ModItems.RAW_DEBRIS.get()))
-                .save(pFinishedRecipeConsumer, getSmeltingRecipeName(ModItems.RAW_DEBRIS.get(), Items.NETHERITE_SCRAP));
+                .save(pRecipeOutput, getSmeltingRecipeName(ModItems.RAW_DEBRIS.get(), Items.NETHERITE_SCRAP));
 
         SimpleCookingRecipeBuilder.blasting(Ingredient.of(ModItems.RAW_DEBRIS.get()), RecipeCategory.MISC, Items.NETHERITE_SCRAP, 2.0F, 100)
                 .unlockedBy("has_raw_debris", has(ModItems.RAW_DEBRIS.get()))
-                .save(pFinishedRecipeConsumer, getBlastingRecipeName(ModItems.RAW_DEBRIS.get(), Items.NETHERITE_SCRAP));
+                .save(pRecipeOutput, getBlastingRecipeName(ModItems.RAW_DEBRIS.get(), Items.NETHERITE_SCRAP));
     }
 
     private String getSmeltingRecipeName(Item pIngredient, Item pResult) {
