@@ -31,7 +31,6 @@ public class RenderUtil {
 
     public static void updateScreen(Screen pGuiScreen) {
         Minecraft minecraft = Minecraft.getInstance();
-        minecraft.clearLevel();
         ForgeHooksClient.clearGuiLayers(minecraft);
         Screen old = minecraft.screen;
         if (old != null && pGuiScreen != old) {
@@ -40,7 +39,6 @@ public class RenderUtil {
         minecraft.screen = pGuiScreen;
         pGuiScreen.init(minecraft, minecraft.getWindow().getGuiScaledWidth(), minecraft.getWindow().getGuiScaledHeight());
         minecraft.noRender = false;
-        //NarratorChatListener.INSTANCE.sayNow(pGuiScreen.getNarrationMessage());
         minecraft.updateTitle();
     }
 
